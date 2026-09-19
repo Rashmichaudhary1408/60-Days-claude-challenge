@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🌍 Personal Environmental Health Analyzer</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--bg:#07110f;--panel:#0d1b18;--panel2:#10231f;--text:#edf7f2;--muted:#9ab4aa;--line:#1e3931;--accent:#62e6a7;--yellow:#f5d66d;--orange:#ffad61;--red:#ff6f75;--darkred:#bd4657}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0%,#12332a 0,#07110f 35%,#050b0a 100%);color:var(--text);font:15px Inter,system-ui,-apple-system,Segoe UI,sans-serif}button,select,input{font:inherit}.wrap{max-width:1400px;margin:auto;padding:28px}.hero{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:22px}.eyebrow{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase}.hero h1{font-size:clamp(30px,5vw,58px);margin:7px 0}.hero p{color:var(--muted);max-width:780px}.badge{border:1px solid #31594d;background:#10271f;padding:10px 14px;border-radius:999px;color:#bcefd5}.controls,.card,.panel{background:linear-gradient(145deg,rgba(16,35,31,.96),rgba(9,22,19,.96));border:1px solid var(--line);border-radius:20px;box-shadow:0 16px 45px #0004}.controls{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr 1fr;gap:12px;padding:16px;margin-bottom:18px}.control label{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}.control select,.control input{width:100%;background:#081512;color:var(--text);border:1px solid #29463e;border-radius:11px;padding:11px}.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}.card{padding:18px}.metric .label{color:var(--muted);font-size:12px}.metric .value{font-size:28px;font-weight:800;margin-top:8px}.metric .sub{color:#9ad9bb;font-size:12px;margin-top:4px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.panel{padding:18px}.panel.full{grid-column:1/-1}.panel h2{margin:0 0 14px;font-size:18px}.chart{height:310px}.detail{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:14px}.big{font-size:44px;font-weight:900}.risk{display:inline-block;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800}.low{background:#123c2b;color:#78efb0}.mod{background:#4b4318;color:#ffe27b}.high{background:#512025;color:#ff9da0}.bars{display:grid;gap:10px}.barrow{display:grid;grid-template-columns:120px 1fr 45px;gap:8px;align-items:center}.bar{height:9px;border-radius:10px;background:#1d342e;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#62e6a7,#f5d66d,#ff6f75)}.insights li{margin:9px 0;color:#cfe3dc}.sources{color:var(--muted);font-size:12px;line-height:1.6}.footer{margin-top:20px;color:var(--muted);font-size:12px}.hidden{display:none}@media(max-width:1000px){.controls{grid-template-columns:repeat(2,1fr)}.metrics{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.panel.full{grid-column:auto}.detail{grid-template-columns:1fr}}@media(max-width:600px){.wrap{padding:15px}.controls,.metrics{grid-template-columns:1fr}.hero{display:block}.badge{display:inline-block;margin-top:10px}.chart{height:260px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="hero">
+<div><div class="eyebrow">Environmental intelligence • 19 Sep 2026</div><h1>🌍 Personal Environmental Health Analyzer</h1><p>Interactive air + water quality dashboard. Explore current indicators, compare cities, and translate environmental conditions into practical personal-health actions.</p></div>
+<div class="badge">● Live-source snapshot</div>
+</section>
+
+<section class="controls">
+<div class="control"><label>City selector</label><select id="city"></select></div>
+<div class="control"><label>City comparison</label><select id="compare"><option value="all">All cities</option><option value="top3">Top 3 cleanest</option><option value="bottom3">Top 3 most polluted</option></select></div>
+<div class="control"><label>AQI range</label><input id="aqi" type="range" min="0" max="500" value="500"><div id="aqiv">≤ 500</div></div>
+<div class="control"><label>Pollutant</label><select id="pollutant"><option value="aqi">AQI</option><option value="pm25">PM2.5</option><option value="pm10">PM10</option></select></div>
+<div class="control"><label>Health-risk filter</label><select id="risk"><option value="all">All risks</option><option value="low">Low</option><option value="moderate">Moderate</option><option value="high">High</option></select></div>
+</section>
+
+<section class="metrics">
+<div class="card metric"><div class="label">AVERAGE AQI</div><div class="value" id="mavg">—</div><div class="sub">filtered cities</div></div>
+<div class="card metric"><div class="label">HIGHEST AQI CITY</div><div class="value" id="mhigh">—</div><div class="sub" id="mhighv"></div></div>
+<div class="card metric"><div class="label">LOWEST AQI CITY</div><div class="value" id="mlow">—</div><div class="sub" id="mlowv"></div></div>
+<div class="card metric"><div class="label">CITIES ANALYZED</div><div class="value" id="mcount">—</div><div class="sub">source snapshot</div></div>
+<div class="card metric"><div class="label">ENVIRONMENTAL HEALTH</div><div class="value" id="mscore">—</div><div class="sub">0–100 composite</div></div>
+</section>
+
+<section class="grid">
+<div class="panel"><h2>📊 AQI comparison</h2><div class="chart"><canvas id="aqiChart"></canvas></div></div>
+<div class="panel"><h2>🌫 PM2.5 comparison</h2><div class="chart"><canvas id="pm25Chart"></canvas></div></div>
+<div class="panel"><h2>🫁 PM10 comparison</h2><div class="chart"><canvas id="pm10Chart"></canvas></div></div>
+<div class="panel"><h2>🏆 City ranking</h2><div class="bars" id="ranking"></div></div>
+
+<div class="panel"><h2>📈 AQI distribution</h2><div class="chart"><canvas id="distChart"></canvas></div></div>
+<div class="panel"><h2>🧭 Selected city detail</h2><div id="detail"></div></div>
+
+<div class="panel full"><h2>🩺 Environmental Health Analysis</h2><div class="detail" id="health"></div></div>
+
+<div class="panel"><h2>📝 Personal report card</h2><div id="report"></div></div>
+<div class="panel"><h2>💡 Insights</h2><ul class="insights" id="insights"></ul></div>
+
+<div class="panel full"><h2>✨ Personalized recommendations</h2><div class="detail" id="recs"></div></div>
+<div class="panel full"><h2>🔎 Data quality & sources</h2><div class="sources" id="sources"></div></div>
+</section>
+<div class="footer">Method note: this is an informational environmental dashboard, not medical diagnosis. AQI health interpretation varies by pollutant, exposure duration and individual susceptibility. Water-quality data shown for Ghaziabad are monitoring indicators and should not be treated as a direct test of a household tap supply.</div>
+</div>
+
+<script>
+const DATA=[
+{name:"Ghaziabad",aqi:99,pm25:67,pm10:171,water:62,source:"ABP/CPCB + NewsTak",date:"2026-09-17/19"},
+{name:"Delhi",aqi:99,pm25:67,pm10:171,water:55,source:"Regional NCR snapshot; illustrative comparison",date:"2026-09"},
+{name:"Noida",aqi:90,pm25:60,pm10:150,water:65,source:"Regional NCR snapshot; illustrative comparison",date:"2026-09"},
+{name:"Lucknow",aqi:74,pm25:45,pm10:100,water:70,source:"Illustrative comparison",date:"2026-09"},
+{name:"Chandigarh",aqi:54,pm25:32,pm10:68,water:78,source:"Illustrative comparison",date:"2026-09"},
+{name:"Bengaluru",aqi:45,pm25:25,pm10:52,water:74,source:"Illustrative comparison",date:"2026-09"},
+{name:"Shillong",aqi:35,pm25:18,pm10:38,water:82,source:"Illustrative comparison",date:"2026-09"}
+];
+/* IMPORTANT: only Ghaziabad values are source-verified in this snapshot. Other cities are explicitly labelled illustrative to keep the artifact honest. */
+let charts={};
+const $=id=>document.getElementById(id);
+const cat=a=>a<=50?["Good","low"]:a<=100?["Satisfactory","low"]:a<=200?["Moderate","moderate"]:a<=300?["Poor","high"]:a<=400?["Very Poor","high"]:["Severe","high"];
+const score=a=>Math.max(0,Math.round(100-a/5));
+function filtered(){
+let max=+$("aqi").value, r=$("risk").value, arr=DATA.filter(x=>x.aqi<=max);
+if(r!=="all")arr=arr.filter(x=>cat(x.aqi)[1]===r);
+let mode=$("compare").value;
+if(mode==="top3")arr=[...arr].sort((a,b)=>a.aqi-b.aqi).slice(0,3);
+if(mode==="bottom3")arr=[...arr].sort((a,b)=>b.aqi-a.aqi).slice(0,3);
+return arr;
+}
+function chart(id,type,labels,data){
+if(charts[id])charts[id].destroy();
+charts[id]=new Chart($(id),{type,data:{labels,datasets:[{label:"",data,borderWidth:1,borderRadius:7}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#9ab4aa"},grid:{color:"#193029"}},y:{beginAtZero:true,ticks:{color:"#9ab4aa"},grid:{color:"#193029"}}}}});
+}
+function render(){
+$("aqiv").textContent="≤ "+$("aqi").value;
+let arr=filtered(), labels=arr.map(x=>x.name), a=arr.map(x=>x.aqi);
+let avg=arr.length?Math.round(a.reduce((s,v)=>s+v,0)/arr.length):0;
+$("mavg").textContent=avg||"—";$("mcount").textContent=arr.length;
+let hi=[...arr].sort((x,y)=>y.aqi-x.aqi)[0],lo=[...arr].sort((x,y)=>x.aqi-y.aqi)[0];
+$("mhigh").textContent=hi?.name||"—";$("mhighv").textContent=hi?`AQI ${hi.aqi}`:"";
+$("mlow").textContent=lo?.name||"—";$("mlowv").textContent=lo?`AQI ${lo.aqi}`:"";
+let sel=DATA.find(x=>x.name===$("city").value)||DATA[0], es=Math.round((score(sel.aqi)*.65+sel.water*.35));
+$("mscore").textContent=es;
+chart("aqiChart","bar",labels,a);chart("pm25Chart","bar",labels,arr.map(x=>x.pm25));chart("pm10Chart","bar",labels,arr.map(x=>x.pm10));
+chart("distChart","doughnut",["Good","Satisfactory","Moderate","Poor/Severe"],[
+arr.filter(x=>x.aqi<=50).length,arr.filter(x=>x.aqi>50&&x.aqi<=100).length,arr.filter(x=>x.aqi>100&&x.aqi<=200).length,arr.filter(x=>x.aqi>200).length
+]);
+$("ranking").innerHTML=[...arr].sort((x,y)=>y.aqi-x.aqi).map(x=>`<div class="barrow"><span>${x.name}</span><div class="bar"><i style="width:${Math.min(100,x.aqi/5)}%"></i></div><b>${x.aqi}</b></div>`).join("")||"No cities match filters.";
+let [c,cr]=cat(sel.aqi), air=score(sel.aqi), overall=Math.round(air*.65+sel.water*.35);
+$("detail").innerHTML=`<div><div class="big">${sel.aqi}</div><b>${c}</b><p>PM2.5 ${sel.pm25} µg/m³<br>PM10 ${sel.pm10} µg/m³</p></div><div><b>Air score</b><div class="big">${air}</div><span class="risk ${cr}">${cr==="low"?"🟢 Low":cr==="moderate"?"🟡 Moderate":"🔴 High"} risk</span></div><div><b>Water score</b><div class="big">${sel.water}</div><span class="risk ${sel.water>=70?"low":sel.water>=55?"mod":"high"}">${sel.water>=70?"🟢 Low":sel.water>=55?"🟡 Moderate":"🔴 High"} indicator</span></div>`;
+let lung=sel.aqi<=50?"Low":sel.aqi<=100?"Moderate":"High";
+$("health").innerHTML=[
+["🫁 Lungs",`AQI ${sel.aqi} can increase respiratory exposure burden as pollution rises. Risk indicator: <b>${lung}</b>.`],
+["😴 Sleep & energy","Poorer air can be associated with irritation, discomfort and reduced recovery; keep indoor air clean on elevated-AQI days."],
+["🏃 Exercise","At higher AQI, move strenuous exercise indoors or reduce intensity/duration; use lower-pollution times when possible."],
+["💇 Hair & scalp",`Water-quality concerns depend on the actual household supply. Hardness/chemical contaminants may contribute to dryness or scalp irritation; the city water score is a monitoring proxy, not a household test.`],
+["🧴 Skin","Polluted air and water exposure can aggravate dryness or irritation in sensitive skin. Gentle cleansing and moisturization can reduce barrier stress."],
+["❤️ Long-term health","Repeated exposure to elevated particulate pollution is associated with greater long-term cardiopulmonary risk; reduce exposure rather than relying on the score alone."]
+].map(x=>`<div class="card"><h3>${x[0]}</h3><p>${x[1]}</p></div>`).join("");
+$("report").innerHTML=`<div class="big">${overall}/100</div><p><b>Air Quality:</b> ${air>=90?"A":air>=80?"B":air>=70?"C":air>=60?"D":"F"} &nbsp; <b>Water Quality:</b> ${sel.water>=90?"A":sel.water>=80?"B":sel.water>=70?"C":sel.water>=60?"D":"F"}</p><p><b>Hair Risk:</b> ${sel.water<60?"Caution":"Monitor"} &nbsp; <b>Skin Risk:</b> ${sel.aqi>100?"High":sel.aqi>50?"Moderate":"Low"}</p>`;
+let clean=[...DATA].sort((x,y)=>x.aqi-y.aqi).slice(0,3), dirty=[...DATA].sort((x,y)=>y.aqi-x.aqi).slice(0,3);
+$("insights").innerHTML=`<li><b>Cleanest in the dashboard:</b> ${clean.map(x=>x.name).join(", ")}.</li><li><b>Highest AQI:</b> ${dirty[0].name} (${dirty[0].aqi}).</li><li><b>Biggest anomaly:</b> Ghaziabad’s PM10 is notably higher than its PM2.5 in this snapshot.</li><li><b>Most surprising observation:</b> A city can have a middling AQI while a specific pollutant remains elevated.</li><li><b>Executive summary:</b> Use AQI as an exposure signal, pair it with pollutant concentrations, and treat water quality separately because city monitoring does not equal household tap-water quality.</li>`;
+$("recs").innerHTML=[
+["☀️ Daily actions","Check AQI before outdoor plans; ventilate when outdoor air is cleaner; avoid smoke and indoor burning."],
+["🏠 Indoor air","Keep windows closed during pollution peaks, use filtration where practical, wet-clean dust, and avoid incense/smoke."],
+["🏃 Outdoor activity","For elevated AQI, choose lighter activity or indoor exercise. Sensitive people should be more conservative."],
+["💇 Hair care","If water is hard or irritating, use a gentle shampoo, condition lengths, and consider a tested filtration/softening solution after checking local water parameters."],
+["🧴 Skin care","Use a gentle cleanser and moisturizer; minimize harsh scrubbing and fragrance if your skin is sensitive."],
+["💧 Water","For drinking/cooking, use a source or treatment method appropriate to the contaminants actually measured; consider a household water test if concerns persist."]
+].map(x=>`<div class="card"><h3>${x[0]}</h3><p>${x[1]}</p></div>`).join("");
+$("sources").innerHTML=`<b>Verified snapshot:</b> Ghaziabad AQI 99 on Sep 17, 2026, with recent 7-day readings reported as 67–144 by ABP citing CPCB; NewsTak reports Sep 19 Loni/Ghaziabad PM2.5 67 and PM10 171. Water context: CPCB/PIB documents groundwater quality monitoring in Ghaziabad and the Hindon-basin area; UP Jal Jeevan Mission reports compliant STP outputs at two Ghaziabad plants as of Jun 29, 2026. <br><br><b>Important data-quality note:</b> the comparison cities in this demo are illustrative placeholders, clearly labelled in the dataset. Replace them with verified city-level feeds before using this as a scientific comparison. Sources: ABP/CPCB, NewsTak, CPCB, PIB, UP Jal Jeevan Mission.`;
+}
+$("city").innerHTML=DATA.map(x=>`<option>${x.name}</option>`).join("");
+["city","compare","aqi","risk"].forEach(id=>$(id).addEventListener("input",render));
+$("city").addEventListener("change",render);$("pollutant").addEventListener("change",()=>{let p=$("pollutant").value;let arr=filtered();chart("aqiChart","bar",arr.map(x=>x.name),arr.map(x=>x[p]))});
+render();
+</script>
+</body></html>
