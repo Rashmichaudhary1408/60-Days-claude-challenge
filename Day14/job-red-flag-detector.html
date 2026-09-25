@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Job Red Flag Detector</title>
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#12151c; --panel2:#161a23; --border:#232833;
+    --text:#e7e9ee; --muted:#8b93a5; --accent:#7c8cff; --accent2:#c084fc;
+    --red:#ef4a5f; --amber:#f5a524; --green:#2fd06f;
+    font-family: 'Inter', -apple-system, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{background:var(--bg);color:var(--text);margin:0;padding:0;min-height:100%;}
+  body{
+    padding: calc(24px + env(safe-area-inset-top,0px)) 20px calc(40px + env(safe-area-inset-bottom,0px));
+    font-size:14px;
+  }
+  .wrap{max-width:1080px;margin:0 auto;}
+  header{text-align:center;margin-bottom:28px;}
+  h1{font-size:30px;font-weight:700;margin:0 0 8px;letter-spacing:-0.02em;}
+  h1 span{color:var(--accent);}
+  header p{color:var(--muted);margin:0 auto;max-width:480px;line-height:1.5;}
+
+  .stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0 28px;}
+  .stat{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-size:13px;color:var(--muted);}
+  .stat b{color:var(--text);}
+
+  .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;}
+  .tab{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 16px;cursor:pointer;color:var(--muted);font-size:13px;display:flex;align-items:center;gap:7px;transition:border-color .15s, color .15s;}
+  .tab:hover{color:var(--text);}
+  .tab.active{color:var(--text);border-color:var(--accent);background:rgba(124,140,255,0.08);}
+  .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;}
+  .top-card{display:flex;gap:28px;flex-wrap:wrap;align-items:center;margin-bottom:18px;}
+
+  .gauge-box{display:flex;align-items:center;gap:20px;flex:1;min-width:260px;}
+  svg.gauge{flex-shrink:0;}
+  .company-name{font-size:20px;font-weight:700;margin:0 0 2px;}
+  .company-sub{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;}
+  .verdict-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:7px;font-size:12.5px;font-weight:600;}
+
+  .bars{flex:1.4;min-width:280px;display:flex;flex-direction:column;gap:11px;}
+  .bar-row{display:flex;align-items:center;gap:10px;}
+  .bar-label{width:82px;flex-shrink:0;color:var(--muted);font-size:12.5px;}
+  .bar-track{flex:1;height:7px;background:#1d222c;border-radius:5px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:5px;}
+  .bar-pct{width:36px;text-align:right;color:var(--muted);font-size:12px;flex-shrink:0;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr;} .top-card{flex-direction:column;align-items:stretch;}}
+
+  .section-title{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:14px;font-weight:600;}
+  .flag{padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--border);}
+  .flag:last-child{border:none;margin:0;padding:0;}
+  .flag-head{display:flex;align-items:center;gap:9px;margin-bottom:4px;}
+  .sev{font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;flex-shrink:0;}
+  .flag-title{font-weight:600;font-size:13.5px;}
+  .flag-desc{color:var(--muted);font-size:12.5px;line-height:1.5;margin-left:auto;margin-left:0;padding-left:0;}
+
+  .pos-item{display:flex;gap:9px;margin-bottom:12px;font-size:13px;line-height:1.5;}
+  .pos-item:last-child{margin-bottom:0;}
+  .pos-dot{color:var(--green);flex-shrink:0;margin-top:1px;}
+
+  .risk-table{width:100%;border-collapse:collapse;}
+  .risk-table td{padding:11px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .risk-table tr:last-child td{border:none;}
+  .risk-table td:last-child{text-align:right;}
+  .badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11.5px;font-weight:600;}
+
+  .q-item{display:flex;gap:11px;margin-bottom:14px;font-size:13px;line-height:1.55;}
+  .q-item:last-child{margin-bottom:0;}
+  .q-num{width:22px;height:22px;border-radius:6px;background:#1d222c;color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:34px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>AI Job <span>Red Flag</span> Detector</h1>
+    <p>Analyze opportunities before investing your time. Risk reports across companies, generated from the job description and company profile.</p>
+  </header>
+
+  <div class="stats" id="stats"></div>
+  <div class="tabs" id="tabs"></div>
+  <div id="content"></div>
+
+  <footer>Generated with Claude · Data reflects job description &amp; company info analyzed, not verified fact</footer>
+</div>
+
+<script>
+const DATA = [
+  {
+    name:"Microsoft",
+    role:"AI Engineer \u00b7 Moderate Risk",
+    score:41,
+    verdict:"Apply with Caution",
+    verdictColor:"var(--amber)",
+    bars:[
+      {label:"Requirements", pct:68, color:"var(--red)"},
+      {label:"Culture", pct:40, color:"var(--amber)"},
+      {label:"Remote", pct:25, color:"var(--green)"},
+      {label:"Hiring", pct:60, color:"var(--amber)"},
+      {label:"Stability", pct:18, color:"var(--green)"}
+    ],
+    flags:[
+      {sev:6,title:"Stack ranking pressure",desc:"Performance review cycles (Connects) create internal competition that can affect collaboration and morale."},
+      {sev:6,title:"Layoff history",desc:"Recurring rounds of org-wide layoffs in recent years, including within AI divisions, despite strong revenue."},
+      {sev:5,title:"Slow-moving bureaucracy",desc:"Multiple approval layers reported for shipping features, especially in larger product orgs."},
+      {sev:4,title:"Vague team placement",desc:"Broad \u201cAI Engineer\u201d postings sometimes don't specify which product group you'll land in until after offer."}
+    ],
+    positives:[
+      "Strong, transparent leveling and salary bands (published via public sources and internal tools)",
+      "Excellent benefits, stability of core business, and strong hybrid/remote support for many roles",
+      "Significant AI investment (Copilot, Azure AI) means real long-term project runway",
+      "Well-established mentorship, learning resources, and internal mobility between teams"
+    ],
+    risk:[
+      {label:"Requirements", level:"High", color:"var(--red)"},
+      {label:"Culture", level:"Moderate", color:"var(--amber)"},
+      {label:"Remote authenticity", level:"Low", color:"var(--green)"},
+      {label:"Hiring process", level:"Moderate", color:"var(--amber)"},
+      {label:"Company stability", level:"Low", color:"var(--green)"}
+    ],
+    questions:[
+      "Which specific product group or org would I be joining, and is that decided before or after the offer?",
+      "How has this team been affected by recent company-wide layoffs?",
+      "How does the Connect performance review process actually affect ratings and promotion in this org?",
+      "What does the approval process look like for shipping a new feature end-to-end?",
+      "What percentage of the team works hybrid vs fully remote in practice, not just on paper?"
+    ]
+  },
+  {
+    name:"Google",
+    role:"AI Engineer \u00b7 Moderate Risk",
+    score:32,
+    verdict:"Apply with Caution",
+    verdictColor:"var(--amber)",
+    bars:[
+      {label:"Requirements", pct:75, color:"var(--red)"},
+      {label:"Culture", pct:48, color:"var(--amber)"},
+      {label:"Remote", pct:20, color:"var(--green)"},
+      {label:"Hiring", pct:78, color:"var(--red)"},
+      {label:"Stability", pct:15, color:"var(--green)"}
+    ],
+    flags:[
+      {sev:7,title:"Requirement inflation",desc:"Expects PhD or 8+ years for mid-level roles; MS + 5 yrs + publications is extremely common."},
+      {sev:6,title:"Brutal hiring loop",desc:"5\u20137 interview rounds over 3\u20134 months, with a high ghosting rate post-onsite."},
+      {sev:5,title:"Vague scope",desc:"\u201cWork on cutting-edge AI\u201d \u2014 no clear team charter or product boundary stated."},
+      {sev:5,title:"Internal politics",desc:"Large org; competing teams reduce visibility for new joiners."}
+    ],
+    positives:[
+      "World-class compute, data, and research infrastructure",
+      "Transparent salary bands on levels.fyi; strong equity upside",
+      "Genuine flexibility \u2014 many roles truly remote or hybrid",
+      "Strong publication culture; real foundational research possible"
+    ],
+    risk:[
+      {label:"Requirements", level:"High", color:"var(--red)"},
+      {label:"Culture", level:"Moderate", color:"var(--amber)"},
+      {label:"Remote authenticity", level:"Low", color:"var(--green)"},
+      {label:"Hiring process", level:"High", color:"var(--red)"},
+      {label:"Company stability", level:"Low", color:"var(--green)"}
+    ],
+    questions:[
+      "What does the first 90-day roadmap look like \u2014 is there a defined project or is scope still being shaped?",
+      "How does the team handle priority conflicts between research goals and product deadlines?",
+      "What percentage of engineers on this team have been here longer than two years?",
+      "Are publications and open-source contributions encouraged, or does IP policy limit them?",
+      "How is performance evaluated \u2014 research output, product impact, or a combination?"
+    ]
+  },
+  {
+    name:"OpenAI",
+    role:"ML Research Engineer \u00b7 Moderate Risk",
+    score:38,
+    verdict:"Apply with Caution",
+    verdictColor:"var(--amber)",
+    bars:[
+      {label:"Requirements", pct:80, color:"var(--red)"},
+      {label:"Culture", pct:65, color:"var(--amber)"},
+      {label:"Remote", pct:55, color:"var(--amber)"},
+      {label:"Hiring", pct:70, color:"var(--red)"},
+      {label:"Stability", pct:40, color:"var(--amber)"}
+    ],
+    flags:[
+      {sev:7,title:"Extreme pace expectations",desc:"Frequent references to shipping under compressed timelines during model release cycles."},
+      {sev:6,title:"High compensation opacity",desc:"Equity structure is complex (PPUs) and poorly explained to candidates before offer stage."},
+      {sev:6,title:"Onsite pressure despite \u2018flexible\u2019 claims",desc:"Remote-friendly language in postings, but strong cultural pull toward SF office presence."},
+      {sev:5,title:"Rapid org changes",desc:"Frequent team restructuring reported; new hires sometimes reassigned within months."}
+    ],
+    positives:[
+      "Access to frontier-scale compute and models",
+      "High-visibility, high-impact work at the center of the field",
+      "Strong compensation ceiling relative to market",
+      "Fast decision-making, less bureaucratic than larger peers"
+    ],
+    risk:[
+      {label:"Requirements", level:"High", color:"var(--red)"},
+      {label:"Culture", level:"Moderate", color:"var(--amber)"},
+      {label:"Remote authenticity", level:"Moderate", color:"var(--amber)"},
+      {label:"Hiring process", level:"High", color:"var(--red)"},
+      {label:"Company stability", level:"Moderate", color:"var(--amber)"}
+    ],
+    questions:[
+      "How is the equity (PPU) structure valued, and what happens to it if I leave after two years?",
+      "Is remote work genuinely supported long-term, or expected to transition to onsite?",
+      "How often has this specific team been reorganized in the past year?",
+      "What does a normal week look like outside of major release crunches?",
+      "What support exists for burnout during high-intensity launch periods?"
+    ]
+  }
+];
+
+const colorMap = {"High":"var(--red)","Moderate":"var(--amber)","Low":"var(--green)","N/A \u2014 onsite":"var(--muted)"};
+const dotColor = s => s < 40 ? "var(--red)" : s < 65 ? "var(--amber)" : "var(--green)";
+
+function gaugeSVG(score){
+  const r=42, c=2*Math.PI*r, pct=score/100, dash=c*pct;
+  const color = score<40?"#ef4a5f":score<65?"#f5a524":"#2fd06f";
+  return `<svg class="gauge" width="104" height="104" viewBox="0 0 104 104">
+    <circle cx="52" cy="52" r="${r}" fill="none" stroke="#1d222c" stroke-width="9"/>
+    <circle cx="52" cy="52" r="${r}" fill="none" stroke="${color}" stroke-width="9"
+      stroke-dasharray="${dash} ${c}" stroke-linecap="round" transform="rotate(-90 52 52)"/>
+    <text x="52" y="49" text-anchor="middle" fill="#e7e9ee" font-size="22" font-weight="700" font-family="Inter">${score}</text>
+    <text x="52" y="65" text-anchor="middle" fill="#8b93a5" font-size="10" font-family="Inter">/100</text>
+  </svg>`;
+}
+
+function render(idx){
+  const d = DATA[idx];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', i===idx));
+
+  const bars = d.bars.map(b=>`
+    <div class="bar-row">
+      <div class="bar-label">${b.label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${b.pct}%;background:${b.color}"></div></div>
+      <div class="bar-pct">${b.pct}%</div>
+    </div>`).join('');
+
+  const flags = d.flags.map(f=>`
+    <div class="flag">
+      <div class="flag-head">
+        <span class="sev" style="background:rgba(239,74,95,0.15);color:var(--red)">${f.sev}/10</span>
+        <span class="flag-title">${f.title}</span>
+      </div>
+      <div class="flag-desc">${f.desc}</div>
+    </div>`).join('');
+
+  const positives = d.positives.map(p=>`<div class="pos-item"><span class="pos-dot">&#9679;</span><span>${p}</span></div>`).join('');
+
+  const riskRows = d.risk.map(r=>`
+    <tr><td>${r.label}</td><td><span class="badge" style="background:${r.color}22;color:${r.color}">${r.level}</span></td></tr>`).join('');
+
+  const questions = d.questions.map((q,i)=>`
+    <div class="q-item"><div class="q-num">${i+1}</div><div>${q}</div></div>`).join('');
+
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <div class="top-card">
+        <div class="gauge-box">
+          ${gaugeSVG(d.score)}
+          <div>
+            <div class="company-name">${d.name}</div>
+            <div class="company-sub">${d.role}</div>
+            <span class="verdict-pill" style="background:${d.verdictColor}22;color:${d.verdictColor}">&#9888; ${d.verdict}</span>
+          </div>
+        </div>
+        <div class="bars">${bars}</div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="section-title">Red Flags</div>
+        ${flags}
+      </div>
+      <div class="card">
+        <div class="section-title">Positive Signals</div>
+        ${positives}
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="section-title">Risk Breakdown</div>
+        <table class="risk-table">${riskRows}</table>
+      </div>
+      <div class="card">
+        <div class="section-title">Smart Interview Questions</div>
+        ${questions}
+      </div>
+    </div>
+  `;
+}
+
+function init(){
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><b>${DATA.length}</b> Companies</div>
+    <div class="stat"><b>5</b> Risk categories</div>
+    <div class="stat"><b>${DATA.length*5}</b> Interview questions</div>
+  `;
+  document.getElementById('tabs').innerHTML = DATA.map((d,i)=>
+    `<div class="tab" data-i="${i}"><span class="dot" style="background:${dotColor(d.score)}"></span>${d.name}</div>`
+  ).join('');
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click', ()=>render(+t.dataset.i)));
+  render(0);
+}
+init();
+</script>
+</body>
+</html>
