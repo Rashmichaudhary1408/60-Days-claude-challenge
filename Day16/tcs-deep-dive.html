@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TCS — Fundamental Deep Dive</title>
+<style>
+:root{
+  --bg:#0b1220; --panel:#111a2c; --panel2:#0e1626; --line:#22304a;
+  --text:#e8edf7; --sub:#8fa0bd; --accent:#4d8dff; --good:#3ecf8e; --warn:#f0a94e; --bad:#f0616b;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); box-sizing:border-box;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
+.wrap{max-width:1100px;margin:0 auto;padding:18px 16px 40px;}
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;background:linear-gradient(135deg,#122043,#0c1730);border:1px solid var(--line);border-radius:14px;padding:20px;}
+.hleft{display:flex;gap:14px;align-items:flex-start;}
+.logo{width:52px;height:52px;border-radius:12px;background:#0a1122;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--accent);}
+.hname{font-size:20px;font-weight:700;}
+.hmeta{color:var(--sub);font-size:12.5px;margin-top:4px;}
+.hright{text-align:right;}
+.cmp{font-size:26px;font-weight:700;}
+.cmpsub{color:var(--sub);font-size:12px;}
+.badge{display:inline-block;margin-top:6px;background:rgba(62,207,142,.15);color:var(--good);border:1px solid rgba(62,207,142,.4);border-radius:20px;padding:4px 12px;font-size:12px;}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:14px;}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
+.card .lbl{color:var(--sub);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;}
+.card .val{font-size:16px;font-weight:700;margin-top:4px;}
+.up{color:var(--good);} .down{color:var(--bad);} .flag{color:var(--warn);font-size:10.5px;}
+.tabs{display:flex;gap:4px;overflow-x:auto;margin:18px 0 0;border-bottom:1px solid var(--line);}
+.tab{padding:10px 14px;color:var(--sub);font-size:13px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;}
+.tab.active{color:var(--text);border-color:var(--accent);}
+.panel{display:none;padding-top:16px;}
+.panel.active{display:block;}
+.section{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px;}
+.section h3{margin:0 0 10px;font-size:13px;color:var(--accent);}
+.section p{color:#c3cee2;font-size:13.5px;line-height:1.6;margin:6px 0;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);}
+th{color:var(--sub);font-weight:600;font-size:11.5px;text-transform:uppercase;}
+.chartwrap{overflow-x:auto;}
+.donut{width:120px;height:120px;border-radius:50%;background:conic-gradient(var(--accent) 0 71.8%, var(--good) 71.8% 85.3%, var(--warn) 85.3% 90.4%, var(--sub) 90.4% 100%);margin:0 auto;}
+.legend{display:flex;flex-direction:column;gap:6px;font-size:12.5px;}
+.dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+.pill{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;}
+.pill.good{background:rgba(62,207,142,.15);color:var(--good);}
+.pill.watch{background:rgba(240,169,78,.15);color:var(--warn);}
+.foot{color:var(--sub);font-size:11.5px;margin-top:18px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="hleft">
+      <div class="logo">TCS</div>
+      <div>
+        <div class="hname">Tata Consultancy Services Ltd</div>
+        <div class="hmeta">NSE: TCS · BSE: 532540 · Sector: Information Technology<br>IT Services &amp; Consulting · 55 countries · ~6,00,000 employees</div>
+      </div>
+    </div>
+    <div class="hright">
+      <div class="cmp">₹2,304</div>
+      <div class="cmpsub">CMP (IIFL, 4 Sep 2026)</div>
+      <div class="badge">Fundamentally Strong</div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card"><div class="lbl">Market Cap</div><div class="val">≈₹8.3L Cr</div></div>
+    <div class="card"><div class="lbl">Stock P/E</div><div class="val">≈18.1x</div></div>
+    <div class="card"><div class="lbl">ROE (5Y avg)</div><div class="val up">58%</div></div>
+    <div class="card"><div class="lbl">ROCE</div><div class="val flag">🚩 verify</div></div>
+    <div class="card"><div class="lbl">52W High/Low*</div><div class="val">₹3,630 / ₹2,346</div></div>
+    <div class="card"><div class="lbl">Dividend Yield</div><div class="val">2.3–4.5%*</div></div>
+    <div class="card"><div class="lbl">Face Value</div><div class="val">₹1</div></div>
+    <div class="card"><div class="lbl">FY26 Revenue</div><div class="val">₹2,20,938 Cr</div></div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-t="snap">Snapshot</div>
+    <div class="tab" data-t="val">Valuation</div>
+    <div class="tab" data-t="grw">Growth</div>
+    <div class="tab" data-t="hlt">Health</div>
+    <div class="tab" data-t="ret">Returns</div>
+    <div class="tab" data-t="peer">Peers</div>
+    <div class="tab" data-t="own">Ownership</div>
+    <div class="tab" data-t="view">View</div>
+  </div>
+
+  <div class="panel active" id="snap">
+    <div class="section">
+      <h3>Company Overview</h3>
+      <p>TCS, founded in 1968, is India's largest IT services company and the flagship of the Tata Group. It provides IT services, consulting, and business solutions across BFSI, Manufacturing, Life Sciences, Retail, and other sectors, with North America as its largest market.</p>
+      <p>In Q2 FY26, consolidated revenue was ₹65,799 Cr (up 2.4% YoY) with net profit of ₹12,131 Cr. Standalone FY26 (Mar-26) full-year revenue was ₹2,20,938 Cr with operating margin around 28%. [Source: Screener.in, company filings]</p>
+    </div>
+    <div class="section chartwrap">
+      <h3>Revenue vs Operating Profit — FY22 to FY26 (Standalone, ₹ Cr)</h3>
+      <svg viewBox="0 0 620 220" width="100%" style="max-width:620px">
+        <line x1="40" y1="10" x2="40" y2="190" stroke="#22304a"/>
+        <line x1="40" y1="190" x2="600" y2="190" stroke="#22304a"/>
+        <polyline fill="none" stroke="#4d8dff" stroke-width="2.5" points="70,150 190,110 310,95 430,85 550,78"/>
+        <polyline fill="none" stroke="#3ecf8e" stroke-width="2.5" points="70,178 190,172 310,166 430,163 550,157"/>
+        <text x="55" y="205" fill="#8fa0bd" font-size="10">FY22</text>
+        <text x="175" y="205" fill="#8fa0bd" font-size="10">FY23</text>
+        <text x="295" y="205" fill="#8fa0bd" font-size="10">FY24</text>
+        <text x="415" y="205" fill="#8fa0bd" font-size="10">FY25</text>
+        <text x="535" y="205" fill="#8fa0bd" font-size="10">FY26</text>
+        <circle cx="450" cy="18" r="4" fill="#4d8dff"/><text x="460" y="22" fill="#c3cee2" font-size="11">Revenue</text>
+        <circle cx="540" cy="18" r="4" fill="#3ecf8e"/><text x="550" y="22" fill="#c3cee2" font-size="11">Op. Profit</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="panel" id="val">
+    <div class="section">
+      <h3>Valuation</h3>
+      <table>
+        <tr><th>Metric</th><th>TCS</th><th>Peer Avg</th><th>Verdict</th></tr>
+        <tr><td>P/E (TTM)</td><td>~18.1x</td><td>~21.2x</td><td><span class="pill good">Fair / Slightly Cheap</span></td></tr>
+        <tr><td>P/B</td><td>~8.7x 🚩</td><td>—</td><td>verify at Screener.in</td></tr>
+        <tr><td>EV/EBITDA</td><td>🚩 unavailable</td><td>—</td><td>verify at Screener.in</td></tr>
+      </table>
+      <p>TCS trades close to or slightly below the large-cap IT peer average P/E, despite being the largest and most profitable company in the set — consistent with a "Fair" valuation per the checklist rule (within ~10% of comparables). [Source: SimplyWall.st peer comparison]</p>
+    </div>
+  </div>
+
+  <div class="panel" id="grw">
+    <div class="section">
+      <h3>Growth (Standalone, ₹ Cr)</h3>
+      <table>
+        <tr><th>FY</th><th>Revenue</th><th>Op. Profit</th><th>OPM%</th><th>Net Profit</th></tr>
+        <tr><td>FY22</td><td>1,60,341</td><td>46,245</td><td>29%</td><td>38,195*</td></tr>
+        <tr><td>FY23</td><td>1,90,354</td><td>50,997</td><td>27%</td><td>38,151</td></tr>
+        <tr><td>FY24</td><td>2,02,359</td><td>55,847</td><td>28%</td><td>—</td></tr>
+        <tr><td>FY25</td><td>2,14,853</td><td>57,929</td><td>27%</td><td>—</td></tr>
+        <tr><td>FY26</td><td>2,20,938</td><td>62,249</td><td>28%</td><td>46,149</td></tr>
+      </table>
+      <p>Revenue CAGR (FY22–FY26) ≈ 8.3% — classified as <b>Steady</b> growth per the checklist (not accelerating, not declining). Margins have stayed range-bound near 27–29%, showing pricing discipline despite wage and macro pressure. [Source: Screener.in]</p>
+    </div>
+  </div>
+
+  <div class="panel" id="hlt">
+    <div class="section">
+      <h3>Financial Health</h3>
+      <table>
+        <tr><th>Metric</th><th>Value</th><th>Verdict</th></tr>
+        <tr><td>Debt / Equity</td><td>~0.11x</td><td><span class="pill good">Safe</span></td></tr>
+        <tr><td>Interest Coverage</td><td>🚩 unavailable</td><td>verify at Screener.in</td></tr>
+        <tr><td>Current Ratio</td><td>🚩 unavailable</td><td>verify at Screener.in</td></tr>
+        <tr><td>Free Cash Flow</td><td>🚩 unavailable</td><td>verify at Screener.in / annual report</td></tr>
+      </table>
+      <p>Borrowings (~₹9,354 Cr) are small relative to reserves (~₹84,314 Cr) as of FY26 — TCS runs an effectively debt-free balance sheet. [Source: Screener.in balance sheet]</p>
+    </div>
+  </div>
+
+  <div class="panel" id="ret">
+    <div class="section">
+      <h3>Returns</h3>
+      <table>
+        <tr><th>Period</th><th>ROE</th></tr>
+        <tr><td>Last Year</td><td class="up">65%</td></tr>
+        <tr><td>3Y Avg</td><td class="up">64%</td></tr>
+        <tr><td>5Y Avg</td><td class="up">58%</td></tr>
+        <tr><td>10Y Avg</td><td>48%</td></tr>
+      </table>
+      <p>ROE well above the "Good" threshold (&gt;15%) throughout — though partly flattered by a smaller equity base from ongoing buybacks/high dividend payout, which mechanically boosts the ratio. [Source: Screener.in]</p>
+    </div>
+  </div>
+
+  <div class="panel" id="peer">
+    <div class="section">
+      <h3>Peer Comparison</h3>
+      <table>
+        <tr><th>Company</th><th>Fwd P/E</th><th>Est. Growth</th><th>Market Cap</th></tr>
+        <tr><td><b>TCS</b></td><td>19.6x</td><td>8.5%</td><td>₹9.4L Cr</td></tr>
+        <tr><td>Infosys</td><td>18.2x</td><td>6.1%</td><td>₹5.4L Cr</td></tr>
+        <tr><td>HCL Technologies</td><td>22.7x</td><td>10.1%</td><td>₹4.0L Cr</td></tr>
+        <tr><td>Wipro</td><td>16.0x</td><td>6.6%</td><td>₹2.1L Cr</td></tr>
+        <tr><td>Tech Mahindra</td><td>28.0x</td><td>20.2%</td><td>₹1.3L Cr</td></tr>
+      </table>
+      <p>[Source: SimplyWall.st — figures from a single snapshot date; verify current values before use]</p>
+    </div>
+  </div>
+
+  <div class="panel" id="own">
+    <div class="grid2">
+      <div class="section">
+        <h3>Shareholding — Jun 2026</h3>
+        <div class="donut"></div>
+      </div>
+      <div class="section">
+        <h3>Legend &amp; Trend</h3>
+        <div class="legend">
+          <div><span class="dot" style="background:#4d8dff"></span>Promoters — 71.77% (unchanged, 0% pledged)</div>
+          <div><span class="dot" style="background:#3ecf8e"></span>DII — 13.47%</div>
+          <div><span class="dot" style="background:#f0a94e"></span>FII — 9.06% (down from 10.4% in Dec-25)</div>
+          <div><span class="dot" style="background:#8fa0bd"></span>Public/Others — 5.69%</div>
+        </div>
+        <p style="margin-top:10px">No promoter pledging — a positive governance signal. FII holding has been gradually trimmed over the last few quarters while DII holding has risen. [Source: Upstox / StockEzee shareholding data]</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="view">
+    <div class="section">
+      <h3>Strengths</h3>
+      <p>• Debt-free balance sheet with D/E ~0.11x<br>• Consistent 27–29% operating margins across 5 years<br>• Zero promoter pledging, stable 71.77% promoter holding<br>• High, sustained ROE (58% 5Y avg)</p>
+    </div>
+    <div class="section">
+      <h3>Watch-points</h3>
+      <p>🚩 Revenue growth has moderated to high-single digits from historical double digits<br>🚩 FII holding has been trending down over the last 3–4 quarters<br>🚩 Several checklist metrics (ROCE, current ratio, interest coverage, FCF) could not be verified from available sources this session — confirm at Screener.in before relying on them</p>
+    </div>
+    <div class="section">
+      <h3>Key Metric to Track</h3>
+      <p>Quarterly revenue growth (constant currency) and deal TCV — the clearest early signal of demand recovery or further slowdown.</p>
+    </div>
+    <div class="section">
+      <h3>Overall Fundamental Quality: <span class="pill good">Strong</span></h3>
+      <p>Data Confidence: <b>Moderate</b> — core P&amp;L, balance sheet, and shareholding figures are sourced and cross-checked; several ratio-level metrics (ROCE, current ratio, FCF, interest coverage) were unavailable this session and are flagged rather than estimated.</p>
+    </div>
+  </div>
+
+  <div class="foot">
+    *52-week range and dividend yield reflect differing snapshot dates across sources (Apr–Sep 2026) and should be reverified for the current date.<br>
+    This is a view of the fundamentals for educational purposes only. It is not investment advice and not a buy/sell/hold recommendation. Verify all figures independently. The final decision is yours.
+  </div>
+
+</div>
+<script>
+document.getElementById('tabs').addEventListener('click', function(e){
+  var t = e.target.closest('.tab'); if(!t) return;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById(t.dataset.t).classList.add('active');
+});
+</script>
+</body>
+</html>
