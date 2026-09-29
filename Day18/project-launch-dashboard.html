@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Project launch — meeting notes</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark;
+--bg:#0a0d1a;--card:#131828;--card2:#0c101d;--line:#232a40;--text:#d5daea;--mute:#7b84a3;
+--violet:#a78bfa;--blue:#38bdf8;--green:#4ade80;--amber:#fbbf24;--orange:#fb923c;--red:#f87171}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:22px 28px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:11px;letter-spacing:.12em;font-weight:700;color:#7c6cf0;text-transform:uppercase}
+h1{margin:4px 0 2px;font-size:24px}
+.sub{color:var(--mute);font-size:12px}
+main{max-width:900px;margin:0 auto;padding:22px 16px 40px;display:grid;gap:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:720px){.row{grid-template-columns:1fr}header{padding:18px 16px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 4px 18px rgba(0,0,0,.28);transition:transform .15s,border-color .15s}
+.card:hover{border-color:#39415e}
+details>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.1em;font-weight:700;text-transform:uppercase;color:var(--mute)}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"▾";margin-left:auto;transition:transform .2s}
+details:not([open])>summary::after{transform:rotate(-90deg)}
+details>.body{margin-top:12px}
+.count{margin-left:auto;margin-right:6px}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid;white-space:nowrap}
+.b-high{color:#fca5a5;background:#3b1219;border-color:#7f1d2b}
+.b-med{color:#fdba74;background:#3a2010;border-color:#7c3f12}
+.b-conf{color:#fdba74;background:#4a230d;border-color:#8a4213}
+.b-pend{color:#7dd3fc;background:#10293b;border-color:#1d4a68}
+.b-done{color:#86efac;background:#10321f;border-color:#1c6b3c}
+.b-viol{color:#ddd6fe;background:#2c1d6b;border-color:#5b3fd0}
+.take{padding:9px 12px;border-radius:8px;border-left:3px solid;margin-bottom:8px;font-size:13px}
+.t-g{background:#12261a;border-color:var(--green);color:#86efac}
+.t-o{background:#2a1a12;border-color:var(--orange);color:#fdba74}
+.t-r{background:#2a1215;border-color:var(--red);color:#fca5a5}
+.spk{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:720px){.spk{grid-template-columns:1fr}}
+.sp{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:12px;transition:transform .15s}
+.sp:hover,.item:hover{transform:translateY(-2px)}
+.sp b{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:11px;background:#1e2a44}
+.sp p{margin:0;color:var(--mute);font-size:12.5px}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;color:#5d6685;padding:6px 10px;border-bottom:1px solid var(--line)}
+td{padding:12px 10px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#171d31}
+.ns{color:var(--mute);font-style:italic}
+.own-r{color:var(--violet);font-weight:600}.own-a{color:var(--blue);font-weight:600}
+.dl{color:var(--amber);font-weight:600}
+button.badge{cursor:pointer;font-family:inherit}
+.item{background:#0e1830;border:1px solid #1b3357;border-radius:8px;padding:10px 12px;margin-bottom:8px;color:#7dd3fc;transition:transform .15s}
+.item i{color:#f43f7a;font-style:normal;font-weight:700;margin-right:8px}
+.risk{background:#2a0e12;border:1px solid #6b1c26;color:#fca5a5;border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.risk b{display:block;color:#fecaca}
+.risk span{font-size:12.5px}
+.conf-card{border-color:#7c4310;background:#1c1409}
+.conf{display:flex;gap:12px;align-items:flex-start;background:#120d05;border:1px solid #4e2e0d;border-radius:10px;padding:12px;margin-bottom:10px}
+.conf b{color:#fcd34d;display:block}
+.conf span{color:#f87c5b;font-size:12.5px}
+.conf .badge{margin-left:auto}
+.note{padding:9px 0;border-bottom:1px solid var(--line);color:#9aa3c0}
+.note:last-child{border:0}
+.note::before{content:"○";margin-right:10px;color:#4b5573}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="eyebrow">Brain Dump Action Planner</div>
+    <h1>Project launch — meeting notes</h1>
+    <div class="sub">Transcript mode · 2 speakers · 1 deadline identified</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <span class="badge b-viol">🔴 High priority</span>
+    <span class="badge b-conf">⚠️ Conflict detected</span>
+  </div>
+</header>
+
+<main>
+  <div class="row">
+    <details class="card" open><summary>Summary</summary><div class="body">
+      A quick project sync between Raj and Ankit. Raj needs the landing page done by July 5. Ankit's backend API is still pending. The marketing campaign launch is blocked by the landing page, and there is a flagged concern that the API integration may delay the overall launch.
+    </div></details>
+    <details class="card" open><summary>Key Takeaways</summary><div class="body">
+      <div class="take t-g">Landing page must be done by July 5 — Raj</div>
+      <div class="take t-g">Backend API is still pending — Ankit</div>
+      <div class="take t-o">Marketing launch is blocked by landing page</div>
+      <div class="take t-r">API delay may push the overall launch</div>
+    </div></details>
+  </div>
+
+  <details class="card" open><summary>Speaker Summary</summary><div class="body"><div class="spk">
+    <div class="sp"><b><span class="av" style="color:var(--violet)">R</span><span style="color:var(--violet)">Raj</span></b><p>Needs landing page completed by July 5. Assigned to finish UI.</p></div>
+    <div class="sp"><b><span class="av" style="color:var(--blue)">A</span><span style="color:var(--blue)">Ankit</span></b><p>Backend API still pending. Assigned to finish APIs. No deadline stated.</p></div>
+    <div class="sp"><b><span class="av">G</span>Group</b><p>Marketing launch depends on landing page. API delay is a flagged risk.</p></div>
+  </div></div></details>
+
+  <details class="card" open><summary>Action Items <span class="count badge b-pend" id="cnt">3 pending</span></summary><div class="body wrap">
+    <table>
+      <thead><tr><th>Task</th><th>Owner</th><th>Deadline</th><th>Priority</th><th>Status (click)</th></tr></thead>
+      <tbody>
+        <tr><td>Finish UI / landing page</td><td class="own-r">Raj</td><td class="dl">July 5</td><td><span class="badge b-high">🔴 High</span></td><td><button class="badge b-pend st">⏳ Pending</button></td></tr>
+        <tr><td>Finish backend APIs</td><td class="own-a">Ankit</td><td class="ns">Not specified</td><td><span class="badge b-high">🔴 High</span></td><td><button class="badge b-pend st">⏳ Pending</button></td></tr>
+        <tr><td>Marketing campaign launch</td><td class="ns">Not specified</td><td class="ns">Not specified</td><td><span class="badge b-med">🟠 Medium</span></td><td><button class="badge b-pend st">⏳ Pending</button></td></tr>
+      </tbody>
+    </table>
+  </div></details>
+
+  <div class="row">
+    <details class="card" open><summary>Open Questions</summary><div class="body">
+      <div class="item"><i>?</i>When will Ankit's backend API be completed? No deadline was stated.</div>
+      <div class="item"><i>?</i>Who owns the marketing campaign launch?</div>
+      <div class="item"><i>?</i>What is the planned date for the marketing campaign launch?</div>
+    </div></details>
+    <details class="card" open style="border-color:#6b1c26"><summary style="color:var(--red)">Risks / Blockers</summary><div class="body">
+      <div class="risk"><b>⚠ API delay risk</b><span>API integration may delay the overall launch — flagged as a concern.</span></div>
+      <div class="risk"><b>🔗 Hard dependency</b><span>Marketing campaign launch is blocked by landing page completion.</span></div>
+    </div></details>
+  </div>
+
+  <details class="card conf-card" open><summary style="color:var(--orange)">Conflicts <span class="count badge b-conf">2 conflicts found</span></summary><div class="body">
+    <div class="conf"><div><b>Missing deadline for API vs. July 5 landing page cutoff</b><span>Raj has a hard deadline of July 5 for the landing page. Ankit's API has no deadline specified — creating a scheduling gap.</span></div><span class="badge b-conf">⚠️ Conflict</span></div>
+    <div class="conf"><div><b>Dependency chain — launch → landing page → API</b><span>The marketing campaign launch depends on the landing page, and the API status is pending with no deadline, so the final launch date cannot be confirmed yet.</span></div><span class="badge b-conf">⚠️ Conflict</span></div>
+  </div></details>
+
+  <details class="card"><summary>Additional Notes</summary><div class="body">
+    <div class="note">The marketing campaign timeline depends on both Raj's UI and Ankit's API being ready before launch can proceed.</div>
+    <div class="note">No meeting date or project name was specified in the provided notes.</div>
+  </div></details>
+</main>
+
+<script>
+(function(){
+  var cnt=document.getElementById('cnt');
+  function update(){
+    var s=document.querySelectorAll('.st'),p=0;
+    s.forEach(function(b){if(b.dataset.done!=='1')p++});
+    cnt.textContent=p+' pending';
+  }
+  document.querySelectorAll('.st').forEach(function(b){
+    b.addEventListener('click',function(){
+      var done=b.dataset.done==='1';
+      b.dataset.done=done?'0':'1';
+      b.className='badge st '+(done?'b-pend':'b-done');
+      b.textContent=done?'⏳ Pending':'✅ Completed';
+      update();
+    });
+  });
+})();
+</script>
+</body>
+</html>
