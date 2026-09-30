@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Football Intelligence Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f4f1e8;--ink:#10251c;--pitch:#0e4a34;--pitch2:#167a55;--gold:#e3a917;--card:#fffdf7;--line:#d9d3bf;--mute:#5b6b62;--red:#c8382b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#08150f;--ink:#eef3ea;--pitch:#0e4a34;--pitch2:#23a474;--gold:#f0b92a;--card:#10241a;--line:#24402f;--mute:#9db3a6;--red:#ff6b5a}}
+:root[data-theme="dark"]{--bg:#08150f;--ink:#eef3ea;--pitch:#0e4a34;--pitch2:#23a474;--gold:#f0b92a;--card:#10241a;--line:#24402f;--mute:#9db3a6;--red:#ff6b5a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 'DM Sans',system-ui,sans-serif}
+.poster{max-width:900px;margin:0 auto;padding:0 16px 48px}
+h1,h2,h3{font-family:'Bebas Neue',Impact,'Arial Narrow',sans-serif;font-weight:400;margin:0;line-height:1}
+.hero{background:repeating-linear-gradient(90deg,var(--pitch) 0 70px,#0b3f2c 70px 140px);color:#fff;border-radius:0 0 28px 28px;padding:44px 24px 36px;margin:0 -16px 24px;text-align:center;position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:14px;border:2px solid rgba(255,255,255,.35);border-radius:14px;pointer-events:none}
+.hero:after{content:"";position:absolute;left:50%;top:50%;width:150px;height:150px;margin:-75px;border:2px solid rgba(255,255,255,.18);border-radius:50%;pointer-events:none}
+.hero h1{font-size:clamp(46px,11vw,96px);letter-spacing:2px;position:relative;z-index:1}
+.hero h1 span{color:var(--gold)}
+.hero p{margin:10px auto 0;max-width:520px;position:relative;z-index:1;opacity:.92}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px;position:relative;z-index:1}
+.chip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);padding:4px 12px;border-radius:99px;font-size:14px}
+section{margin-top:28px}
+.sh{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sh h2{font-size:clamp(30px,6vw,42px)}
+.badge{background:var(--gold);color:#1a1404;border-radius:8px;padding:2px 10px;font-weight:700;font-size:14px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.card.win{border:2px solid var(--gold);background:linear-gradient(160deg,var(--card),rgba(227,169,23,.12))}
+.card h3{font-size:28px;margin-bottom:2px}
+.role{color:var(--mute);font-size:14px;margin-bottom:8px}
+.conf{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0 2px}
+.conf i{display:block;height:100%;background:linear-gradient(90deg,var(--pitch2),var(--gold));border-radius:6px}
+.cl{font-size:13px;color:var(--mute);margin-bottom:8px}
+.card ul{margin:6px 0 0;padding-left:18px;font-size:15px}
+.card li{margin-bottom:3px}
+.k{font-weight:700}
+.risk{color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:7px 8px;text-align:left;border-bottom:1px solid var(--line)}
+.scroll{overflow-x:auto}
+.score{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.ring{width:150px;height:150px;border-radius:50%;background:conic-gradient(var(--gold) 0 80%,var(--line) 80% 100%);display:grid;place-items:center;flex:none}
+.ring div{width:114px;height:114px;border-radius:50%;background:var(--card);display:grid;place-items:center;text-align:center}
+.ring b{font-family:'Bebas Neue',Impact,sans-serif;font-size:48px;font-weight:400;line-height:1}
+.ring small{display:block;color:var(--mute);font-size:12px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.q p{margin:0 0 8px;font-weight:600}
+.q label{display:block;padding:7px 10px;border:1px solid var(--line);border-radius:9px;margin-bottom:6px;cursor:pointer}
+.q label:has(input:checked){border-color:var(--pitch2);background:rgba(35,164,116,.16)}
+.q input{margin-right:8px;accent-color:var(--pitch2)}
+.rate{display:flex;gap:6px}
+.rate label{flex:1;text-align:center;margin:0;padding:10px 0}
+.rate input{display:none}
+.rl{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-top:2px}
+button{font:700 18px 'DM Sans',sans-serif;background:var(--gold);color:#1a1404;border:0;border-radius:12px;padding:14px 28px;cursor:pointer;width:100%}
+button:focus-visible,input:focus-visible+span{outline:3px solid var(--pitch2);outline-offset:2px}
+#err{color:var(--red);margin:8px 0 0;min-height:1.4em;text-align:center}
+#result{display:none}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.vs .card{text-align:center}
+.vs b{font-family:'Bebas Neue',Impact,sans-serif;font-size:56px;font-weight:400;line-height:1;color:var(--pitch2)}
+.arch{background:var(--pitch);color:#fff;border-radius:18px;padding:22px;text-align:center;margin:14px 0;border:3px solid var(--gold)}
+.arch h2{font-size:clamp(36px,8vw,60px);color:var(--gold)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}
+.tags span{background:rgba(255,255,255,.15);padding:3px 12px;border-radius:99px;font-size:14px}
+.foot{margin-top:32px;font-size:13px;color:var(--mute);text-align:center}
+@media (max-width:520px){.vs{grid-template-columns:1fr}}
+</style></head><body><div class="poster">
+
+<header class="hero">
+<h1>Football <span>Intelligence</span> Profile</h1>
+<p>World Cup 2026 forecast, your Football IQ, and the legend you play like. Built from the ABTalks World Cup workbook.</p>
+<div class="chips"><span class="chip">Level: knows the basics</span><span class="chip">Data to June 17, 2026</span><span class="chip">3 stages</span></div>
+</header>
+
+<section>
+<div class="sh"><span class="badge">Stage 1</span><h2>World Cup 2026 prediction report</h2></div>
+<div class="grid">
+<div class="card win"><h3>🏆 Argentina</h3><div class="role">Predicted winner</div>
+<div class="conf"><i style="width:24%"></i></div><div class="cl">Confidence 24%</div>
+<ul><li><span class="k">Evidence:</span> FIFA #1, Form Score 92, 22 goals scored and only 6 conceded in last 10, 68% historical win rate, 3-0 opener vs Algeria.</li>
+<li class="risk"><span class="k">Risk:</span> Messi's workload; over-reliance on one star.</li>
+<li><span class="k">Against:</span> Spain's recent numbers are better (24 scored, 5 conceded). No team in the 2006-2022 table won back-to-back titles.</li></ul></div>
+
+<div class="card"><h3>🥈 France</h3><div class="role">Predicted runner-up</div>
+<div class="conf"><i style="width:18%"></i></div><div class="cl">Confidence 18%</div>
+<ul><li><span class="k">Evidence:</span> Reached 3 of the last 5 finals (2006, 2018, 2022), Form Score 90, 2-0 opener vs Senegal, Mbappé 22 goals.</li>
+<li class="risk"><span class="k">Risk:</span> Leaks goals: 8 conceded in last 10.</li>
+<li><span class="k">Against:</span> Likely to meet Argentina or Spain late. Alternate pick: Spain, despite its 0-0 opener.</li></ul></div>
+
+<div class="card"><h3>🐴 Morocco</h3><div class="role">Dark horse (a surprise contender)</div>
+<div class="conf"><i style="width:9%"></i></div><div class="cl">Confidence 9% (semi-final or better)</div>
+<ul><li><span class="k">Evidence:</span> Rank #12 but 6W-3D-1L lately, 6 goals conceded (equal to Argentina), drew 1-1 with Brazil.</li>
+<li class="risk"><span class="k">Risk:</span> Only 15 goals scored, the lowest of any contender.</li>
+<li><span class="k">Against:</span> 44% historical win rate is the weakest in the table.</li></ul></div>
+</div>
+
+<div class="card" style="margin-top:12px"><h3 style="margin-bottom:8px">⭐ Players to watch</h3>
+<div class="scroll"><table><tr><th>Player</th><th>Team</th><th>G</th><th>A</th><th>Rating</th><th>Big-tournament confidence</th></tr>
+<tr><td>Kylian Mbappé</td><td>France</td><td>22</td><td>8</td><td>95</td><td>80%</td></tr>
+<tr><td>Lionel Messi</td><td>Argentina</td><td>20</td><td>12</td><td>96</td><td>75%</td></tr>
+<tr><td>Jude Bellingham</td><td>England</td><td>10</td><td>9</td><td>91</td><td>65%</td></tr>
+<tr><td>Erling Haaland</td><td>Norway</td><td>25</td><td>4</td><td>94</td><td>55% (depends on Norway)</td></tr></table></div>
+<p class="cl" style="margin:10px 0 0">Workbook snapshot is from June 17, 2026; the real tournament has since ended. Scores for Norway v Iraq and Portugal v DR Congo were still TBD.</p></div>
+</section>
+
+<section>
+<div class="sh"><span class="badge">Stage 2</span><h2>Football IQ</h2></div>
+<div class="card score">
+<div class="ring"><div><span><b>80</b><small>out of 100</small></span></div></div>
+<div style="flex:1;min-width:220px"><h3>Football Enthusiast</h3>
+<p style="margin:6px 0"><span class="k">4 of 5 correct.</span> Strong on rules and World Cup history (2022 final, 2018 Golden Boot, repeat runners-up).</p>
+<p style="margin:6px 0"><span class="k">Weakest area:</span> reading team stats. Brazil conceded the fewest goals (30 in 50 matches), not France (38).</p>
+<p style="margin:6px 0"><span class="k">Key gap:</span> knowing how teams win, not just who wins. Compare goals conceded and goal difference.</p></div></div>
+</section>
+
+<section>
+<div class="sh"><span class="badge">Stage 3</span><h2>Messi vs Ronaldo personality match</h2></div>
+<p style="margin-top:0">12 questions, no right answers. Pick what feels most like you. Ratings: 1 = strongly disagree, 5 = strongly agree.</p>
+<form id="quiz" onsubmit="return false"></form>
+<p id="err" role="alert"></p>
+<button id="go" type="button">Reveal my football profile</button>
+</section>
+
+<section id="result">
+<div class="sh"><span class="badge">Your result</span><h2>Messi and Ronaldo match</h2></div>
+<div class="vs"><div class="card"><div class="role">Lionel Messi</div><b id="mp">0%</b><div class="cl">Argentina, rating 96, 20 G / 12 A</div></div>
+<div class="card"><div class="role">Cristiano Ronaldo</div><b id="rp">0%</b><div class="cl">Portugal, rating 94, 18 G / 5 A</div></div></div>
+<div class="card" style="margin-top:12px"><p id="why" style="margin:0"></p></div>
+<div class="arch"><div class="cl" style="color:#cfe3d8">Your football personality archetype</div><h2 id="an"></h2><p id="ad" style="margin:8px 0 0"></p><div class="tags" id="at"></div></div>
+<div class="grid" id="recs"></div>
+<div class="sh" style="margin-top:28px"><span class="badge">Final</span><h2>Key insights</h2></div>
+<div class="card"><ul id="ins" style="margin:0;padding-left:18px"></ul></div>
+</section>
+
+<p class="foot">Source: ABTalks_WorldCup_Intelligence_Master.xlsx (Tables 1-7). Clubs and rivalry suggestions are general football knowledge. Predictions are estimates, not certainties.</p>
+</div>
+
+<script>
+// options: [text, messiPts, ronaldoPts, archetypeTag]; ratings: {r:[wm,wr,tag]}
+var A={CP:"Creative Playmaker",RC:"Relentless Competitor",TV:"Tactical Visionary",QL:"Quiet Leader",FA:"Fearless Attacker",SC:"Strategic Commander",CoP:"Consistent Performer",BMS:"Big-Match Specialist"};
+var Q=[
+{t:"You just achieved a big goal. What's your next move?",o:[["Celebrate properly and enjoy the moment",1,2,"BMS"],["Set an even bigger target straight away",0,3,"RC"],["Help others reach theirs",3,0,"QL"],["Reflect on what worked and what to improve",2,1,"TV"]]},
+{t:"I prepare or practice far more than anyone expects, even when nobody is watching.",r:[1,3,"RC"]},
+{t:"How do you prefer to learn a new skill?",o:[["Experiment and figure it out by feel",3,0,"CP"],["Follow a structured plan with repeated drills",1,3,"CoP"],["Watch the best and copy their habits",1,2,"SC"],["Learn alongside a mentor or group",2,1,"QL"]]},
+{t:"I love finding unusual solutions that others haven't thought of.",r:[3,1,"CP"]},
+{t:"The deadline is close and you must decide quickly. You:",o:[["Go with your gut instinct",3,1,"FA"],["Analyze the data and weigh the options",1,2,"TV"],["Ask the team for a quick vote",2,0,"QL"],["Use the method that has worked before",0,2,"CoP"]]},
+{t:"I hate losing, even in casual games.",r:[1,3,"RC"]},
+{t:"When your team is struggling, you:",o:[["Lead by example and visibly work harder",2,2,"CoP"],["Speak up loudly and demand more from everyone",0,3,"SC"],["Stay calm and quietly support teammates",3,0,"QL"],["Rethink the roles and strategy",2,1,"TV"]]},
+{t:"I'd rather pass credit to a teammate than take it myself.",r:[3,0,"QL"]},
+{t:"An opportunity has a 50% chance of a big payoff and a 50% chance of public failure. You:",o:[["Take it without hesitation",1,3,"FA"],["Take it, but only after serious preparation",2,2,"SC"],["Wait for better odds",2,0,"CoP"],["Pass",1,0,"CoP"]]},
+{t:"I stick to my routines (sleep, fitness, schedules) even when I don't feel like it.",r:[1,3,"CoP"]},
+{t:"In a high-pressure moment with everyone watching, you:",o:[["Thrive: the bigger the stage the better",2,3,"BMS"],["Stay calm and consistent",3,1,"CoP"],["Need a moment to settle, then deliver",2,0,"CP"],["Prefer to share the pressure with others",3,0,"QL"]]},
+{t:"I believe I'll succeed even when others doubt me.",r:[1,3,"FA"]}];
+var D={
+CP:["Imaginative and instinctive. You solve problems with flair and see passes others miss.",["Creativity","Intuition","Improvisation"],"Lionel Messi","FC Barcelona","Argentina (22 scored, 6 conceded lately)","Argentina v France"],
+RC:["Driven by an unshakable need to win. You out-work everyone and set the standard.",["Ambition","Work ethic","Competitiveness"],"Cristiano Ronaldo","Real Madrid","Portugal (Form Score 88)","Portugal v Spain"],
+TV:["You see the whole game before it happens and adjust the plan on the fly.",["Strategy","Analysis","Adaptability"],"Luka Modrić","Real Madrid","Spain (24 scored, 5 conceded lately)","Spain v Germany"],
+QL:["You lead through example and trust, lifting those around you without fuss.",["Teamwork","Humility","Calm"],"Jude Bellingham","Real Madrid","England (Form Score 89)","England v Germany"],
+FA:["Bold and quick to act. You back yourself and go for the big moment.",["Confidence","Risk-taking","Instinct"],"Erling Haaland","Manchester City","Norway (Haaland: 25 goals)","Norway v France"],
+SC:["A vocal organiser who demands standards and directs the team with authority.",["Leadership","Discipline","Decisiveness"],"Harry Kane","Bayern Munich","Germany (7-1 opening win)","Germany v Netherlands"],
+CoP:["Steady, reliable and disciplined. You deliver week after week.",["Discipline","Reliability","Routine"],"Jude Bellingham","Manchester City","Brazil (70% historical win rate)","Brazil v Argentina"],
+BMS:["You come alive when the lights are brightest and deliver when it counts most.",["Composure","Confidence","Clutch instinct"],"Kylian Mbappé","Real Madrid","France (3 finals in 5 World Cups)","France v England"]};
+var f=document.getElementById("quiz"),h="";
+Q.forEach(function(q,i){h+='<div class="q"><p>'+(i+1)+'. '+q.t+'</p>';
+if(q.o){q.o.forEach(function(o,j){h+='<label><input type="radio" name="q'+i+'" value="'+j+'"><span>'+o[0]+'</span></label>'});}
+else{h+='<div class="rate">';for(var v=1;v<=5;v++)h+='<label><input type="radio" name="q'+i+'" value="'+v+'"><span>'+v+'</span></label>';h+='</div><div class="rl"><span>Strongly disagree</span><span>Strongly agree</span></div>';}
+h+='</div>';});
+f.innerHTML=h;
+document.querySelectorAll(".rate input").forEach(function(x){x.addEventListener("change",function(){x.closest(".rate").querySelectorAll("label").forEach(function(l){l.style.background="";l.style.borderColor=""});x.parentNode.style.background="rgba(35,164,116,.25)";x.parentNode.style.borderColor="var(--pitch2)"})});
+document.getElementById("go").onclick=function(){
+var m=0,r=0,mx=0,rx=0,tag={},miss=[];
+Q.forEach(function(q,i){var s=f.querySelector('input[name=q'+i+']:checked');if(!s){miss.push(i+1);return}
+var v=+s.value;
+if(q.o){var o=q.o[v];m+=o[1];r+=o[2];tag[o[3]]=(tag[o[3]]||0)+2;mx+=Math.max.apply(0,q.o.map(function(x){return x[1]}));rx+=Math.max.apply(0,q.o.map(function(x){return x[2]}))}
+else{m+=v*q.r[0];r+=v*q.r[1];mx+=5*q.r[0];rx+=5*q.r[1];if(v>=4)tag[q.r[2]]=(tag[q.r[2]]||0)+2}});
+var e=document.getElementById("err");
+if(miss.length){e.textContent="Please answer question"+(miss.length>1?"s ":" ")+miss.join(", ")+" first.";return}
+e.textContent="";
+var mp=Math.round(30+65*m/mx),rp=Math.round(30+65*r/rx);
+var top=Object.keys(tag).sort(function(a,b){return tag[b]-tag[a]})[0],d=D[top];
+var more=(m/mx>=r/rx)?"Messi":"Ronaldo";
+document.getElementById("mp").textContent=mp+"%";document.getElementById("rp").textContent=rp+"%";
+var why=more==="Messi"?"<b>You resemble Messi more.</b> Your answers lean toward creativity, instinct and team-first calm. Like Messi (12 assists, Golden Ball in 2014 and 2022), you tend to read situations, trust your feel for the game and make others better. You also share Ronaldo's "+rp+"% drive in places, especially competitiveness and effort."
+:"<b>You resemble Ronaldo more.</b> Your answers lean toward drive, preparation and self-belief. Like Ronaldo (18 goals, rating 94), you tend to set demanding standards, out-work the room and back yourself under doubt. You still share "+mp+"% of Messi's creativity and team awareness.";
+document.getElementById("why").innerHTML=why+" Decision style: "+(top==="FA"||top==="CP"||top==="BMS"?"fast and instinct-led.":"planned and deliberate.");
+document.getElementById("an").textContent=A[top];document.getElementById("ad").textContent=d[0];
+document.getElementById("at").innerHTML=d[1].map(function(t){return"<span>"+t+"</span>"}).join("");
+var L=[["Player to explore",d[2]],["Club to explore",d[3]],["National team",d[4]],["Rivalry to explore",d[5]]];
+document.getElementById("recs").innerHTML=L.map(function(x){return'<div class="card"><div class="role">'+x[0]+'</div><h3>'+x[1]+'</h3></div>'}).join("");
+document.getElementById("ins").innerHTML=[
+"<b>Forecast:</b> Argentina to win (24%), France runner-up (18%), Morocco as the dark horse (9%).",
+"<b>Football IQ:</b> 80/100, Football Enthusiast. Next step: compare goals conceded and goal difference, not just goals scored.",
+"<b>Personality:</b> "+mp+"% Messi, "+rp+"% Ronaldo. You are a "+A[top]+", closer to "+more+".",
+"<b>Explore next:</b> "+d[2]+", "+d[3]+", "+d[4].split(" (")[0]+" and the "+d[5]+" rivalry."].map(function(t){return"<li>"+t+"</li>"}).join("");
+var R=document.getElementById("result");R.style.display="block";R.scrollIntoView({behavior:"smooth"});};
+</script></body></html>
