@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Face Shuffle</title>
+<style>
+:root{--bg:#241a35;--panel:#2f2347;--ink:#fff7e8;--mute:#b9aad4;--flash:#ffd23f;--drag:#ff4f9a;--ok:#2fd67b;--r:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif}
+body{padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom);display:flex;justify-content:center}
+main{width:100%;max-width:560px;padding:18px 0 28px}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:2rem;margin:0 0 4px;letter-spacing:.5px}
+.sub{color:var(--mute);margin:0 0 18px;font-size:.95rem}
+.screen{display:none}.screen.on{display:block}
+.frame{position:relative;width:100%;aspect-ratio:1;background:#000;border:6px solid var(--ink);border-radius:var(--r);overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block}
+canvas#shot{width:100%;height:100%;display:block}
+.msg{padding:22px;text-align:center;color:var(--mute);line-height:1.5}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+button,.btn{font:inherit;font-weight:700;border:0;border-radius:999px;padding:12px 22px;cursor:pointer;background:var(--panel);color:var(--ink);border:2px solid var(--mute)}
+button.primary{background:var(--flash);color:#2a1d00;border-color:var(--flash)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible{outline:3px solid var(--drag);outline-offset:2px}
+.diff button{flex:1;min-width:90px}
+.diff button.sel{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--panel);border-radius:var(--r);padding:8px 10px;text-align:center}
+.stat b{display:block;font-size:1.25rem;font-variant-numeric:tabular-nums}
+.stat span{color:var(--mute);font-size:.8rem}
+#board{position:relative;width:100%;aspect-ratio:1;background:#120b1d;border-radius:var(--r);touch-action:none;user-select:none;-webkit-user-select:none;overflow:hidden;border:4px solid var(--ink)}
+.tile{position:absolute;background-repeat:no-repeat;border:2px solid rgba(255,247,232,.35);cursor:grab;touch-action:none;transition:left .15s,top .15s,border-color .15s}
+.tile.ok{border-color:var(--ok);box-shadow:inset 0 0 0 1px var(--ok)}
+.tile.drag{border:3px solid var(--drag);z-index:10;transition:none;cursor:grabbing;box-shadow:0 8px 22px rgba(0,0,0,.55);transform:scale(1.04)}
+#peek{position:absolute;inset:0;background-size:100% 100%;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#peek.on{opacity:1}
+.overlay{position:fixed;inset:0;background:rgba(18,11,29,.88);display:none;align-items:center;justify-content:center;padding:16px;z-index:50;overflow:auto}
+.overlay.on{display:flex}
+.card{background:var(--panel);border:3px solid var(--flash);border-radius:20px;padding:22px;width:100%;max-width:420px;animation:pop .35s ease-out}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+.card h2{font-family:Georgia,serif;margin:0 0 12px;font-size:1.7rem}
+.res{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.res div{background:var(--bg);border-radius:12px;padding:10px;text-align:center}
+.res b{display:block;font-size:1.15rem}.res span{color:var(--mute);font-size:.8rem}
+table{width:100%;border-collapse:collapse;font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid rgba(255,247,232,.12)}
+th{color:var(--mute);font-weight:600}
+tr.me td{color:var(--flash);font-weight:700}
+.lb-empty{color:var(--mute);padding:8px 0}
+.confetti{position:fixed;top:-12px;width:10px;height:14px;z-index:60;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+@media (prefers-reduced-motion:reduce){.tile{transition:none}.card{animation:none}.confetti{display:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Face Shuffle</h1>
+  <p class="sub" id="sub">Smile for the camera, then put your face back together.</p>
+
+  <section id="s-cam" class="screen on">
+    <div class="frame" id="camFrame">
+      <video id="video" autoplay playsinline muted></video>
+      <div class="msg" id="camMsg" style="display:none"></div>
+    </div>
+    <div class="row">
+      <button class="primary" id="snapBtn" disabled>Take Photo</button>
+      <button id="uploadBtn" style="display:none">Upload a photo instead</button>
+      <input type="file" id="file" accept="image/*" hidden>
+    </div>
+  </section>
+
+  <section id="s-diff" class="screen">
+    <div class="frame"><canvas id="shot" width="720" height="720"></canvas></div>
+    <p class="sub" style="margin:14px 0 0">Choose a grid size to start.</p>
+    <div class="row diff" id="diffRow">
+      <button data-n="3">3×3</button><button data-n="4" class="sel">4×4</button><button data-n="5">5×5</button>
+    </div>
+    <div class="row">
+      <button class="primary" id="startBtn">Start Puzzle</button>
+      <button id="retakeBtn">Retake Photo</button>
+    </div>
+  </section>
+
+  <section id="s-game" class="screen">
+    <div class="stats">
+      <div class="stat"><b id="time">00:00.0</b><span>Time</span></div>
+      <div class="stat"><b id="moves">0</b><span>Moves</span></div>
+      <div class="stat"><b id="placed">0/0</b><span>In place</span></div>
+    </div>
+    <div id="board"><div id="peek"></div></div>
+    <div class="row">
+      <button id="peekBtn">Hold to peek</button>
+      <button id="restartBtn">Reshuffle</button>
+      <button id="newPhotoBtn">New Photo</button>
+    </div>
+  </section>
+</main>
+
+<div class="overlay" id="winOv" role="dialog" aria-modal="true" aria-labelledby="winT">
+  <div class="card">
+    <h2 id="winT">Face restored!</h2>
+    <div class="res">
+      <div><b id="rTime"></b><span>Time</span></div>
+      <div><b id="rMoves"></b><span>Moves</span></div>
+      <div><b id="rDiff"></b><span>Grid</span></div>
+    </div>
+    <p id="rank" class="sub" style="margin:0 0 8px"></p>
+    <div id="lb"></div>
+    <div class="row">
+      <button class="primary" id="againBtn">Play Again</button>
+      <button id="newBtn">New Photo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var video = $('video'), shot = $('shot'), sctx = shot.getContext('2d');
+  var board = $('board'), peek = $('peek');
+  var stream = null, n = 4, photoURL = '', order = [], tiles = [];
+  var moves = 0, startTime = 0, timerId = null, playing = false, drag = null, lastEntry = null;
+  var KEY = 'faceShuffleBest';
+
+  function show(id, sub) {
+    ['s-cam', 's-diff', 's-game'].forEach(function (s) { $(s).classList.toggle('on', s === id); });
+    if (sub) $('sub').textContent = sub;
+  }
+
+  /* ---------- Camera ---------- */
+  function camError(text) {
+    $('camMsg').style.display = 'block';
+    $('camMsg').textContent = text;
+    video.style.display = 'none';
+    $('uploadBtn').style.display = 'inline-block';
+    $('snapBtn').disabled = true;
+  }
+  function startCamera() {
+    $('camMsg').style.display = 'none';
+    video.style.display = 'block';
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      camError('Camera is not available here. Open this page over HTTPS or localhost, or upload a photo instead.');
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false })
+      .then(function (s) {
+        stream = s;
+        video.srcObject = s;
+        var p = video.play(); if (p && p.catch) p.catch(function () {});
+        $('snapBtn').disabled = false;
+        $('uploadBtn').style.display = 'none';
+      })
+      .catch(function (e) {
+        var denied = e && (e.name === 'NotAllowedError' || e.name === 'SecurityError');
+        camError(denied
+          ? 'Camera access was blocked. Allow the camera in your browser\'s site settings and reload, or upload a photo instead.'
+          : 'No usable camera was found. Connect one and reload, or upload a photo instead.');
+      });
+  }
+  function stopCamera() {
+    if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; }
+  }
+  function drawSquare(src, w, h, mirror) {
+    var side = Math.min(w, h), sx = (w - side) / 2, sy = (h - side) / 2;
+    sctx.save();
+    sctx.clearRect(0, 0, shot.width, shot.height);
+    if (mirror) { sctx.translate(shot.width, 0); sctx.scale(-1, 1); }
+    sctx.drawImage(src, sx, sy, side, side, 0, 0, shot.width, shot.height);
+    sctx.restore();
+    photoURL = shot.toDataURL('image/jpeg', 0.92);
+    stopCamera();
+    show('s-diff', 'Nice shot. Pick a difficulty.');
+  }
+  $('snapBtn').onclick = function () {
+    if (!video.videoWidth) return;
+    drawSquare(video, video.videoWidth, video.videoHeight, true);
+  };
+  $('uploadBtn').onclick = function () { $('file').click(); };
+  $('file').onchange = function (e) {
+    var f = e.target.files && e.target.files[0]; if (!f) return;
+    var img = new Image();
+    img.onload = function () { drawSquare(img, img.width, img.height, false); URL.revokeObjectURL(img.src); };
+    img.src = URL.createObjectURL(f);
+    e.target.value = '';
+  };
+  function retake() {
+    stopTimer(); playing = false; hideWin();
+    show('s-cam', 'Smile for the camera, then put your face back together.');
+    startCamera();
+  }
+  $('retakeBtn').onclick = retake;
+  $('newPhotoBtn').onclick = retake;
+  $('newBtn').onclick = retake;
+
+  /* ---------- Difficulty ---------- */
+  Array.prototype.forEach.call($('diffRow').children, function (b) {
+    b.onclick = function () {
+      n = +b.dataset.n;
+      Array.prototype.forEach.call($('diffRow').children, function (x) { x.classList.toggle('sel', x === b); });
+    };
+  });
+  $('startBtn').onclick = function () { startGame(); };
+  $('restartBtn').onclick = function () { startGame(); };
+  $('againBtn').onclick = function () { hideWin(); startGame(); };
+
+  /* ---------- Puzzle ---------- */
+  function shuffleOrder() {
+    var total = n * n, a, i, j, t, solved;
+    do {
+      a = []; for (i = 0; i < total; i++) a.push(i);
+      for (i = total - 1; i > 0; i--) { j = Math.floor(Math.random() * (i + 1)); t = a[i]; a[i] = a[j]; a[j] = t; }
+      solved = a.every(function (v, k) { return v === k; });
+    } while (solved);
+    return a; /* every permutation is reachable by tile swaps, so it is always solvable */
+  }
+  function cellPos(c) { return { x: (c % n) * (100 / n), y: Math.floor(c / n) * (100 / n) }; }
+
+  function startGame() {
+    stopTimer(); hideWin();
+    var total = n * n;
+    order = shuffleOrder();
+    moves = 0; playing = true;
+    Array.prototype.slice.call(board.querySelectorAll('.tile')).forEach(function (t) { board.removeChild(t); });
+    tiles = [];
+    peek.style.backgroundImage = 'url(' + photoURL + ')';
+    for (var p = 0; p < total; p++) {
+      var d = document.createElement('div');
+      d.className = 'tile';
+      d.dataset.piece = p;
+      d.style.width = (100 / n) + '%';
+      d.style.height = (100 / n) + '%';
+      d.style.backgroundImage = 'url(' + photoURL + ')';
+      d.style.backgroundSize = (n * 100) + '% ' + (n * 100) + '%';
+      var px = (p % n) * (100 / (n - 1)), py = Math.floor(p / n) * (100 / (n - 1));
+      d.style.backgroundPosition = px + '% ' + py + '%';
+      d.addEventListener('pointerdown', onDown);
+      board.insertBefore(d, peek);
+      tiles[p] = d;
+    }
+    layout();
+    updateStats();
+    show('s-game', 'Drag a piece onto another to swap them.');
+    startTime = performance.now();
+    timerId = setInterval(tick, 100);
+    tick();
+  }
+  function layout() {
+    order.forEach(function (piece, cell) {
+      var pos = cellPos(cell), t = tiles[piece];
+      t.style.left = pos.x + '%'; t.style.top = pos.y + '%';
+      t.classList.toggle('ok', piece === cell);
+    });
+  }
+  function correctCount() { return order.reduce(function (s, p, c) { return s + (p === c ? 1 : 0); }, 0); }
+  function updateStats() {
+    $('moves').textContent = moves;
+    $('placed').textContent = correctCount() + '/' + (n * n);
+  }
+
+  /* ---------- Drag (mouse + touch via pointer events) ---------- */
+  function onDown(e) {
+    if (!playing || drag) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault();
+    var t = e.currentTarget, r = board.getBoundingClientRect(), tr = t.getBoundingClientRect();
+    drag = { el: t, id: e.pointerId, ox: e.clientX - tr.left, oy: e.clientY - tr.top, from: order.indexOf(+t.dataset.piece) };
+    try { t.setPointerCapture(e.pointerId); } catch (x) {}
+    t.classList.add('drag');
+    moveTo(e);
+    t.addEventListener('pointermove', moveTo);
+    t.addEventListener('pointerup', onUp);
+    t.addEventListener('pointercancel', onUp);
+  }
+  function moveTo(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var r = board.getBoundingClientRect();
+    var x = e.clientX - r.left - drag.ox - 4, y = e.clientY - r.top - drag.oy - 4;
+    drag.el.style.left = x + 'px'; drag.el.style.top = y + 'px';
+  }
+  function onUp(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var t = drag.el, r = board.getBoundingClientRect(), from = drag.from;
+    t.removeEventListener('pointermove', moveTo);
+    t.removeEventListener('pointerup', onUp);
+    t.removeEventListener('pointercancel', onUp);
+    try { t.releasePointerCapture(e.pointerId); } catch (x) {}
+    var inner = r.width - 8, cx = (e.clientX - r.left - 4) / inner, cy = (e.clientY - r.top - 4) / inner;
+    var col = Math.min(n - 1, Math.max(0, Math.floor(cx * n))), row = Math.min(n - 1, Math.max(0, Math.floor(cy * n)));
+    var to = row * n + col;
+    t.classList.remove('drag');
+    drag = null;
+    if (e.type !== 'pointercancel' && to !== from) {
+      var tmp = order[from]; order[from] = order[to]; order[to] = tmp;
+      moves++;
+    }
+    layout();
+    updateStats();
+    if (correctCount() === n * n) win();
+  }
+
+  /* ---------- Timer ---------- */
+  function fmt(ms) {
+    var tenths = Math.floor(ms / 100) % 10, s = Math.floor(ms / 1000), m = Math.floor(s / 60);
+    s = s % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s + '.' + tenths;
+  }
+  function tick() { $('time').textContent = fmt(performance.now() - startTime); }
+  function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+
+  /* ---------- Win + leaderboard ---------- */
+  function loadBest() {
+    try { var a = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+  function saveBest(list) { try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) {} }
+  function win() {
+    stopTimer(); playing = false;
+    var elapsed = performance.now() - startTime;
+    $('time').textContent = fmt(elapsed);
+    var entry = { ms: Math.round(elapsed), moves: moves, size: n, date: new Date().toISOString() };
+    var list = loadBest(); list.push(entry);
+    list.sort(function (a, b) { return a.ms - b.ms; });
+    var made = list.indexOf(entry) < 5;
+    list = list.slice(0, 5); saveBest(list);
+    lastEntry = entry;
+    $('rTime').textContent = fmt(elapsed);
+    $('rMoves').textContent = moves;
+    $('rDiff').textContent = n + '×' + n;
+    $('rank').textContent = made ? 'You made the top 5!' : 'Not in the top 5 this time. Try again.';
+    renderLB(list, entry);
+    setTimeout(function () { $('winOv').classList.add('on'); confetti(); $('againBtn').focus(); }, 450);
+  }
+  function renderLB(list, mine) {
+    var box = $('lb');
+    if (!list.length) { box.innerHTML = '<div class="lb-empty">No times saved yet.</div>'; return; }
+    var h = '<table><tr><th>#</th><th>Time</th><th>Moves</th><th>Grid</th><th>Date</th></tr>';
+    list.forEach(function (e, i) {
+      var d = new Date(e.date), ds = isNaN(d) ? '' : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      var me = mine && e.date === mine.date && e.ms === mine.ms;
+      h += '<tr' + (me ? ' class="me"' : '') + '><td>' + (i + 1) + '</td><td>' + fmt(e.ms) + '</td><td>' + e.moves + '</td><td>' + e.size + '×' + e.size + '</td><td>' + ds + '</td></tr>';
+    });
+    box.innerHTML = h + '</table>';
+  }
+  function hideWin() { $('winOv').classList.remove('on'); }
+  function confetti() {
+    var cols = ['#ffd23f', '#ff4f9a', '#2fd67b', '#5ec8ff', '#fff7e8'];
+    for (var i = 0; i < 40; i++) {
+      var c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = cols[i % cols.length];
+      c.style.animationDuration = (1.6 + Math.random() * 1.6) + 's';
+      c.style.animationDelay = (Math.random() * 0.4) + 's';
+      document.body.appendChild(c);
+      setTimeout((function (el) { return function () { if (el.parentNode) el.parentNode.removeChild(el); }; })(c), 3800);
+    }
+  }
+
+  /* ---------- Peek ---------- */
+  var pk = $('peekBtn');
+  ['pointerdown'].forEach(function (ev) { pk.addEventListener(ev, function () { peek.classList.add('on'); }); });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) { pk.addEventListener(ev, function () { peek.classList.remove('on'); }); });
+  pk.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+  window.addEventListener('pagehide', stopCamera);
+  startCamera();
+})();
+</script>
+</body>
+</html>
