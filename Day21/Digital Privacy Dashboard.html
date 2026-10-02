@@ -1,0 +1,122 @@
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#14161a;--mut:#667085;--line:#e4e7ec;--acc:#5b5bd6;--g:#16a34a;--y:#ca8a04;--o:#ea580c;--r:#dc2626;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0f14;--card:#151922;--ink:#eceef3;--mut:#8b93a5;--line:#252b38;--acc:#8b8bff;--g:#34d399;--y:#facc15;--o:#fb923c;--r:#f87171}}
+:root[data-theme="dark"]{--bg:#0d0f14;--card:#151922;--ink:#eceef3;--mut:#8b93a5;--line:#252b38;--acc:#8b8bff;--g:#34d399;--y:#facc15;--o:#fb923c;--r:#f87171}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+.w{max-width:1120px;margin:0 auto;padding:20px 16px 48px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+h1{font-size:22px;margin:0;letter-spacing:-.02em}h2{font-size:15px;margin:0 0 4px}
+.sub{color:var(--mut);font-size:12.5px}
+.note{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12.5px;color:var(--mut)}
+.grid{display:grid;gap:14px;margin-bottom:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.c{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.tag{display:inline-block;font-size:10.5px;font-weight:600;padding:1px 7px;border-radius:99px;margin-left:6px;vertical-align:middle}
+.F{background:color-mix(in srgb,var(--g) 18%,transparent);color:var(--g)}
+.E{background:color-mix(in srgb,var(--y) 20%,transparent);color:var(--y)}
+.gauge{display:flex;align-items:center;gap:16px}
+.gauge svg{width:120px;height:120px;flex:none}
+.big{font-size:26px;font-weight:700;letter-spacing:-.02em}
+.stat .big{margin-top:2px}
+.sc{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12px}
+th,td{padding:5px 6px;text-align:center;white-space:nowrap}
+th{color:var(--mut);font-weight:500}td:first-child,th:first-child{text-align:left;position:sticky;left:0;background:var(--card)}
+.hm{width:100%;min-width:34px;height:22px;border-radius:4px}
+.bar{display:grid;grid-template-columns:90px 1fr 42px;gap:8px;align-items:center;margin:7px 0;font-size:12.5px}
+.bar i{display:block;height:8px;border-radius:4px;background:var(--acc)}
+.bar div{background:var(--line);border-radius:4px}
+.pill{font-size:11px;padding:1px 7px;border-radius:99px;border:1px solid var(--line)}
+.p3{background:color-mix(in srgb,var(--r) 22%,transparent);color:var(--r)}.p2{background:color-mix(in srgb,var(--o) 20%,transparent);color:var(--o)}.p1{background:color-mix(in srgb,var(--y) 18%,transparent);color:var(--y)}.p0{color:var(--mut)}
+.row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line);cursor:pointer}
+.chk input{margin-top:3px;accent-color:var(--acc)}
+.leg{display:flex;gap:10px;font-size:11.5px;color:var(--mut);margin-top:8px;flex-wrap:wrap}
+.verdict{border-left:3px solid var(--acc)}
+button{font:inherit;background:var(--acc);color:#fff;border:0;border-radius:8px;padding:6px 12px;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+</style>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Digital Privacy Dashboard</title>
+<div class="w">
+<header><div><h1>Digital Privacy Dashboard</h1><div class="sub">Built from your 15 reported services. Nothing here comes from a private database.</div></div><button id="th" aria-label="Toggle theme">Toggle theme</button></header>
+<div class="note"><span class="tag F" style="margin:0">FACT</span> = services you listed and their parent companies. <span class="tag E">ESTIMATE</span> = scores and traits inferred from those services. Estimates are probabilistic and never certain.</div>
+
+<div class="grid g2">
+<div class="c"><h2>Digital Footprint Score <span class="tag E">ESTIMATE</span></h2><div class="gauge"><svg id="g1" viewBox="0 0 120 120"></svg><div><div class="big" id="v1"></div><div id="l1"></div><div class="sub">🟢 0-30 Minimal · 🟡 31-60 Moderate · 🟠 61-80 Significant · 🔴 81-100 Extensive</div></div></div></div>
+<div class="c"><h2>Privacy Score <span class="tag E">ESTIMATE</span></h2><div class="gauge"><svg id="g2" viewBox="0 0 120 120"></svg><div><div class="big" id="v2"></div><div id="l2"></div><div class="sub">🔴 0-30 Weak · 🟠 31-60 Fair · 🟡 61-80 Good · 🟢 81-100 Strong</div></div></div></div>
+</div>
+
+<div class="grid g4">
+<div class="c stat"><div class="sub">Total services <span class="tag F">FACT</span></div><div class="big" id="s1"></div></div>
+<div class="c stat"><div class="sub">Parent companies <span class="tag F">FACT</span></div><div class="big" id="s2"></div></div>
+<div class="c stat"><div class="sub">Ecosystem concentration <span class="tag E">ESTIMATE</span></div><div class="big" id="s3"></div></div>
+<div class="c stat"><div class="sub">Est. tracking surface <span class="tag E">ESTIMATE</span></div><div class="big" id="s4"></div><div class="sub">data-type touchpoints</div></div>
+</div>
+
+<div class="c" style="margin-bottom:14px"><h2>Exposure Heatmap <span class="tag E">ESTIMATE</span></h2><div class="sub">How likely each service is to handle each data type. Darker means more likely.</div><div class="sc" id="hm"></div><div class="leg"><span>Not typical</span><span>Possible</span><span>Likely</span><span>Very likely</span></div></div>
+
+<div class="grid g2">
+<div class="c"><h2>Company Exposure Ranking</h2><div class="sub">Parent company <span class="tag F">FACT</span> · exposure share <span class="tag E">ESTIMATE</span></div><div id="rk"></div></div>
+<div class="c"><h2>Risk Radar <span class="tag E">ESTIMATE</span></h2><svg id="rd" viewBox="0 0 300 300" style="width:100%;max-width:340px;display:block;margin:auto"></svg></div>
+</div>
+
+<div class="c" style="margin-bottom:14px"><h2>Data Collection Matrix <span class="tag E">ESTIMATE</span></h2><div class="sub">Likelihood by parent company, using the strongest signal among your services from that company.</div><div class="sc" id="mx"></div></div>
+
+<div class="grid g2">
+<div class="c"><h2>Digital Twin Profile <span class="tag E">ESTIMATE</span></h2><div class="sub">A cautious guess at how an analyst might read your footprint. Not certain.</div><div id="tw"></div></div>
+<div class="c"><h2>Most Valuable Data Assets <span class="tag E">ESTIMATE</span></h2><div class="sub">What is most useful to advertisers or attackers, based on your services.</div><div id="va"></div></div>
+</div>
+
+<div class="c" style="margin-bottom:14px"><h2>WOW Insights</h2><div id="wo"></div></div>
+
+<div class="c" style="margin-bottom:14px"><h2>Privacy Improvement Plan &amp; Simulator <span class="tag E">ESTIMATE</span></h2><div class="sub">Tick the steps you would take. Scores update live.</div><div id="pl"></div>
+<div class="grid g4" style="margin:12px 0 0"><div><div class="sub">Footprint now → after</div><div class="big" id="sf"></div></div><div><div class="sub">Privacy now → after</div><div class="big" id="sp"></div></div></div></div>
+
+<div class="c verdict"><h2>Final Verdict</h2><div id="fv"></div></div>
+</div>
+<script>
+var T=["Identity","Contacts","Location","Messages","Media","Payments","Search","Behavior","Device","Biometric"];
+var S=[["Instagram","Meta","3212302331"],["Snapchat","Snap Inc.","3333301332"],["TikTok","ByteDance","2121302332"],["YouTube","Alphabet","2010203331"],["Discord","Discord Inc.","3213201232"],["WhatsApp","Meta","3312210131"],["iMessage","Apple","3303100120"],["Spotify","Spotify AB","2010022320"],["Roblox","Roblox Corp.","3112120331"],["PUBG Mobile","Krafton*","2122020332"],["Amazon","Amazon","3120133331"],["Meesho","Meesho","2120132330"],["Google Search","Alphabet","2020003331"],["Google Pay","Alphabet","3220030231"],["Google Photos","Alphabet","2130301232"]];
+var $=function(i){return document.getElementById(i)};
+var LV=["Not typical","Possible","Likely","Very likely"],COL={g:"var(--g)",y:"var(--y)",o:"var(--o)",r:"var(--r)"};
+var tot=0,touch=0,co={},tt=T.map(function(){return 0});
+S.forEach(function(s){var d=s[2].split("").map(Number);s.d=d;d.forEach(function(v,i){tot+=v;tt[i]+=v;if(v)touch++});var c=co[s[1]]=co[s[1]]||{n:0,sum:0,m:T.map(function(){return 0})};c.n++;c.sum+=d.reduce(function(a,b){return a+b},0);d.forEach(function(v,i){c.m[i]=Math.max(c.m[i],v)})});
+var cn=Object.keys(co),hhi=0;cn.forEach(function(k){hhi+=Math.pow(co[k].n/S.length,2)});
+var conc=Math.round(Math.min(100,hhi*320)),FP=Math.min(100,Math.round(tot/(S.length*30)*140)),PV=Math.max(5,Math.round(100-FP*.55-conc*.3));
+function fl(v){return v<=30?["Minimal","g","🟢"]:v<=60?["Moderate","y","🟡"]:v<=80?["Significant","o","🟠"]:["Extensive","r","🔴"]}
+function pl(v){return v<=30?["Weak","r","🔴"]:v<=60?["Fair","o","🟠"]:v<=80?["Good","y","🟡"]:["Strong","g","🟢"]}
+function ring(id,v,c){var C=2*Math.PI*48;$(id).innerHTML='<circle cx="60" cy="60" r="48" fill="none" stroke="var(--line)" stroke-width="10"/><circle cx="60" cy="60" r="48" fill="none" stroke="'+COL[c]+'" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+C*v/100+' '+C+'" transform="rotate(-90 60 60)"/><text x="60" y="66" text-anchor="middle" font-size="24" font-weight="700" fill="var(--ink)">'+v+'</text>'}
+function paint(f,p){var a=fl(f),b=pl(p);ring("g1",f,a[1]);ring("g2",p,b[1]);$("v1").textContent=f+" / 100";$("l1").textContent=a[2]+" "+a[0];$("v2").textContent=p+" / 100";$("l2").textContent=b[2]+" "+b[0]}
+paint(FP,PV);
+$("s1").textContent=S.length;$("s2").textContent=cn.length;$("s3").textContent=conc+" / 100";$("s4").textContent="~"+touch;
+var h='<table><tr><th></th>'+T.map(function(t){return"<th>"+t+"</th>"}).join("")+"</tr>";
+S.forEach(function(s){h+="<tr><td>"+s[0]+"</td>"+s.d.map(function(v,i){return'<td><div class="hm" title="'+s[0]+" · "+T[i]+": "+LV[v]+'" style="background:rgba(91,91,214,'+[.06,.3,.6,.95][v]+')"></div></td>'}).join("")+"</tr>"});
+$("hm").innerHTML=h+"</table>";
+var rk=cn.sort(function(a,b){return co[b].sum-co[a].sum}),mx=co[rk[0]].sum,r="";
+rk.forEach(function(k){r+='<div class="bar"><span>'+k+'</span><div><i style="width:'+Math.round(co[k].sum/mx*100)+'%"></i></div><span>'+Math.round(co[k].sum/tot*100)+'%</span></div>'});
+$("rk").innerHTML=r+'<div class="sub">*PUBG Mobile publisher/developer arrangements vary by region; Krafton is an inferred parent.</div>';
+var m='<table><tr><th></th>'+T.map(function(t){return"<th>"+t+"</th>"}).join("")+"</tr>";
+rk.forEach(function(k){m+="<tr><td>"+k+"</td>"+co[k].m.map(function(v){return'<td><span class="pill p'+v+'">'+["—","Low","Likely","High"][v]+"</span></td>"}).join("")+"</tr>"});
+$("mx").innerHTML=m+"</table>";
+var n=T.length,pts="",lb="",gr="";
+[.33,.66,1].forEach(function(k){gr+='<polygon fill="none" stroke="var(--line)" points="'+T.map(function(_,i){var a=i/n*2*Math.PI-Math.PI/2;return(150+90*k*Math.cos(a))+","+(150+90*k*Math.sin(a))}).join(" ")+'"/>'});
+T.forEach(function(t,i){var a=i/n*2*Math.PI-Math.PI/2,v=tt[i]/(S.length*3);pts+=(150+90*v*Math.cos(a))+","+(150+90*v*Math.sin(a))+" ";lb+='<text x="'+(150+112*Math.cos(a))+'" y="'+(153+112*Math.sin(a))+'" font-size="10" text-anchor="middle" fill="var(--mut)">'+t+"</text>"});
+$("rd").innerHTML=gr+'<polygon points="'+pts+'" fill="rgba(91,91,214,.3)" stroke="var(--acc)" stroke-width="2"/>'+lb;
+var tw=[["Likely life stage","Younger-skewed, mobile-first user (Snapchat, Roblox, PUBG Mobile, Discord)","Medium-low"],["Entertainment","Short video, music streaming and online gaming","Medium"],["Shopping style","Value-oriented marketplace shopper (Meesho, Amazon)","Medium"],["Payments","Uses a digital wallet for everyday payments (Google Pay)","Medium"],["Communication","Multi-platform: ephemeral, group and private messaging","Medium"],["Device ecosystem","Mixed Google and Apple services","Low"],["Income, occupation, health","Not enough information provided.","—"]],t="";
+tw.forEach(function(x){t+='<div class="row"><div><b>'+x[0]+"</b><br><span class=\"sub\">"+x[1]+'</span></div><span class="sub">'+x[2]+"</span></div>"});$("tw").innerHTML=t;
+var va=[["Payment and purchase history","Amazon, Meesho, Google Pay","Very high"],["Social graph and contacts","Snapchat, Instagram, WhatsApp, Discord","Very high"],["Location patterns","Snapchat, Google services, PUBG Mobile","High"],["Photos and face data","Google Photos, Instagram, Snapchat","High"],["Search and interest profile","Google Search, YouTube, TikTok","High"],["Message metadata","WhatsApp, iMessage, Discord","Medium"]],v="";
+va.forEach(function(x){v+='<div class="row"><div><b>'+x[0]+'</b><br><span class="sub">'+x[1]+'</span></div><span class="pill p'+(x[2]=="Very high"?3:x[2]=="High"?2:1)+'">'+x[2]+"</span></div>"});$("va").innerHTML=v;
+$("wo").innerHTML='<div class="row"><div>🧩 <b>'+co.Alphabet.n+' of your '+S.length+' services belong to Alphabet.</b> <span class="tag F">FACT</span><br><span class="sub">One company can connect search, video, payments and photos if one account is shared (Estimate).</span></div></div><div class="row"><div>💳 <b>Payment-related data may sit in 3 services.</b> <span class="tag E">ESTIMATE</span><br><span class="sub">Amazon, Meesho and Google Pay.</span></div></div><div class="row"><div>🔒 <b>2 of 15 services use end-to-end encryption by default.</b> <span class="tag F">FACT</span><br><span class="sub">WhatsApp and iMessage, per general product knowledge. Metadata may still be collected.</span></div></div><div class="row"><div>📍 <b>Location is a likely signal in '+S.filter(function(s){return s.d[2]>=2}).length+' services.</b> <span class="tag E">ESTIMATE</span></div></div>';
+var A=[["High","Turn off ad personalization in Google and Meta account settings",6],["High","Set Snapchat Snap Map to Ghost Mode and limit location sharing",5],["High","Set Google activity and Timeline to auto-delete",6],["High","Review camera, mic, photo and location permissions for every app",6],["Medium","Turn off contact syncing in Instagram, WhatsApp, Snapchat and Discord",5],["Medium","Uninstall apps you no longer use (for example Meesho or PUBG Mobile)",5],["Medium","Remove stored cards and keep payments in one wallet",4],["Medium","Turn on two-step verification for all accounts",4]],p="";
+A.forEach(function(a,i){p+='<label class="chk"><input type="checkbox" data-i="'+i+'"><div><span class="pill p'+(a[0]=="High"?3:1)+'">'+a[0]+" priority</span> "+a[1]+' <span class="sub">(+'+a[2]+" privacy est.)</span></div></label>"});
+$("pl").innerHTML=p;
+function sim(){var d=0;document.querySelectorAll("#pl input:checked").forEach(function(c){d+=A[c.dataset.i][2]});var f=Math.max(5,FP-Math.round(d*.6)),q=Math.min(98,PV+d);$("sf").textContent=FP+" → "+f;$("sp").textContent=PV+" → "+q;paint(f,q);fin(f,q)}
+function fin(f,q){var a=fl(f),b=pl(q);$("fv").innerHTML="<p>Your footprint is estimated as <b>"+a[2]+" "+a[0]+" ("+f+")</b> and your privacy as <b>"+b[2]+" "+b[0]+" ("+q+")</b>. The breadth of social, gaming, shopping and payment services is what drives this, along with Alphabet holding "+co.Alphabet.n+" of your "+S.length+" services.</p><p class=\"sub\">The fastest gains are limiting location and contact sharing and trimming ad personalization. These are estimates from the services you listed, not findings about your accounts.</p>"}
+document.querySelectorAll("#pl input").forEach(function(c){c.onchange=sim});sim();
+$("th").onclick=function(){var r=document.documentElement,d=r.dataset.theme=="dark"||(!r.dataset.theme&&matchMedia("(prefers-color-scheme:dark)").matches);r.dataset.theme=d?"light":"dark"};
+</script>
