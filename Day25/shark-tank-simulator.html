@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Shark Tank Simulator</title>
+<style>
+:root{--bg:#070b14;--card:#10172a;--line:#1f2a47;--tx:#e8ecf8;--mu:#8b97b8;--ac:#22d3ee;--gold:#fbbf24;--ok:#34d399;--bad:#f87171}
+*{box-sizing:border-box;margin:0}
+body{background:radial-gradient(1200px 600px at 50% -10%,#10234a 0,var(--bg) 60%) fixed;color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#070b14cc;backdrop-filter:blur(8px);z-index:5}
+.logo{font-weight:800;font-size:20px}.logo span{color:var(--ac)}
+main{max-width:980px;margin:0 auto;padding:24px 16px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px;animation:up .5s both}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.1;margin-bottom:8px}h2{font-size:20px;margin-bottom:12px}
+.sub{color:var(--mu);margin-bottom:18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:13px;color:var(--mu);margin-bottom:4px}
+input,textarea{width:100%;background:#0a1020;border:1px solid var(--line);border-radius:10px;color:var(--tx);padding:11px 12px;font:inherit}
+input:focus,textarea:focus{outline:2px solid var(--ac);border-color:transparent}
+textarea{min-height:90px;resize:vertical}.full{grid-column:1/-1}
+button{background:linear-gradient(135deg,#22d3ee,#3b82f6);color:#04101c;border:0;border-radius:10px;padding:11px 20px;font:700 15px inherit;cursor:pointer;transition:.2s}
+button:hover{transform:translateY(-2px);box-shadow:0 8px 24px #22d3ee40}
+button.g{background:#16203a;color:var(--tx);border:1px solid var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.judges{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+@media(max-width:700px){.judges{grid-template-columns:repeat(2,1fr)}}
+.j{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center;opacity:.5;transition:.3s}
+.j.on{opacity:1;transform:translateY(-4px) scale(1.03);border-color:var(--c);box-shadow:0 0 24px -4px var(--c)}
+.j b{display:block;font-size:14px}.j small{color:var(--mu);font-size:12px}.j .e{font-size:30px}
+.bub{border-left:4px solid var(--c,var(--ac));background:#0a1020;padding:14px 16px;border-radius:10px;margin:10px 0;animation:up .4s both}
+.bub .who{font-size:12px;color:var(--c);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;background:#16203a;font-size:12px;color:var(--mu)}
+.bar{height:12px;background:#0a1020;border-radius:99px;overflow:hidden;margin:4px 0 12px}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#22d3ee,#34d399);transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.sc{display:flex;justify-content:space-between;font-size:14px}
+.dec{text-align:center;padding:28px 16px}
+.dec .big{font-size:clamp(32px,7vw,56px);font-weight:900;letter-spacing:.02em}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+@media(max-width:700px){.stats{grid-template-columns:1fr}}
+.stat{background:#0a1020;border-radius:12px;padding:14px}.stat small{color:var(--mu)}.stat div{font-size:22px;font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--mu)}
+canvas#cf{position:fixed;inset:0;pointer-events:none;z-index:50}
+.prog{height:4px;background:#0a1020;border-radius:9px;margin-bottom:14px}.prog i{display:block;height:100%;background:var(--ac);transition:.4s;border-radius:9px}
+</style></head><body>
+<canvas id="cf"></canvas>
+<header><div class="logo">🦈 AI Shark <span>Tank</span> Simulator</div><button class="g" onclick="showLB()">🏆 Leaderboard</button></header>
+<main id="app"></main>
+<script>
+const $=s=>document.querySelector(s),app=$('#app');
+const J=[{id:'vc',n:'Venture Capitalist',e:'🦈',c:'#818cf8',f:'Market size & scalability'},
+{id:'fo',n:'Founder',e:'🦈',c:'#22d3ee',f:'Execution'},
+{id:'cu',n:'Customer',e:'🦈',c:'#34d399',f:'Usefulness'},
+{id:'an',n:'Angel Investor',e:'🦈',c:'#fbbf24',f:'Profitability'}];
+const FIELDS=[['name','Startup Name','input','e.g. FreshRoute'],['problem','Problem Statement','textarea','What painful problem exists, and for whom?'],['solution','Solution','textarea','How do you solve it? What makes it different?'],['revenue','Revenue Model','textarea','How do you earn? Pricing, margins...'],['audience','Target Audience','textarea','Who exactly are your customers?'],['ask','Funding Ask','input','e.g. $250,000 for 10% / ₹50 lakh']];
+const REACT={vc:{p:["Now that's a big-market answer. I'm leaning in.","Scalable thinking — that's what I fund."],m:["Okay, but I need to see the scale. Think bigger.","Plausible, yet not a venture-sized story."],n:["That's too vague for me. Where's the market data?","I can't see this reaching venture scale yet."]},
+fo:{p:["You've clearly thought about shipping this. Respect.","That's a real execution plan, not a wish."],m:["Fine start. Details on who does what, and when?","Execution is where startups die — tighten that up."],n:["That sounds like a plan to have a plan.","I've built companies. This isn't enough to build one."]},
+cu:{p:["As a customer, I'd actually try that.","Yes! That solves a real pain I'd pay to fix."],m:["I'm intrigued, but why wouldn't I stay with what I have?","Some value there. Make it a no-brainer."],n:["I still don't see why I'd switch.","As a user, I'm not convinced it's useful."]},
+an:{p:["Numbers! Now I can see how money comes back to me.","Margins and a path to profit — that's music to my ears."],m:["I need sharper unit economics before I write a cheque.","Revenue is plausible; profit isn't clear yet."],n:["No numbers, no deal. How do I get my money back?","This feels like a hobby, not a business."]}};
+const KW={scale:/global|billion|million|scal|platform|network|market|expand|saas|marketplace|nationwide/i,innov:/ai|machine|patent|novel|first|unique|proprietary|automat|data|algorithm|blockchain|iot|app|platform/i,exec:/team|pilot|launch|prototype|mvp|customers|hire|roadmap|month|week|partner|beta|revenue|users/i,money:/subscription|margin|price|\$|₹|€|£|%|commission|fee|ltv|cac|profit|recurring|per /i};
+const hash=s=>[...s].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
+const cl=(v,a=18,b=98)=>Math.round(Math.max(a,Math.min(b,v)));
+function fq(t){t=t||'';const w=t.trim().split(/\s+/).filter(Boolean).length;return Math.min(1,w/28)*.8+(/\d/.test(t)?.2:0)}
+function aq(t,id){const w=(t||'').trim().split(/\s+/).filter(Boolean).length;if(!w)return 0;let q=Math.min(1,w/35)*.55+(/\d/.test(t)?.2:0)+(/[,.;]/.test(t)&&w>12?.1:0);const m={vc:KW.scale,fo:KW.exec,cu:/because|customer|user|pain|save|easier|faster|cheaper|instead/i,an:KW.money}[id];if(m.test(t))q+=.2;return Math.min(1,q)}
+function parseAsk(s){const m=(s||'').replace(/,/g,'').match(/(\d+(?:\.\d+)?)\s*(k|thousand|m|mn|million|lakh|lac|l|crore|cr|b|billion)?/i);let sym=/₹|rs|inr|lakh|crore|lac/i.test(s)?'₹':/€/.test(s)?'€':/£/.test(s)?'£':'$';if(!m)return{v:0,sym};const u=(m[2]||'').toLowerCase();const mult={k:1e3,thousand:1e3,m:1e6,mn:1e6,million:1e6,lakh:1e5,lac:1e5,l:1e5,crore:1e7,cr:1e7,b:1e9,billion:1e9}[u]||1;return{v:+m[1]*mult,sym}}
+function money(v,sym){if(sym==='₹'){return v>=1e7?sym+(v/1e7).toFixed(2)+' Cr':v>=1e5?sym+(v/1e5).toFixed(1)+' Lakh':sym+Math.round(v).toLocaleString('en-IN')}return v>=1e9?sym+(v/1e9).toFixed(2)+'B':v>=1e6?sym+(v/1e6).toFixed(2)+'M':sym+Math.round(v).toLocaleString()}
+function questions(f){const n=f.name||'your startup',a=f.audience.split(/[.,;\n]/)[0].slice(0,60)||'your customers',k=f.ask||'that amount';
+return[['vc',`How big can ${n} get? Walk me through the market size for ${a}.`],['fo',`What will you ship in the next 90 days, and who does the work?`],['cu',`I'm part of "${a}". Why would I switch from what I use today to ${n}?`],['an',`How exactly do you make money — price, margin, break-even point?`],['vc',`What's your path to 10x scale, and what stops a big player from copying you?`],['fo',`What's the biggest execution risk for ${n} and how will you handle it?`],['cu',`Tell me about the last real person who felt this problem. What did they do?`],['an',`You're asking ${k}. What does it fund, and how do I get my money back?`]]}
+let S;
+function home(){S=null;app.innerHTML=`<div class="card"><h1>Pitch to the <span style="color:var(--ac)">Sharks</span> 🦈</h1><p class="sub">Enter your startup idea, face 4 AI judges and 8 tough questions, then get a scorecard, valuation and investment decision.</p>
+<div class="grid">${FIELDS.map(([k,l,t,p])=>`<div class="${t=='textarea'||k=='name'&&0?'':''} ${k=='name'||k=='ask'?'':'full'}"><label>${l}</label>${t=='input'?`<input id="f_${k}" placeholder="${p}">`:`<textarea id="f_${k}" placeholder="${p}"></textarea>`}</div>`).join('')}</div>
+<div class="row"><button onclick="start()">🎬 Start the Simulation</button><button class="g" onclick="demo()">Fill demo idea</button></div><p id="err" style="color:var(--bad);margin-top:10px"></p></div>
+<div class="judges">${J.map((j,i)=>`<div class="j on" style="--c:${j.c};animation:up .5s ${i*.1}s both"><div class="e">${j.e}</div><b>${j.n}</b><small>${j.f}</small></div>`).join('')}</div>`}
+function demo(){const d={name:'FreshRoute',problem:'Small grocery stores in Indian cities lose 18% of fresh produce to spoilage because supply chains are slow and unpredictable.',solution:'An AI platform that forecasts demand and routes farm-to-store deliveries within 12 hours, with cold-chain tracking via low-cost IoT sensors.',revenue:'2.5% commission per order plus a ₹1,999/month SaaS subscription per store. Gross margin 38%. Break-even in month 14.',audience:'Independent grocery and kirana stores in tier-1 and tier-2 cities, around 12 million stores nationwide.',ask:'₹1 crore for 10% equity'};for(const k in d)$('#f_'+k).value=d[k]}
+function start(){const f={};for(const[k]of FIELDS)f[k]=$('#f_'+k).value.trim();if(Object.values(f).some(v=>!v)){$('#err').textContent='Please complete all six fields before entering the Tank.';return}
+S={f,qs:questions(f),i:0,ans:[],rate:{vc:[],fo:[],cu:[],an:[]},cm:{}};ask()}
+function ask(){const[id,q]=S.qs[S.i],j=J.find(x=>x.id==id);
+app.innerHTML=`<div class="prog"><i style="width:${S.i/8*100}%"></i></div>
+${S.i==0?`<div class="card"><span class="pill">THE PITCH</span><h2 style="margin-top:8px">${esc(S.f.name)} — asking ${esc(S.f.ask)}</h2><p><b>Problem:</b> ${esc(S.f.problem)}</p><p><b>Solution:</b> ${esc(S.f.solution)}</p><p><b>Revenue:</b> ${esc(S.f.revenue)}</p><p><b>Audience:</b> ${esc(S.f.audience)}</p></div>`:''}
+<div class="judges">${J.map(x=>`<div class="j ${x.id==id?'on':''}" style="--c:${x.c}"><div class="e">${x.e}</div><b>${x.n}</b><small>${x.f}</small></div>`).join('')}</div>
+<div class="card" style="--c:${j.c}"><span class="pill">Question ${S.i+1} of 8</span>
+<div class="bub"><div class="who">${j.e} ${j.n}</div><p>${esc(q)}</p></div>
+<textarea id="ans" placeholder="Your answer — be specific, use numbers…"></textarea>
+<div class="row" id="act"><button onclick="answer()">Answer</button><button class="g" onclick="answer(1)">Skip</button></div><div id="rx"></div></div>`;$('#ans').focus()}
+function answer(skip){const t=skip?'':$('#ans').value.trim(),[id,q]=S.qs[S.i],j=J.find(x=>x.id==id),r=aq(t,id);
+S.ans.push({id,q,a:t,r});S.rate[id].push(r);const R=REACT[id],set=r>.6?R.p:r>.3?R.m:R.n,line=skip?"No answer? That's a red flag in the Tank.":set[hash(t+S.i)%set.length];
+S.cm[id]=line;$('#ans').disabled=true;
+$('#act').innerHTML=`<button onclick="next()">${S.i==7?'See my results →':'Next question →'}</button>`;
+$('#rx').innerHTML=`<div class="bub" style="--c:${j.c}"><div class="who">${j.e} ${j.n} reacts · ${r>.6?'👍 impressed':r>.3?'🤔 unsure':'👎 unconvinced'}</div><p>${line}</p></div>`}
+function next(){S.i++;S.i>=8?results():ask()}
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+function results(){const f=S.f,A=parseAsk(f.ask),all=text=>[f.problem,f.solution,f.revenue,f.audience].join(' ')+text,aT=S.ans.map(x=>x.a).join(' ');
+const jit=hash(f.name)%5-2,v=avg(S.rate.vc),fo=avg(S.rate.fo),cu=avg(S.rate.cu),an=avg(S.rate.an),T=all(' '+aT);
+const sc={'Market Potential':cl(34+22*fq(f.audience)+16*fq(f.problem)+14*v+(KW.scale.test(T)?10:0)+jit),
+'Innovation':cl(33+28*fq(f.solution)+(KW.innov.test(f.solution)?14:0)+10*cu+8*v+jit),
+'Business Model':cl(30+22*fq(f.revenue)+(KW.money.test(f.revenue)?14:0)+20*an+(/\d/.test(f.revenue)?6:0)+jit),
+'Execution':cl(34+14*fq(f.solution)+26*fo+(KW.exec.test(T)?10:0)+6*cu+jit)};
+const ml=A.v&&A.v>5e8?-8:0;sc['Investment Worthiness']=cl(avg(Object.values(sc))*.9+an*6+v*4+ml+(A.v?3:-5));
+const tot=cl(avg(Object.values(sc)),0,100);
+let d,col;if(tot>=72){d='INVEST';col='var(--ok)'}else if(sc.Innovation>=72&&sc.Execution<64&&tot>=58){d='ACQUIRE';col='var(--ac)'}else if(tot>=55){d='COME BACK LATER';col='var(--gold)'}else{d='REJECT';col='var(--bad)'}
+const eq=Math.max(8,Math.min(35,Math.round(34-(tot-50)*.6)));let fund=0,val=0,eqs='—';const base=A.v||5e5;
+if(d=='INVEST'){fund=Math.round(base*(tot>=82?1:.8));val=Math.round(fund/(eq/100));eqs=eq+'%'}
+else if(d=='ACQUIRE'){val=Math.round(base*4*tot/70);fund=val;eqs='100% buyout'}
+else{val=Math.round(base/(Math.max(eq,12)/100)*(d=='REJECT'?.5:.7))}
+const entries=Object.entries(sc).sort((a,b)=>b[1]-a[1]),best=entries[0],worst=entries[entries.length-1];
+const why={INVEST:`${f.name} earns an offer: ${best[0]} (${best[1]}/100) stands out, and the sharks believe the team can deliver. Funding of ${money(fund,A.sym)} for ${eqs} equity values the company at ${money(val,A.sym)}. Watch ${worst[0]} (${worst[1]}/100) as you deploy capital.`,
+ACQUIRE:`The idea is strong (Innovation ${sc.Innovation}/100) but execution risk is high (${sc.Execution}/100). The sharks would rather buy the concept and run it themselves for ${money(val,A.sym)}.`,
+'COME BACK LATER':`There is promise in ${best[0]} (${best[1]}/100), but ${worst[0]} (${worst[1]}/100) holds the deal back. Return with traction, sharper numbers and proof of demand. Indicative valuation today: ${money(val,A.sym)}.`,
+REJECT:`The sharks are out. ${worst[0]} scored only ${worst[1]}/100, and the answers did not build enough confidence. Rework the fundamentals, especially ${worst[0].toLowerCase()}, before pitching again.`}[d];
+S.res={sc,tot,d,col,fund,val,eqs,why,sym:A.sym,date:new Date().toLocaleString()};save();render()}
+function render(){const r=S.res;app.innerHTML=`<div class="card dec" style="border-color:${r.col};box-shadow:0 0 50px -15px ${r.col}"><span class="pill">${esc(S.f.name)}</span><div class="big" style="color:${r.col}">${r.d==='INVEST'?'🤝 ':r.d==='REJECT'?'❌ ':r.d==='ACQUIRE'?'🏢 ':'⏳ '}${r.d}</div><div style="font-size:22px">Overall score <b>${r.tot}</b>/100</div>
+<div class="stats"><div class="stat"><small>Suggested valuation</small><div>${money(r.val,r.sym)}</div></div><div class="stat"><small>Funding amount</small><div>${r.fund?money(r.fund,r.sym):'—'}</div></div><div class="stat"><small>Equity / terms</small><div>${r.eqs}</div></div></div></div>
+<div class="card"><h2>📊 Scorecard</h2>${Object.entries(r.sc).map(([k,v])=>`<div class="sc"><span>${k}</span><b>${v}/100</b></div><div class="bar"><i data-w="${v}"></i></div>`).join('')}</div>
+<div class="card"><h2>🧠 Reasoning</h2><p>${esc(r.why)}</p></div>
+<div class="card"><h2>🦈 What each shark said</h2>${J.map(j=>`<div class="bub" style="--c:${j.c}"><div class="who">${j.n} · ${Math.round(avg(S.rate[j.id])*100)}% convinced</div><p>${esc(S.cm[j.id]||'')}</p></div>`).join('')}</div>
+<div class="row"><button onclick="dlPDF()">📄 Download Pitch Report (PDF)</button><button class="g" onclick="share()">🔗 Share Result</button><button class="g" onclick="showLB()">🏆 Leaderboard</button><button class="g" onclick="home()">🔁 New Pitch</button></div><p id="msg" style="margin-top:10px;color:var(--ok)"></p>`;
+setTimeout(()=>document.querySelectorAll('.bar i').forEach(b=>b.style.width=b.dataset.w+'%'),150);if(r.d==='INVEST'||r.d==='ACQUIRE')confetti()}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function lb(){try{return JSON.parse(localStorage.getItem('stlb')||'[]')}catch(e){return[]}}
+function save(){const l=lb();l.push({n:S.f.name,s:S.res.tot,d:S.res.d,t:S.res.date});l.sort((a,b)=>b.s-a.s);try{localStorage.setItem('stlb',JSON.stringify(l.slice(0,10)))}catch(e){}}
+function showLB(){const l=lb(),keep=S&&S.res;app.innerHTML=`<div class="card"><h2>🏆 Leaderboard</h2>${l.length?`<table><tr><th>#</th><th>Startup</th><th>Score</th><th>Decision</th></tr>${l.map((x,i)=>`<tr><td>${['🥇','🥈','🥉'][i]||i+1}</td><td>${esc(x.n)}</td><td>${x.s}</td><td>${x.d}</td></tr>`).join('')}</table>`:'<p class="sub">No pitches yet. Be the first!</p>'}<div class="row"><button onclick="${keep?'render()':'home()'}">← Back</button><button class="g" onclick="try{localStorage.removeItem('stlb')}catch(e){};showLB()">Clear</button></div></div>`}
+function share(){const r=S.res,t=`🦈 My startup "${S.f.name}" scored ${r.tot}/100 in the AI Shark Tank Simulator — verdict: ${r.d}! Valuation ${money(r.val,r.sym)}.`;
+if(navigator.share)navigator.share({title:'AI Shark Tank',text:t}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>$('#msg').textContent='Result copied to clipboard!');else prompt('Copy your result:',t)}
+function dlPDF(){const r=S.res,f=S.f,L=[],W=(t,w=88)=>{t=String(t).replace(/₹/g,'Rs ').replace(/€/g,'EUR ').replace(/£/g,'GBP ').replace(/[^\x20-\x7e]/g,'');let line='';t.split(' ').forEach(x=>{if((line+' '+x).length>w){L.push(line);line=x}else line=line?line+' '+x:x});L.push(line)};
+W('AI SHARK TANK - PITCH REPORT');W(r.date);L.push('');W('Startup: '+f.name);W('Funding ask: '+f.ask);L.push('');
+['problem','solution','revenue','audience'].forEach(k=>{W(k.toUpperCase()+': '+f[k]);L.push('')});
+W('SCORECARD');Object.entries(r.sc).forEach(([k,v])=>W(k+': '+v+'/100'));W('OVERALL: '+r.tot+'/100');L.push('');
+W('DECISION: '+r.d);W('Valuation: '+money(r.val,r.sym)+' | Funding: '+(r.fund?money(r.fund,r.sym):'none')+' | Terms: '+r.eqs);W('Reasoning: '+r.why);L.push('');
+W('Q&A TRANSCRIPT');S.ans.forEach(x=>{W('['+J.find(j=>j.id==x.id).n+'] '+x.q);W('  A: '+(x.a||'(skipped)'));L.push('')});
+const P=[];for(let i=0;i<L.length;i+=50)P.push(L.slice(i,i+50));const O=[];O[1]='<</Type/Catalog/Pages 2 0 R>>';O[2]=`<</Type/Pages/Kids[${P.map((_,i)=>`${4+i*2} 0 R`).join(' ')}]/Count ${P.length}>>`;O[3]='<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>';
+P.forEach((p,i)=>{const s='BT /F1 10 Tf 13 TL 50 800 Td\n'+p.map(l=>`(${l.replace(/[\\()]/g,'\\$&')}) '`).join('\n')+'\nET';O[4+i*2]=`<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Contents ${5+i*2} 0 R/Resources<</Font<</F1 3 0 R>>>>>>`;O[5+i*2]=`<</Length ${s.length}>>\nstream\n${s}\nendstream`});
+let o='%PDF-1.4\n',off=[];for(let n=1;n<O.length;n++){off[n]=o.length;o+=`${n} 0 obj\n${O[n]}\nendobj\n`}const x=o.length;o+=`xref\n0 ${O.length}\n0000000000 65535 f \n`+off.slice(1).map(v=>String(v).padStart(10,'0')+' 00000 n \n').join('')+`trailer\n<</Size ${O.length}/Root 1 0 R>>\nstartxref\n${x}\n%%EOF`;
+const b=new Blob([Uint8Array.from(o,c=>c.charCodeAt(0))],{type:'application/pdf'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(f.name.replace(/\W+/g,'_')||'pitch')+'_report.pdf';a.click()}
+function confetti(){const c=$('#cf'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;const cols=['#22d3ee','#fbbf24','#34d399','#f472b6','#818cf8'];
+const p=Array.from({length:180},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,r:4+Math.random()*6,vx:Math.random()*4-2,vy:2+Math.random()*4,c:cols[Math.random()*5|0],a:Math.random()*6}));let t=0;
+(function f(){x.clearRect(0,0,c.width,c.height);p.forEach(q=>{q.x+=q.vx;q.y+=q.vy;q.a+=.1;x.save();x.translate(q.x,q.y);x.rotate(q.a);x.fillStyle=q.c;x.fillRect(-q.r,-q.r/2,q.r*2,q.r);x.restore()});if(++t<260)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height)})()}
+home();
+</script></body></html>
