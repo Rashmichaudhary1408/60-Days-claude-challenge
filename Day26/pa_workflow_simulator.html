@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prior Authorization Workflow Simulator</title>
+<style>
+:root{--b1:#eaf3ff;--b2:#cfe3ff;--b3:#9cc4f5;--b4:#4a90e2;--b5:#1e5fae;--b6:#0d3b72;--ink:#000}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;color:var(--ink);background:linear-gradient(160deg,var(--b1),var(--b2));min-height:100vh}
+header{background:var(--b3);padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-bottom:3px solid var(--b5)}
+h1{font-size:1.2rem;margin:0}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:#fff;border:2px solid var(--b4);border-radius:10px;padding:4px 12px;font-weight:700}
+button{font:inherit;background:var(--b4);color:#000;border:2px solid var(--b5);border-radius:8px;padding:7px 14px;cursor:pointer;font-weight:600}
+button:hover{background:var(--b3)}button:disabled{opacity:.5;cursor:not-allowed}
+main{max-width:1150px;margin:0 auto;padding:12px}
+#tracker{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.step{flex:1;min-width:110px;text-align:center;padding:6px;border-radius:8px;background:#fff;border:2px solid var(--b3);font-size:.8rem}
+.step.done{background:var(--b4)}.step.cur{background:var(--b2);border-color:var(--b6);font-weight:800}
+.lane{background:#fff;border:2px solid var(--b4);border-radius:12px;margin-bottom:10px;display:flex;flex-wrap:wrap;align-items:stretch}
+.lane>h3{margin:0;width:90px;background:var(--b5);color:#000;background:var(--b3);display:flex;align-items:center;justify-content:center;border-radius:10px 0 0 10px;font-size:.95rem;writing-mode:horizontal-tb;padding:6px}
+.zones{flex:1;display:flex;flex-wrap:wrap;gap:8px;padding:8px}
+.zone{flex:1;min-width:150px;min-height:84px;border:2px dashed var(--b3);border-radius:10px;padding:6px;background:var(--b1);transition:.15s}
+.zone.over{background:var(--b2);border-color:var(--b6)}
+.zone.next{border-color:var(--b5);border-style:solid;box-shadow:0 0 8px var(--b4)}
+.zone small{display:block;font-weight:700;margin-bottom:4px}
+.card{background:var(--b4);border:2px solid var(--b6);border-radius:10px;padding:8px;cursor:grab;font-weight:700;text-align:center;animation:pop .3s}
+.card:active{cursor:grabbing}
+@keyframes pop{from{transform:scale(.7)}to{transform:scale(1)}}
+.panel{background:#fff;border:2px solid var(--b4);border-radius:12px;padding:12px;margin-bottom:10px}
+.edu{background:var(--b2);border-left:6px solid var(--b5)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.opt{border:2px solid var(--b3);border-radius:8px;padding:8px;background:var(--b1);cursor:pointer;display:block}
+.opt.sel{background:var(--b3);border-color:var(--b6)}
+.doc{border:2px solid var(--b3);border-radius:8px;padding:7px;background:var(--b1);cursor:grab}
+#packet{min-height:70px;border:2px dashed var(--b5);border-radius:8px;padding:6px;display:flex;flex-wrap:wrap;gap:6px;background:var(--b1)}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--b6);color:#fff;padding:10px 18px;border-radius:10px;display:none;max-width:90%;z-index:20}
+.conf{position:fixed;top:-20px;width:10px;height:14px;z-index:30;animation:fall 2.4s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.big{font-size:1.4rem;font-weight:800}
+ol{padding-left:20px}
+</style></head><body>
+<header><h1>🏥 Prior Authorization Workflow Simulator</h1>
+<div class="stats"><div class="stat">📅 Days: <span id="days">0</span></div>
+<div class="stat">⚡ Efficiency: <span id="score">100</span></div>
+<button id="restart">↻ Restart</button><button id="newp">＋ New Patient</button></div></header>
+<main><div id="tracker"></div><div id="board"></div><div id="work"></div>
+<div class="panel edu" id="edu"></div></main><div id="toast"></div>
+<script>
+/* ============ EDITABLE SCENARIO DATA ============
+ path: sequence of payer outcomes. 'approve' | 'pend' | 'deny'
+ p2pWins: whether a peer-to-peer review overturns a denial.
+ crit: clinical findings; ok=true supports medical necessity.
+ docs: documents; req=true means required for this request. */
+const SCENARIOS=[
+{id:'surgery',icon:'🦵',name:'Elective Knee Replacement',patient:'Maria, 62',service:'Total knee arthroplasty (CPT 27447)',
+ path:['deny'],p2pWins:true,
+ crit:[{t:'Knee pain >6 months with imaging showing severe osteoarthritis',ok:true},{t:'Failed 3+ months of conservative therapy (PT, NSAIDs)',ok:true},{t:'BMI under payer limit',ok:true},{t:'Patient prefers a shorter hospital stay',ok:false},{t:'Surgeon is in-network',ok:false}],
+ docs:[{n:'Clinical notes',req:true},{n:'X-ray / imaging report',req:true},{n:'Physical therapy records',req:true},{n:'Surgeon order & CPT code',req:true},{n:'Patient photo ID copy',req:false},{n:'Hospital marketing brochure',req:false}],
+ why:'Elective surgeries require proof that less invasive care failed first. The payer denied it for "insufficient conservative therapy documentation".'},
+{id:'mri',icon:'🧲',name:'Lumbar Spine MRI',patient:'James, 48',service:'MRI lumbar spine w/o contrast (CPT 72148)',
+ path:['pend','approve'],p2pWins:true,
+ crit:[{t:'Back pain with radiculopathy >6 weeks',ok:true},{t:'Neurological deficit on exam',ok:true},{t:'No improvement after conservative treatment',ok:true},{t:'Patient requests the scan',ok:false},{t:'Prior MRI of unrelated joint',ok:false}],
+ docs:[{n:'Office visit note',req:true},{n:'Neuro exam findings',req:true},{n:'Treatment history',req:true},{n:'Imaging order with ICD-10',req:true},{n:'Appointment reminder card',req:false},{n:'Insurance marketing flyer',req:false}],
+ why:'Advanced imaging often goes through a radiology benefit manager. The payer pended it asking for exam dates.'},
+{id:'drug',icon:'💉',name:'Specialty Medication (Biologic)',patient:'Aisha, 35',service:'Adalimumab for rheumatoid arthritis',
+ path:['deny','deny','approve'],p2pWins:false,
+ crit:[{t:'Confirmed RA diagnosis (labs: RF / anti-CCP)',ok:true},{t:'Failed methotrexate (step therapy)',ok:true},{t:'Prescribed by a rheumatologist',ok:true},{t:'Drug is brand-name popular',ok:false},{t:'Patient has a coupon card',ok:false}],
+ docs:[{n:'Lab results (RF / anti-CCP)',req:true},{n:'Prior drug trial records',req:true},{n:'Specialist notes',req:true},{n:'Prescription & dosing',req:true},{n:'Coupon card scan',req:false},{n:'Pharmacy loyalty record',req:false}],
+ why:'Specialty drugs use step therapy: cheaper drugs must fail first. A peer-to-peer was upheld, so a formal appeal was needed.'},
+{id:'inpatient',icon:'🛏️',name:'Inpatient Admission',patient:'Robert, 71',service:'Inpatient admission for pneumonia / hypoxia',
+ path:['approve'],p2pWins:true,
+ crit:[{t:'Oxygen saturation below 90% on room air',ok:true},{t:'Abnormal chest imaging with infiltrate',ok:true},{t:'Needs IV antibiotics and monitoring',ok:true},{t:'Prefers a private room',ok:false},{t:'Family lives far away',ok:false}],
+ docs:[{n:'ED triage note',req:true},{n:'Vitals & O2 sats',req:true},{n:'Chest X-ray report',req:true},{n:'Admission order',req:true},{n:'Parking voucher',req:false},{n:'Gift shop receipt',req:false}],
+ why:'Emergencies skip pre-approval but the hospital must notify the payer (often within 24h) and clinical review follows.'}
+];
+const STAGES=[{lane:'Patient',name:'Visit & Order'},{lane:'Provider',name:'Medical Necessity'},{lane:'Provider',name:'Collect Documents'},{lane:'Provider',name:'Submit to Payer'},{lane:'Payer',name:'Payer Review'},{lane:'Payer',name:'Decision'}];
+const COST=[0,1,2,1,0,0];
+const EDU=[
+'<b>Step 1 – Patient visit:</b> The patient sees a clinician who orders a service. The patient does not request PA; the provider office does. Drag the case to <b>Medical Necessity</b>.',
+'<b>Step 2 – Medical necessity:</b> Payers approve services that meet evidence-based criteria (e.g., InterQual, MCG). Select only findings that support clinical need — preferences and convenience do not count.',
+'<b>Step 3 – Documents:</b> A PA request needs the right clinical records. Missing records are the #1 cause of pends and denials; extra irrelevant files slow reviewers.',
+'<b>Step 4 – Submission:</b> Providers submit via payer portal, electronic PA (X12 278 / FHIR) or fax. Drag the case to <b>Payer Review</b>.',
+'<b>Step 5 – Payer review:</b> A nurse reviewer checks criteria; a medical director handles complex cases. Outcomes: approve, pend (more info), or deny.',
+'<b>Done:</b> The authorization number is issued and the service can proceed.'];
+let S;let $=id=>document.getElementById(id);
+function newState(sc){S={sc:sc,stage:0,days:0,score:100,log:[],crit:[],docs:[],necDone:false,docDone:false,idx:0,outcome:null,over:false,usedP2P:false};
+ log('Case created: '+sc.patient+' – '+sc.service);render();}
+function log(m){S.log.push('Day '+S.days+': '+m)}
+function toast(m){let t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',3200)}
+function pen(n,m){S.score=Math.max(0,S.score-n);toast('−'+n+' efficiency: '+m)}
+function addDays(n){S.days+=n;S.score=Math.max(0,S.score-n)}
+
+/* ---------- Rendering ---------- */
+function render(){
+ $('days').textContent=S.days;$('score').textContent=S.score;
+ $('tracker').innerHTML=STAGES.map((s,i)=>'<div class="step '+(i<S.stage||S.over?'done':i==S.stage?'cur':'')+'">'+(i<S.stage||S.over?'✔ ':'')+(i+1)+'. '+s.name+'</div>').join('');
+ let h='';['Patient','Provider','Payer'].forEach(l=>{
+  h+='<div class="lane"><h3>'+(l=='Patient'?'🧑 ':l=='Provider'?'👩‍⚕️ ':'🏢 ')+l+'</h3><div class="zones">';
+  STAGES.forEach((s,i)=>{if(s.lane!=l)return;
+   h+='<div class="zone '+(i==S.stage+1&&!S.over?'next':'')+'" data-i="'+i+'"><small>'+s.name+'</small>';
+   if(i==S.stage||(S.over&&i==5))h+='<div class="card" draggable="true" id="card">'+S.sc.icon+' '+S.sc.patient+'<br><small>'+S.sc.name+'</small></div>';
+   h+='</div>'});
+  h+='</div></div>'});
+ $('board').innerHTML=h;
+ let c=$('card');if(c)c.ondragstart=e=>{e.dataTransfer.setData('text','case')};
+ document.querySelectorAll('.zone').forEach(z=>{
+  z.ondragover=e=>{e.preventDefault();z.classList.add('over')};
+  z.ondragleave=()=>z.classList.remove('over');
+  z.ondrop=e=>{e.preventDefault();z.classList.remove('over');if(e.dataTransfer.getData('text')=='case')tryMove(+z.dataset.i)}});
+ work();
+}
+function setEdu(h){$('edu').innerHTML='<b>📘 Learn:</b> '+h}
+
+/* ---------- Movement rules ---------- */
+function ready(){
+ if(S.stage==1&&!S.necDone){toast('Finish the Medical Necessity evaluation first.');return false}
+ if(S.stage==2&&!S.docDone){toast('Finalize the document packet first.');return false}
+ if(S.stage==4||S.stage==5){toast('Use the decision buttons below for payer outcomes.');return false}
+ return true}
+function tryMove(i){
+ if(S.over)return;
+ if(i!=S.stage+1){pen(2,'Cases move one stage at a time, in order.');setEdu('Skipping or moving backward isn\'t allowed: each PA step depends on the previous one.');render();return}
+ if(!ready())return;advance()}
+function advance(){
+ S.stage++;addDays(COST[S.stage]);log('Moved to '+STAGES[S.stage].name);
+ if(S.stage==4){reviewOutcome()}
+ setEdu(EDU[S.stage]);render();}
+
+/* ---------- Stage work panels ---------- */
+function work(){
+ let w=$('work'),sc=S.sc,h='';
+ if(S.over){return summary()}
+ if(S.stage==0){h='<div class="panel"><div class="big">'+sc.icon+' '+sc.name+'</div><p><b>Patient:</b> '+sc.patient+'<br><b>Ordered service:</b> '+sc.service+'</p><p>Drag the case card (or press the button) into <b>Medical Necessity</b>.</p><button onclick="tryMove(1)">Advance →</button></div>'; setEdu(EDU[0])}
+ else if(S.stage==1){
+  h='<div class="panel"><b>Medical Necessity Evaluation</b> – select the findings that support necessity:<div class="grid" style="margin:8px 0">'+
+  sc.crit.map((c,i)=>'<label class="opt '+(S.crit.includes(i)?'sel':'')+'"><input type="checkbox" '+(S.crit.includes(i)?'checked':'')+' onchange="togCrit('+i+')"> '+c.t+'</label>').join('')+
+  '</div><button onclick="checkNec()">Confirm evaluation</button> '+(S.necDone?'✅ Done – drag case to Collect Documents. <button onclick="tryMove(2)">Advance →</button>':'')+'</div>'}
+ else if(S.stage==2){
+  let tray=sc.docs.map((d,i)=>S.docs.includes(i)?'':'<div class="doc" draggable="true" ondragstart="event.dataTransfer.setData(\'text\',\'doc'+i+'\')" onclick="addDoc('+i+')">📄 '+d.n+'</div>').join('');
+  h='<div class="panel"><b>Assemble the PA packet</b> – drag (or click) documents into the packet.<div class="grid" style="margin:8px 0">'+tray+'</div><b>Packet:</b><div id="packet" ondragover="event.preventDefault()" ondrop="dropDoc(event)">'+
+  S.docs.map(i=>'<div class="doc" onclick="rmDoc('+i+')" title="Click to remove">✔ '+sc.docs[i].n+'</div>').join('')+'</div><p><button onclick="checkDocs()">Finalize packet</button> '+(S.docDone?'✅ Packet ready. <button onclick="tryMove(3)">Advance →</button>':'')+'</p></div>'}
+ else if(S.stage==3){h='<div class="panel"><b>Submit to payer</b><p>Packet contains '+S.docs.length+' documents. Drag the case to <b>Payer Review</b> to submit.</p><button onclick="tryMove(4)">Submit →</button></div>'}
+ else if(S.stage==4||S.stage==5){h=decisionPanel()}
+ w.innerHTML=h}
+function togCrit(i){let k=S.crit.indexOf(i);k<0?S.crit.push(i):S.crit.splice(k,1);S.necDone=false;render()}
+function checkNec(){
+ let sc=S.sc,miss=sc.crit.filter((c,i)=>c.ok&&!S.crit.includes(i)).length,bad=S.crit.filter(i=>!sc.crit[i].ok).length;
+ if(miss||bad){pen(5,(miss?miss+' supporting finding(s) missed. ':'')+(bad?bad+' irrelevant finding(s) selected.':''));setEdu('Medical necessity is clinical, not about preference or convenience. Reviewers look for objective findings, duration of symptoms and failed lower-level treatments.')}
+ else{S.necDone=true;addDays(0);log('Medical necessity confirmed');setEdu('Correct! The clinical criteria are met. A strong necessity statement cites exam findings, test results and prior treatments. Now drag the case to <b>Collect Documents</b>.')}
+ render()}
+function addDoc(i){if(!S.docs.includes(i)){S.docs.push(i);S.docDone=false;if(!S.sc.docs[i].req)pen(2,'"'+S.sc.docs[i].n+'" is not needed for this request.');render()}}
+function rmDoc(i){S.docs.splice(S.docs.indexOf(i),1);S.docDone=false;render()}
+function dropDoc(e){e.preventDefault();let d=e.dataTransfer.getData('text');if(d.startsWith('doc'))addDoc(+d.slice(3))}
+function checkDocs(){
+ let sc=S.sc,miss=sc.docs.filter((d,i)=>d.req&&!S.docs.includes(i)),ext=S.docs.filter(i=>!sc.docs[i].req);
+ if(miss.length||ext.length){pen(5,(miss.length?'Missing: '+miss.map(d=>d.n).join(', ')+'. ':'')+(ext.length?'Remove irrelevant files.':''));setEdu('Incomplete packets cause <b>pends</b> and delays. Include every required clinical record and leave out irrelevant paperwork (minimum-necessary principle under HIPAA).')}
+ else{S.docDone=true;log('Packet finalized ('+S.docs.length+' docs)');setEdu('Packet complete. Clear, complete documentation raises first-pass approval rates. Next: drag the case to <b>Submit to Payer</b>.')}
+ render()}
+
+/* ---------- Payer review & outcomes ---------- */
+function reviewOutcome(){
+ S.outcome=S.sc.path[Math.min(S.idx,S.sc.path.length-1)];
+ if(S.idx>=S.sc.path.length)S.outcome='approve';
+ addDays(S.outcome=='approve'?2:3);
+ log('Payer decision: '+S.outcome.toUpperCase());
+ let e={approve:'<b>Approved!</b> The payer agrees the service is medically necessary and covered.',
+  pend:'<b>Pended:</b> the payer needs more information before deciding. The clock may pause until you reply.',
+  deny:'<b>Denied:</b> '+S.sc.why+' Denials can be challenged via <b>Peer-to-Peer</b> (doctor-to-doctor call, fast) or a formal <b>Appeal</b> (written, slower).'}[S.outcome];
+ setEdu(e);
+ if(S.outcome=='approve')setTimeout(finish,200)}
+function decisionPanel(){
+ let o=S.outcome;
+ if(o=='pend')return '<div class="panel"><div class="big">⏸ Pended – additional information requested</div><p>The payer asks for supplemental records (e.g., dated exam notes).</p><button onclick="respondPend()">Send requested info (+3 days)</button></div>';
+ if(o=='deny')return '<div class="panel"><div class="big">⛔ Denied</div><p>Reason: '+S.sc.why+'</p><button onclick="doP2P()">📞 Request Peer-to-Peer (+2 days)</button> <button onclick="doAppeal()">📑 File formal Appeal (+14 days)</button></div>';
+ return ''}
+function respondPend(){addDays(3);S.idx++;log('Additional info sent');S.stage=4;reviewOutcome();render()}
+function doP2P(){addDays(2);log('Peer-to-peer call held');
+ if(S.sc.p2pWins&&!S.usedP2P){S.usedP2P=true;S.outcome='approve';log('Denial overturned in peer-to-peer');setEdu('<b>Peer-to-Peer success!</b> The physician explained the clinical rationale directly to a medical director, who overturned the denial. P2P is quick but often has a short window (24–72h).');render();finish()}
+ else{S.usedP2P=true;pen(5,'Peer-to-peer upheld the denial.');log('P2P: denial upheld');setEdu('The medical director <b>upheld</b> the denial. The next step is a formal <b>Appeal</b> with a letter of medical necessity and supporting literature.');S.sc.p2pWins=false;render()}}
+function doAppeal(){addDays(14);log('Appeal filed and reviewed');S.outcome='approve';setEdu('<b>Appeal approved.</b> Appeals can be internal then external (independent review). They take longer but succeed often when documentation is strong.');render();finish()}
+
+/* ---------- Completion ---------- */
+function finish(){S.over=true;S.stage=5;log('Authorization approved 🎉');setEdu(EDU[5]);render();celebrate()}
+function celebrate(){
+ let cols=['#4a90e2','#9cc4f5','#1e5fae','#cfe3ff','#0d3b72'];
+ for(let i=0;i<90;i++){let d=document.createElement('div');d.className='conf';d.style.left=Math.random()*100+'vw';d.style.background=cols[i%5];d.style.animationDelay=Math.random()*.8+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),3500)}
+ toast('🎉 Prior Authorization APPROVED!')}
+function summary(){
+ let g=S.score>=85?'A – Excellent':S.score>=70?'B – Good':S.score>=50?'C – Needs work':'D – Costly delays';
+ $('work').innerHTML='<div class="panel"><div class="big">🎉 Workflow Summary: '+S.sc.name+'</div><p><b>Patient:</b> '+S.sc.patient+' | <b>Total days:</b> '+S.days+' | <b>Efficiency:</b> '+S.score+' | <b>Grade:</b> '+g+'</p><b>Timeline</b><ol>'+S.log.map(l=>'<li>'+l+'</li>').join('')+'</ol><p><b>Takeaway:</b> Complete documentation and clear clinical criteria up front prevent pends, denials and delays for patients.</p><button onclick="newState(S.sc)">Replay this scenario</button> <button onclick="nextPatient()">Try a different patient →</button></div>'}
+function nextPatient(){let i=SCENARIOS.indexOf(S.sc);newState(SCENARIOS[(i+1)%SCENARIOS.length])}
+
+/* ---------- Scenario picker & startup ---------- */
+function picker(){
+ $('board').innerHTML='';$('work').innerHTML='<div class="panel"><div class="big">Choose a patient scenario</div><div class="grid" style="margin-top:8px">'+
+ SCENARIOS.map((s,i)=>'<div class="opt" onclick="pick('+i+')"><b>'+s.icon+' '+s.name+'</b><br>'+s.patient+'<br><small>'+s.service+'</small></div>').join('')+'</div></div>';
+ setEdu('Prior authorization is a payer requirement to approve certain services <i>before</i> they are delivered. Pick a patient to begin, then drag the case through Patient → Provider → Payer.')}
+function pick(i){newState(JSON.parse(JSON.stringify(SCENARIOS[i])))}
+$('restart').onclick=()=>{if(S&&S.sc){let o=SCENARIOS.find(x=>x.id==S.sc.id);newState(JSON.parse(JSON.stringify(o)))}else picker()};
+$('newp').onclick=()=>{S=null;$('days').textContent=0;$('score').textContent=100;$('tracker').innerHTML=STAGES.map((s,i)=>'<div class="step">'+(i+1)+'. '+s.name+'</div>').join('');picker()};
+$('newp').click();
+</script></body></html>
