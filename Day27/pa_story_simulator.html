@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prior Authorization Story Simulator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  /* small custom touches on top of Tailwind */
+  .pop{animation:pop .4s cubic-bezier(.2,.9,.3,1.2)}
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.95)}to{opacity:1;transform:none}}
+  body{background:linear-gradient(135deg,#eaf3ff,#cfe3ff,#9cc4f5,#eaf3ff);background-size:300% 300%;animation:bg 18s ease infinite}
+  @keyframes bg{50%{background-position:100% 50%}}
+  /* soft floating blobs behind the content */
+  body::before,body::after{content:"";position:fixed;z-index:-1;border-radius:50%;filter:blur(70px);opacity:.55}
+  body::before{width:380px;height:380px;background:#4a90e2;top:-110px;left:-110px}
+  body::after{width:440px;height:440px;background:#9cc4f5;bottom:-150px;right:-130px}
+  .glass{background:rgba(255,255,255,.78);backdrop-filter:blur(10px)}
+  /* shimmering progress bar */
+  #bar{background:linear-gradient(90deg,#1e5fae,#4a90e2,#9cc4f5,#4a90e2,#1e5fae);background-size:200% 100%;animation:shine 2s linear infinite}
+  @keyframes shine{to{background-position:-200% 0}}
+  /* typing indicator dots */
+  .dot{animation:blink 1s infinite}.dot:nth-child(2){animation-delay:.15s}.dot:nth-child(3){animation-delay:.3s}
+  @keyframes blink{0%,80%,100%{opacity:.2;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+  .conf{position:fixed;top:-20px;width:10px;height:14px;z-index:50;animation:fall 2.8s linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+  .glow:hover{box-shadow:0 0 0 3px #9cc4f5,0 10px 24px rgba(30,95,174,.35)}
+</style></head>
+<body class="min-h-screen text-black">
+
+<!-- Header + progress bar -->
+<header class="sticky top-0 z-10 glass border-b-4 border-blue-500 shadow-lg px-4 py-3">
+  <div class="max-w-3xl mx-auto">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-300 to-blue-500 border-2 border-blue-700 flex items-center justify-center text-2xl shadow">🏥</div>
+        <div>
+          <h1 class="text-lg font-extrabold leading-tight">Prior Authorization Story</h1>
+          <p class="text-xs">An interactive healthcare journey</p>
+        </div>
+      </div>
+      <span class="text-xs bg-blue-100 border border-blue-500 rounded-full px-3 py-1">⚕️ StarCare Health = illustrative example only</span>
+    </div>
+    <div class="mt-3 flex items-center gap-3">
+      <div class="flex-1 h-4 bg-white rounded-full border-2 border-blue-500 overflow-hidden">
+        <div id="bar" class="h-full rounded-full transition-all duration-700" style="width:0%"></div>
+      </div>
+      <span id="barText" class="text-sm font-bold whitespace-nowrap">Scene 0 / 8</span>
+    </div>
+    <div id="dots" class="mt-2 flex justify-between"></div>
+    <p id="sceneTitle" class="text-sm mt-1 font-semibold"></p>
+  </div>
+</header>
+
+<main class="max-w-3xl mx-auto p-4">
+  <!-- Append-only chat feed: only createElement + appendChild are used here -->
+  <section id="chat" class="space-y-3 pb-4"></section>
+  <section id="choices" class="grid gap-2 sm:grid-cols-2 pb-24"></section>
+</main>
+
+<script>
+/* ================= STORY DATA (editable) =================
+ Line types: n = narrator, d = doctor (both centered italic text, never bubbles),
+ r = Rahul (left bubble), p = Priya (right bubble), flow = flow diagram, list = checklist.
+ Text may be a function(flags) so earlier choices change later dialogue. */
+const SCENES = [
+{ title:'Doctor Visit', lines:[
+  ['n','City Medical Center. Rahul has had swollen, stiff joints for months and finally sees a specialist.'],
+  ['d','Dr. Patel: "Your tests show Rheumatoid Arthritis, where the immune system attacks the joints. I am prescribing Humira."'],
+  ['r','Arthritis? Okay... can I just pick up Humira at the pharmacy?'],
+  ['p','Hi Rahul, I\'m Priya. I work in healthcare operations. Humira is an expensive specialty drug, so insurers usually want to approve it first.']],
+  choices:[
+   {label:'🤔 Ask Priya to explain how it works', flag:'curious', rahul:'Can you walk me through it? I want to understand.', priya:'Love that. Let\'s follow the paperwork step by step.'},
+   {label:'😟 Worry about delays and cost', flag:'worried', rahul:'Will this delay my treatment? I\'m worried.', priya:'It can, but knowing the steps makes it much less scary.'}]},
+{ title:'Insurance Roadblock', lines:[
+  ['n','Dr. Patel\'s office sends a Prior Authorization (PA) request directly to StarCare Health (illustrative payer). The pharmacy is not involved.'],
+  ['flow',['Provider (Dr. Patel)','PA Request','Payer (StarCare Health)']],
+  ['p','The provider sends the request because the doctor has the clinical proof. Once a PA is approved, it is saved on file permanently for that drug.'],
+  ['r',f=>f.curious?'So the doctor\'s office does the heavy lifting?':'So I don\'t have to chase the insurer myself?'],
+  ['p','Exactly. Your job is to stay informed and keep your office in the loop.']],
+  choices:[
+   {label:'📨 Who sends the request?', rahul:'Remind me, who sends the request?', priya:'The provider\'s office, never the pharmacy.'},
+   {label:'💾 What happens if it\'s approved?', rahul:'And if it gets approved?', priya:'It is saved on file, so you won\'t repeat the PA for Humira.'}]},
+{ title:'What is PA?', lines:[
+  ['p',f=>(f.worried?'I know you\'re worried, so here is the simple version. ':'Since you\'re curious, here is the plain version. ')+'Prior Authorization means the insurer checks BEFORE treatment that the medicine is necessary and covered.'],
+  ['p','Step therapy means trying a lower-cost drug first, such as methotrexate. But it isn\'t just bureaucracy: for aggressive diagnoses, delays can affect disease progression.'],
+  ['n','Source cited: AMA 2023 PA Survey: PA causes treatment delays in the majority of cases.'],
+  ['r','So the rules protect cost but can slow care down.'],
+  ['p','Right. That balance is why teams work hard to submit complete requests the first time.']],
+  choices:[
+   {label:'💊 Why try cheaper drugs first?', rahul:'Why start with a cheaper drug?', priya:'Insurers want proof that standard treatment was tried. That proof is documentation they will ask for.'},
+   {label:'⏱️ Can delays really hurt me?', rahul:'Can waiting actually hurt me?', priya:'For fast-moving conditions like RA, yes, which is why speed and accuracy both matter.'}]},
+{ title:'Insurance Review', lines:[
+  ['n','Inside StarCare Health (illustrative), a reviewer checks the request against four things.'],
+  ['list',[
+    ['✅ Eligibility','Is Rahul actively covered? A lapsed plan means an instant stop.'],
+    ['📄 Clinical documentation','Notes and labs show the drug is needed, not just wanted.'],
+    ['🔢 ICD-10 diagnosis match','The diagnosis code must fit the drug. Humira fits RA codes.'],
+    ['🪜 Step therapy history','Proof that earlier, cheaper drugs were tried first.']]],
+  ['p','Each check answers one question: is this the right patient, drug, reason and order of care?']],
+  choices:[
+   {label:'🎯 Which check matters most?', rahul:'Which check trips people up most?', priya:'Missing documentation, especially step therapy history. Keep that in mind.'},
+   {label:'❓ What if something is missing?', rahul:'What if something is missing?', priya:'Then the request can be pended or denied. Let\'s see what happens.'}]},
+{ title:'Denial', lines:[
+  ['n','A letter arrives from StarCare Health (illustrative): DENIED. Reason: missing step therapy documentation.'],
+  ['r',f=>f.worried?'I knew it. Now my treatment is stuck!':'Oh no. What did we do wrong?'],
+  ['p','Take a breath. Denial does not equal permanent. It often means a document is missing, not that you can\'t have the drug.'],
+  ['p','On the system side: PA denials cost physician offices 2+ staff hours to resolve. That is real time taken from patient care.']],
+  choices:[
+   {label:'📑 Let\'s appeal it', flag:'appeal', rahul:'Let\'s appeal. What do we need?', priya:'That\'s the right move. Let\'s gather everything.'},
+   {label:'🔍 What exactly went wrong?', flag:'asked', rahul:'What exactly was missing?', priya:'The record of Rahul\'s earlier methotrexate trial was not attached. Easy to fix.'}]},
+{ title:'Appeal', lines:[
+  ['n','Dr. Patel\'s office starts the appeal in three steps.'],
+  ['list',[
+    ['1️⃣ Gather documents','Methotrexate trial dates, lab results, clinic notes.'],
+    ['2️⃣ Letter of Medical Necessity','Dr. Patel explains why Humira is needed and why other options failed.'],
+    ['3️⃣ File the formal appeal','Submitted to StarCare Health (illustrative) within its deadline.']]],
+  ['p',f=>f.asked?'Since you asked what went wrong, you can see why step one matters.':'The strongest appeals are specific and well-documented.']],
+  choices:[
+   {label:'🧪 Add lab results to the packet', rahul:'Can we include my lab results too?', priya:'Yes. Objective data makes the letter stronger.'},
+   {label:'📞 Ask Dr. Patel to call the insurer', rahul:'Could Dr. Patel talk to them directly?', priya:'Good idea. A peer-to-peer call can speed up decisions.'}]},
+{ title:'Approval', lines:[
+  ['n','Good news from StarCare Health (illustrative): APPROVED.'],
+  ['n','Reference number: SC-PA-2026-004821 (fictional). Saved on file.'],
+  ['r','So I won\'t have to do this again for Humira?'],
+  ['p','Correct. The approved PA stays on file, so there is no repeat PA needed for Humira.']],
+  choices:[
+   {label:'🎉 Celebrate!', rahul:'This is such a relief. Thank you, Priya!', priya:'You did great. Most of this was patience and paperwork.'},
+   {label:'💊 Ask about refills', rahul:'Will my refills be affected?', priya:'Refills continue under the same approval, but always confirm details with your plan.'}]},
+{ title:'Takeaways', lines:[
+  ['n','The journey is complete. Here are two ways to look back on it.']],
+  choices:[
+   {label:'🧑 Patient view first', first:'patient'},
+   {label:'🏢 System view first', first:'system'}]}
+];
+
+const TAKEAWAYS = {
+  patient:{head:'🧑 Patient perspective: what Rahul learned',items:[
+    'PA means approval BEFORE treatment, requested by the provider.',
+    'Denial is not permanent: appeal with documents and a Letter of Medical Necessity.',
+    'Step therapy proof (earlier drug trials) is often the missing piece.',
+    'An approved PA stays on file, so no repeat for Humira.']},
+  system:{head:'🏢 System perspective: how health systems track PA',items:[
+    'Denial rate: share of PA requests denied. Shows documentation quality.',
+    'Appeal rate: share of denials that get appealed. Shows follow-through.',
+    'Resolution time: days from request to final decision. Shows patient impact.',
+    'Denials cost offices 2+ staff hours each, so first-time-right requests save time.']}
+};
+
+/* ================= APP STATE & HELPERS ================= */
+const chat=document.getElementById('chat'), choicesBox=document.getElementById('choices');
+let state={i:0,flags:{},busy:false};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const val=(x)=>typeof x==='function'?x(state.flags):x;
+
+/* tiny element factory: always createElement */
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e}
+function push(node){node.classList.add('pop');chat.appendChild(node);node.scrollIntoView({behavior:'smooth',block:'end'})}
+
+/* chat bubble for Rahul (left) or Priya (right) */
+function bubble(who,text){
+  const isR=who==='r';
+  const row=el('div','flex gap-2 items-end '+(isR?'justify-start':'justify-end'));
+  const av=el('div','shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-3xl border-4 shadow-md '+(isR?'bg-white border-blue-300':'bg-blue-100 border-blue-600'),isR?'👦':'👧');
+  const box=el('div','max-w-[78%] rounded-2xl px-4 py-3 border-2 shadow-md '+(isR?'bg-white border-blue-300 rounded-bl-none':'bg-gradient-to-br from-blue-200 to-blue-400 border-blue-600 rounded-br-none'));
+  box.appendChild(el('div','text-xs font-extrabold mb-1',isR?'Rahul · patient':'Priya · operations specialist'));
+  box.appendChild(el('div','text-sm leading-relaxed',text));
+  if(isR){row.appendChild(av);row.appendChild(box)}else{row.appendChild(box);row.appendChild(av)}
+  push(row);
+}
+/* centered italic narration or doctor text (not a bubble) */
+function narr(text){push(el('p','text-center italic text-sm px-6 py-2 mx-auto max-w-xl rounded-xl bg-white/50 border border-blue-200',text))}
+/* animated typing dots shown before each bubble, removed afterwards */
+async function typing(who){
+  const row=el('div','flex gap-2 items-center '+(who==='r'?'justify-start':'justify-end'));
+  const b=el('div','glass rounded-full px-4 py-3 border border-blue-300 flex gap-1 shadow');
+  for(let k=0;k<3;k++)b.appendChild(el('span','dot w-2 h-2 rounded-full bg-blue-600 inline-block'));
+  row.appendChild(b);chat.appendChild(row);row.scrollIntoView({behavior:'smooth',block:'end'});
+  await sleep(750);chat.removeChild(row);
+}
+/* confetti burst for the approval scene */
+function confetti(){
+  const cols=['#4a90e2','#9cc4f5','#1e5fae','#cfe3ff','#0d3b72'];
+  for(let k=0;k<80;k++){const c=el('div','conf');c.style.left=Math.random()*100+'vw';c.style.background=cols[k%5];c.style.animationDelay=Math.random()*.8+'s';document.body.appendChild(c);setTimeout(()=>document.body.removeChild(c),3800)}
+}
+/* flow diagram: Provider -> PA Request -> Payer */
+function flow(steps){
+  const row=el('div','flex flex-wrap items-center justify-center gap-2 py-2');
+  steps.forEach((s,k)=>{
+    row.appendChild(el('span','bg-gradient-to-br from-blue-100 to-blue-300 border-2 border-blue-600 rounded-xl px-4 py-2 text-sm font-bold shadow',s));
+    if(k<steps.length-1)row.appendChild(el('span','text-2xl font-black','➜'));
+  });push(row);
+}
+/* checklist card with a title and a "why it matters" line */
+function list(items){
+  const card=el('div','glass border-2 border-blue-400 rounded-2xl p-4 space-y-3 shadow-lg');
+  items.forEach(([t,d])=>{const r=el('div','border-l-4 border-blue-600 pl-3');r.appendChild(el('div','font-bold text-sm',t));r.appendChild(el('div','text-sm',d));card.appendChild(r)});
+  push(card);
+}
+function setProgress(){
+  const n=Math.min(state.i+1,SCENES.length);
+  document.getElementById('bar').style.width=(n/SCENES.length*100)+'%';
+  document.getElementById('barText').textContent='Scene '+n+' / '+SCENES.length;
+  document.getElementById('sceneTitle').textContent=SCENES[state.i].title;
+  drawDots(state.i);
+}
+/* 8 step dots under the bar: filled = done, ringed = current (header only, not chat) */
+function drawDots(cur){
+  const box=document.getElementById('dots');clearNode(box);
+  SCENES.forEach((s,k)=>{
+    const d=el('div','w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition '+
+      (k<cur?'bg-blue-600 border-blue-800':k===cur?'bg-blue-200 border-blue-700 scale-125 shadow-lg':'bg-white border-blue-300'),k<cur?'✓':String(k+1));
+    d.title=s.title;box.appendChild(d);
+  });
+}
+function clearNode(n){while(n.firstChild)n.removeChild(n.firstChild)}
+
+/* ================= SCENE ENGINE ================= */
+async function playScene(){
+  state.busy=true;clearNode(choicesBox);setProgress();
+  const sc=SCENES[state.i];
+  const icons=['🩺','🚧','📘','🔎','⛔','📑','✅','🎓'];
+  const head=el('div','text-center text-sm font-extrabold tracking-wide bg-gradient-to-r from-blue-200 via-blue-300 to-blue-200 border-2 border-blue-600 rounded-full py-2 shadow-md mt-4',icons[state.i]+'  Scene '+(state.i+1)+': '+sc.title);
+  push(head);
+  for(const [t,x] of sc.lines){
+    const v=val(x);
+    if(t==='r'||t==='p')await typing(t);else await sleep(650);
+    if(t==='r'||t==='p')bubble(t,v);
+    else if(t==='flow')flow(v);
+    else if(t==='list')list(v);
+    else narr(v);
+  }
+  await sleep(500);
+  if(sc.title==='Approval')confetti();
+  if(state.i===SCENES.length-1){showChoices(sc.choices,true)}else showChoices(sc.choices,false);
+  state.busy=false;
+}
+function showChoices(list_,final){
+  clearNode(choicesBox);
+  list_.forEach(c=>{
+    const b=el('button','pop glow text-left glass hover:bg-blue-200 hover:-translate-y-1 transition border-2 border-blue-500 rounded-2xl px-4 py-4 font-bold text-sm shadow-lg',c.label);
+    b.addEventListener('click',()=>choose(c,final));
+    choicesBox.appendChild(b);
+  });
+}
+async function choose(c,final){
+  if(state.busy)return;state.busy=true;clearNode(choicesBox);
+  if(c.flag)state.flags[c.flag]=true;
+  if(final){await showTakeaways(c.first);return}
+  await typing('r');bubble('r',c.rahul);await typing('p');bubble('p',c.priya);await sleep(600);
+  state.i++;playScene();
+}
+async function showTakeaways(first){
+  const order=first==='patient'?['patient','system']:['system','patient'];
+  for(const k of order){
+    await sleep(500);const T=TAKEAWAYS[k];
+    const card=el('div','glass border-2 border-blue-600 rounded-2xl p-5 shadow-xl');
+    card.appendChild(el('h3','font-extrabold text-base mb-3 pb-2 border-b-2 border-blue-300',T.head));
+    const ul=el('ul','space-y-2 text-sm');
+    T.items.forEach(i=>ul.appendChild(el('li','flex gap-2','✔️ '+i)));
+    card.appendChild(ul);push(card);
+  }
+  await sleep(400);
+  narr('Note: StarCare Health, the reference number and the timelines are illustrative. Real plans and rules vary.');
+  const b=el('button','sm:col-span-2 glow bg-gradient-to-r from-blue-300 to-blue-500 hover:-translate-y-1 transition border-2 border-blue-800 rounded-2xl px-4 py-4 font-extrabold shadow-lg','🔄 Restart the story');
+  b.addEventListener('click',restart);choicesBox.appendChild(b);state.busy=false;
+}
+function restart(){clearNode(chat);clearNode(choicesBox);state={i:0,flags:{},busy:false};start()}
+
+/* Start screen */
+function start(){
+  setProgress();
+  document.getElementById('barText').textContent='Scene 0 / 8';
+  document.getElementById('bar').style.width='0%';
+  document.getElementById('sceneTitle').textContent='Ready to begin';
+  const intro=el('div','glass border-2 border-blue-500 rounded-3xl p-6 text-center shadow-xl');
+  intro.appendChild(el('div','text-5xl mb-2','👦 💊 👧'));
+  intro.appendChild(el('h2','text-xl font-extrabold mb-1','Rahul needs his arthritis medicine approved'));
+  intro.appendChild(el('p','text-sm italic','Follow his journey with Priya across 8 scenes. Your choices shape the conversation.'));
+  push(intro);
+  const b=el('button','sm:col-span-2 glow bg-gradient-to-r from-blue-300 to-blue-500 hover:-translate-y-1 transition border-2 border-blue-800 rounded-2xl px-4 py-4 font-extrabold shadow-lg','▶ Start the story');
+  b.addEventListener('click',()=>{clearNode(choicesBox);playScene()});
+  choicesBox.appendChild(b);
+}
+start();
+</script></body></html>
