@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hospital Admission Readiness Simulator</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#eef6f8;--bg2:#dff0f2;--card:#ffffffd9;--ink:#0b2a3a;--mut:#5b7685;--line:#cfe2e8;--teal:#0d9488;--blue:#2563eb;--ok:#059669;--warn:#d97706;--bad:#dc2626;--hero:linear-gradient(135deg,#0b3b57,#0d7377 60%,#14b8a6)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07151e;--bg2:#0a2230;--card:#0f2431d9;--ink:#e6f4f7;--mut:#8fb0bd;--line:#1c3a4a}}
+:root[data-theme="dark"]{--bg:#07151e;--bg2:#0a2230;--card:#0f2431d9;--ink:#e6f4f7;--mut:#8fb0bd;--line:#1c3a4a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:radial-gradient(1200px 500px at 90% -10%,var(--bg2),transparent),var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100%}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;backdrop-filter:blur(8px);box-shadow:0 8px 30px #0b3b5714}
+.hero{background:var(--hero);color:#fff;border-radius:24px;position:relative;overflow:hidden}
+.mut{color:var(--mut)}
+.inp{width:100%;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:.65rem .8rem;color:var(--ink);outline:none;transition:.2s}
+.inp:focus{border-color:var(--teal);box-shadow:0 0 0 3px #0d948833}
+.btn{border-radius:12px;padding:.6rem .9rem;font-weight:600;font-size:.85rem;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);transition:.18s;text-align:left}
+.btn:hover:not(:disabled){transform:translateY(-1px);border-color:var(--teal);box-shadow:0 6px 16px #0d948825}
+.btn:disabled{opacity:.45;cursor:not-allowed}.btn.done{background:#05966914;border-color:var(--ok);color:var(--ok)}
+.cta{background:var(--hero);color:#fff;border:0;border-radius:14px;padding:.95rem 1.4rem;font-weight:700;font-size:1rem;box-shadow:0 10px 26px #0d737755;transition:.2s}
+.cta:hover{transform:translateY(-2px);box-shadow:0 14px 32px #0d737788}
+.chip{font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:99px}
+.g{background:#05966922;color:var(--ok)}.a{background:#d9770622;color:var(--warn)}.r{background:#dc262622;color:var(--bad)}
+.bar{height:8px;border-radius:9px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;border-radius:9px;transition:width .6s}
+.ecg{stroke-dasharray:400;animation:d 3s linear infinite}@keyframes d{from{stroke-dashoffset:800}to{stroke-dashoffset:0}}
+.fade{animation:f .5s ease both}@keyframes f{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-gradient(500px 380px at 8% 12%,#14b8a62e,transparent),radial-gradient(520px 420px at 95% 70%,#2563eb26,transparent),radial-gradient(#0d948820 1px,transparent 1px) 0 0/22px 22px}
+.hero{box-shadow:0 24px 60px #0d737766,inset 0 1px 0 #ffffff40}
+.hero::before,.hero::after{content:'';position:absolute;border-radius:50%;filter:blur(40px);animation:fl 9s ease-in-out infinite alternate;pointer-events:none}
+.hero::before{width:260px;height:260px;background:#5eead466;left:-60px;bottom:-110px}
+.hero::after{width:300px;height:300px;background:#60a5fa55;right:-80px;top:-120px;animation-delay:-4s}
+@keyframes fl{to{transform:translate(40px,-30px) scale(1.2)}}
+.card{transition:.25s}.card:hover{transform:translateY(-3px);box-shadow:0 16px 40px #0b3b5726;border-color:#0d948866}
+.card h2{display:flex;align-items:center;gap:.55rem}.card h2::before{content:'';width:5px;height:1.15em;border-radius:5px;background:var(--hero)}
+.tile{display:inline-grid;place-items:center;width:28px;height:28px;margin-right:.45rem;border-radius:9px;background:linear-gradient(135deg,#0d948833,#2563eb33);font-size:.9rem;vertical-align:middle}
+.cta{position:relative;overflow:hidden}.cta::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,#ffffff55,transparent);transform:skewX(-20deg);animation:sh 3.2s infinite}
+@keyframes sh{to{left:130%}}
+.pill{font-size:.75rem;font-weight:600;padding:.35rem .8rem;border-radius:99px;background:#ffffff22;border:1px solid #ffffff44;backdrop-filter:blur(6px)}
+.live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#5eead4;margin-right:.4rem;box-shadow:0 0 0 0 #5eead4;animation:pu 1.8s infinite}
+@keyframes pu{70%{box-shadow:0 0 0 9px #5eead400}100%{box-shadow:0 0 0 0 #5eead400}}
+.inp:hover{border-color:#0d948899}.dot{box-shadow:0 2px 8px #0b3b5730}
+.cta:active,.btn:active:not(:disabled){transform:scale(.98)}
+.dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.7rem;font-weight:800;flex:none}
+</style></head>
+<body class="p-4 md:p-8"><div class="max-w-6xl mx-auto" id="app"></div>
+<script>
+const W={pa:25,docs:20,orders:20,ins:15,consent:10,bed:10};
+const NAMES={pa:'Prior Authorization',ins:'Insurance',bed:'Bed',docs:'Documentation',orders:'Physician Orders',consent:'Consent'};
+const DX=['Acute MI','CHF','Pneumonia','Elective Surgery','Hip Fracture'];
+const TY=['Inpatient','Observation','Emergency','ICU','Same-Day Surgery'];
+const OBS="CMS 2-Midnight Rule applies — different cost-sharing, SNF eligibility, and billing than inpatient. Medicare patients require written MOON notification.";
+const CRIT="InterQual/Milliman thresholds apply — ensure documentation meets medical necessity standards before UR review.";
+const GOV="Industry benchmarks (estimates only): PA turnaround 3–5 days · Inpatient denial rate ~8–10% (CMS) · PA rework cost ~$11/transaction (CAQH)";
+const TL=['PA Review','Insurance Verification','Bed Assignment','Documentation','Consent','Patient Arrival','Registration','Clinical Assessment','Admission Complete'];
+let S;const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function fresh(){S={step:'setup',cfg:{prov:'',phys:'',dx:'Acute MI',ty:'Inpatient',pa:'Pending',date:'2026-10-09'},d:{},paState:null,pas:{},final:null,log:[]}}
+fresh();
+const hi=()=>['Acute MI','CHF'].includes(S.cfg.dx)||S.cfg.ty==='ICU';
+function paVal(){if(S.paState==='Approved')return 1;if(S.paState==='Denied')return 0;return .4+.2*(+!!S.pas.follow+ +!!S.d.docs+ +!!S.d.phys)}
+function vals(){const d=S.d;return{pa:paVal(),docs:d.docs?1:.5,orders:d.phys?1:.5,ins:d.ins?1:.5,consent:d.consent?1:.2,bed:.2+(d.bed?.5:0)+(d.nurse?.15:0)+(d.arrive?.15:0)}}
+function score(){const v=vals();let s=0;for(const k in W)s+=W[k]*v[k];s=Math.round(s);if(S.paState==='Denied'&&S.cfg.ty==='ICU')s=Math.min(s,69);return s}
+function risks(){const v=vals(),m=hi()?1.4:1;const c=x=>Math.max(0,Math.min(100,Math.round(x)));
+return[['Documentation Risk',c((1-v.docs)*100)],['Insurance Risk',c(((1-v.ins)*.5+(1-v.pa)*.5)*100)],['Bed Risk',c((1-v.bed)*100)],['Clinical Risk'+(hi()?' ×1.4':''),c(((1-v.orders)*.6+(1-v.pa)*.4)*100*m)]]}
+const tone=x=>x>=1?['g','Complete']:x>=.5?['a','In progress']:['r','Action needed'];
+const rtone=x=>x<=20?'var(--ok)':x<=50?'var(--warn)':'var(--bad)';
+function log(t){S.log.unshift(t)}
+function act(k){const d=S.d;
+if(k==='follow'){S.pas.follow=1;log('Followed up with payer on PA status.')}
+else if(k==='review'){S.pas.review=1;log('Reviewed denial reason.')}
+else if(k==='cins'){S.pas.cins=1;log('Contacted insurance for peer-to-peer details.')}
+else if(k==='appeal'){S.paState='Approved';log('✔ Appeal submitted — denial overturned. PA now Approved.')}
+else{d[k]=1;log({bed:'Bed assigned.',ins:'Insurance verified.',docs:'Clinical documentation uploaded.',consent:'Consent completed.',phys:'Attending contacted; orders signed.',nurse:'Nursing notified.',arrive:'Patient arrival prepared.'}[k])}
+if(S.paState==='Pending'&&S.pas.follow&&d.docs&&d.phys){S.paState='Approved';log('✔ PA approved after follow-up, documents and physician contact.')}
+render()}
+function analyze(){const c=S.cfg;c.prov=$('prov').value.trim()||'Riverside General (illustrative)';c.phys=$('phys').value.trim()||'Dr. A. Rao (illustrative)';
+c.dx=$('dx').value;c.ty=$('ty').value;c.pa=$('pa').value;c.date=$('date').value||c.date;S.paState=c.pa;S.step='work';render();window.scrollTo({top:0,behavior:'smooth'})}
+function finalize(){S.final=1;render();setTimeout(()=>$('final').scrollIntoView({behavior:'smooth'}),50)}
+function sel(id,arr,v){return `<select id="${id}" class="inp" ${id==='ty'?'onchange="obs()"':''}>${arr.map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select>`}
+function obs(){$('obs').style.display=$('ty').value==='Observation'?'block':'none'}
+function ring(s){const r=54,c=2*Math.PI*r,col=s>=90?'#34d399':s>=75?'#5eead4':s>=50?'#fbbf24':'#fb923c';
+return `<svg width="160" height="160" viewBox="0 0 130 130" style="filter:drop-shadow(0 0 14px ${col}88)"><circle cx="65" cy="65" r="${r}" stroke="#ffffff30" stroke-width="10" fill="none"/><circle cx="65" cy="65" r="${r}" stroke="${col}" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-s/100)}" transform="rotate(-90 65 65)" style="transition:.8s"/><text x="65" y="63" text-anchor="middle" fill="#fff" font-size="30" font-weight="800">${s}%</text><text x="65" y="82" text-anchor="middle" fill="#ffffffb0" font-size="9" letter-spacing="1.5">READINESS</text></svg>`}
+const ECG=`<svg class="absolute right-0 top-4 opacity-30" width="420" height="80" viewBox="0 0 420 80"><polyline class="ecg" fill="none" stroke="#fff" stroke-width="2.5" points="0,40 70,40 85,40 95,10 108,70 120,40 190,40 205,40 215,14 228,66 240,40 330,40 345,40 355,12 368,68 380,40 420,40"/></svg>`;
+function render(){const A=$('app'),c=S.cfg;
+if(S.step==='setup'){A.innerHTML=`<div class="hero p-7 md:p-10 mb-6 fade">${ECG}<div class="chip" style="background:#ffffff26;display:inline-block">🏥 HEALTHCARE SIMULATION · TRAINING MODE</div>
+<h1 class="text-3xl md:text-4xl font-extrabold mt-3">Hospital Admission Readiness Simulator</h1>
+<p class="mt-2 max-w-xl" style="color:#ffffffcc">You are the Admission Coordinator. Configure the case, then clear every barrier before the patient arrives.</p><div class="flex flex-wrap gap-2 mt-5 relative"><span class="pill">① Setup</span><span class="pill">② Analyze</span><span class="pill">③ Resolve PA & risks</span><span class="pill">④ Final decision</span></div></div>
+<div class="card p-6 md:p-8 fade"><div class="flex flex-wrap justify-between gap-2 mb-5"><h2 class="font-bold text-xl">🩺 Case Setup</h2><span class="chip a">All provider/payer names are illustrative training data</span></div>
+<div class="grid md:grid-cols-2 gap-4">
+<label class="text-sm font-semibold">Provider<input id="prov" class="inp mt-1" placeholder="e.g. Riverside General (illustrative)" value="${esc(c.prov)}"></label>
+<label class="text-sm font-semibold">Attending Physician<input id="phys" class="inp mt-1" placeholder="e.g. Dr. A. Rao (illustrative)" value="${esc(c.phys)}"></label>
+<label class="text-sm font-semibold">Diagnosis<div class="mt-1">${sel('dx',DX,c.dx)}</div></label>
+<label class="text-sm font-semibold">Admission Type<div class="mt-1">${sel('ty',TY,c.ty)}</div></label>
+<label class="text-sm font-semibold">PA Status<div class="mt-1">${sel('pa',['Approved','Pending','Denied'],c.pa)}</div></label>
+<label class="text-sm font-semibold">Admission Date<input id="date" type="date" class="inp mt-1" value="${c.date}"></label></div>
+<div id="obs" class="mt-4 p-4 rounded-xl text-sm font-semibold a" style="display:${c.ty==='Observation'?'block':'none'}">⚠ ${OBS}</div>
+<button class="cta mt-6 w-full md:w-auto" onclick="analyze()">🏥 Analyze Admission Readiness</button></div>`;return}
+const s=score(),v=vals(),f=S.final,pa=S.paState,d=S.d;
+const rows=[['pa','PA '+pa+(c.pa==='Denied'&&pa==='Approved'?' (via appeal)':'')],['ins','Payer: Northbridge Health Plan (illustrative)'],['bed','Bed '+(d.bed?'assigned':'unassigned')],['docs','Clinical documentation'],['orders','Physician orders'],['consent','Consent forms']];
+const B=(k,l,en=true,hint='')=>`<button class="btn ${d[k]?'done':''}" ${(d[k]||!en)?'disabled':''} title="${hint}" onclick="act('${k}')">${d[k]?'✓ ':''}${l}</button>`;
+const PB=(k,l,en=true)=>`<button class="btn ${S.pas[k]?'done':''}" ${(S.pas[k]||!en)?'disabled':''} onclick="act('${k}')">${S.pas[k]?'✓ ':''}${l}</button>`;
+let paBox=pa==='Approved'?`<p class="text-sm" style="color:var(--ok)">✔ Prior authorization approved — continue workflow.</p>`:
+pa==='Pending'?`<p class="text-sm mut mb-2">Pending: complete all three to secure approval.</p><div class="grid sm:grid-cols-3 gap-2">${PB('follow','Follow Up')}${B('docs','Upload Docs')}${B('phys','Contact Physician')}</div>`:
+`<p class="text-sm mb-2" style="color:var(--bad)">Denied: ${S.pas.review?'Reason — insufficient medical-necessity documentation (illustrative).':'review the reason, then contact insurance.'}</p><div class="grid sm:grid-cols-3 gap-2">${PB('review','Review Reason')}${PB('cins','Contact Insurance',S.pas.review)}${PB('appeal','Submit Appeal',S.pas.review&&S.pas.cins)}</div>`;
+const tl=[pa==='Approved',!!d.ins,!!d.bed,!!d.docs,!!d.consent,!!d.arrive,f&&s>=90,f&&s>=90,f&&s>=90];const cur=tl.indexOf(false);
+const cards=[['👨‍⚕️ Attending',`${esc(c.phys)} — orders & medical necessity for ${c.dx}.`],['📋 Case Manager','Coordinates payer contact, PA tracking and patient communication.'],['🩺 Nursing','Receives bed handoff and prepares unit for arrival.'],['🔍 Utilization Review','Concurrent review, denial risk identification, and InterQual / Milliman criteria checks.'],['🏠 Discharge Planner','Early planning for post-acute needs and expected length of stay.']];
+const sparse=(S.log.length?S.log:['No actions taken yet.']).slice(0,5);
+A.innerHTML=`<div class="hero p-6 md:p-8 mb-5 fade">${ECG}<div class="flex flex-wrap items-center gap-6 relative"><div>${ring(s)}</div><div class="flex-1 min-w-[220px]">
+<div class="pill" style="display:inline-block"><span class="live"></span>${f?'FINAL REVIEW':'LIVE ANALYSIS'}</div>
+<h1 class="text-2xl md:text-3xl font-extrabold mt-2">Admission Readiness</h1>
+<p style="color:#ffffffcc" class="text-sm mt-1">${esc(c.prov)} · ${esc(c.phys)}<br>${c.dx} · ${c.ty} · ${c.date}</p>
+<p class="text-xs mt-2" style="color:#ffffffa0">Illustrative training data. ${S.step==='work'&&!f?'Decision withheld until you finalize.':''}</p></div>
+<button class="btn" style="background:#ffffff1f;color:#fff;border-color:#ffffff40" onclick="fresh();render()">↺ Restart</button></div></div>
+${c.ty==='Observation'?`<div class="p-4 rounded-xl text-sm font-semibold a mb-4">⚠ ${OBS}</div>`:''}
+${['Acute MI','CHF'].includes(c.dx)?`<div class="p-4 rounded-xl text-sm font-semibold mb-4" style="background:#2563eb1c;color:var(--blue)">📘 ${CRIT}</div>`:''}
+${s>=75?`<div class="p-4 rounded-xl text-sm font-semibold mb-4 g fade">🛡 Governance Snapshot — ${GOV}</div>`:''}
+<div class="grid lg:grid-cols-3 gap-5">
+<div class="lg:col-span-2 space-y-5">
+<div class="card p-5"><h2 class="font-bold mb-3">Status Overview</h2><div class="grid sm:grid-cols-2 gap-3">${rows.map(([k,t])=>{const x=v[k],[cl,lb]=tone(x);return `<div class="p-3 rounded-xl" style="border:1px solid var(--line)"><div class="flex justify-between items-center"><b class="text-sm"><span class="tile">${{pa:'🛡',ins:'🪪',bed:'🛏',docs:'📄',orders:'📝',consent:'✍'}[k]}</span>${NAMES[k]} <span class="mut font-normal">· ${W[k]}%</span></b><span class="chip ${cl}">${lb}</span></div><p class="text-xs mut mt-1">${esc(t)}</p><div class="bar mt-2"><i style="width:${x*100}%;background:${rtone((1-x)*100)}"></i></div></div>`}).join('')}</div></div>
+<div class="card p-5"><h2 class="font-bold mb-3">Prior Authorization</h2>${paBox}</div>
+<div class="card p-5"><h2 class="font-bold mb-3">Workflow Actions</h2><div class="grid sm:grid-cols-2 gap-2">
+${B('bed','🛏 Assign Bed')}${B('ins','🪪 Verify Insurance')}${B('docs','📄 Upload Documentation')}${B('consent','✍ Complete Consent')}${B('phys','📞 Contact Physician')}${B('nurse','🩺 Notify Nursing',!!d.bed)}${B('arrive','🚑 Prepare Patient Arrival',!!d.bed&&!!d.consent)}</div>
+<p class="text-xs mut mt-2">Nursing requires an assigned bed · Arrival requires bed + consent.</p>
+<button class="cta mt-4 w-full" onclick="finalize()">⚖ Finalize Admission Decision</button></div>
+<div class="card p-5"><h2 class="font-bold mb-3">Care Coordination</h2><div class="grid sm:grid-cols-2 gap-3">${cards.map(([t,x])=>`<div class="p-3 rounded-xl" style="border:1px solid var(--line)"><b class="text-sm">${t}</b><p class="text-xs mut mt-1">${x}</p></div>`).join('')}</div></div>
+</div>
+<div class="space-y-5">
+<div class="card p-5"><h2 class="font-bold mb-3">Risk Tracking</h2>${risks().map(([n,x])=>`<div class="mb-3"><div class="flex justify-between text-sm"><span>${n}</span><b style="color:${rtone(x)}">${x}</b></div><div class="bar mt-1"><i style="width:${x}%;background:${rtone(x)}"></i></div></div>`).join('')}${hi()?'<p class="text-xs mut">Clinical Risk weighted higher for this case.</p>':''}</div>
+<div class="card p-5"><h2 class="font-bold mb-3">Timeline</h2>${TL.map((t,i)=>`<div class="flex items-center gap-3 mb-2"><div class="dot" style="background:${tl[i]?'var(--ok)':i===cur?'var(--teal)':'var(--line)'};color:${tl[i]||i===cur?'#fff':'var(--mut)'}">${tl[i]?'✓':i+1}</div><span class="text-sm ${i===cur?'font-bold':''}" style="${tl[i]?'':'color:var(--mut)'}">${t}</span></div>`).join('')}</div>
+<div class="card p-5"><h2 class="font-bold mb-2">Activity Log</h2>${sparse.map(x=>`<p class="text-xs mut mb-1">• ${x}</p>`).join('')}</div></div></div>
+${f?finalHtml(s,v):''}`}
+function finalHtml(s,v){const c=S.cfg,miss=[];
+if(S.paState!=='Approved')miss.push([`PA ${S.paState}`,S.paState==='Denied'?'Review reason, contact insurance, submit appeal':'Follow up, upload docs, contact physician']);
+if(!S.d.ins)miss.push(['Insurance not verified','Verify Insurance']);if(!S.d.bed)miss.push(['No bed assigned','Assign Bed']);
+if(!S.d.docs)miss.push(['Clinical documentation incomplete','Upload Documentation']);if(!S.d.phys)miss.push(['Physician orders unsigned','Contact Physician']);
+if(!S.d.consent)miss.push(['Consent not completed','Complete Consent']);if(S.d.bed&&!S.d.nurse)miss.push(['Nursing not notified','Notify Nursing']);if(S.d.bed&&S.d.consent&&!S.d.arrive)miss.push(['Arrival not prepared','Prepare Patient Arrival']);
+if(s>=90)return `<div id="final" class="card p-7 mt-5 fade" style="border:2px solid var(--ok)"><h2 class="text-2xl font-extrabold" style="color:var(--ok)">✅ Admit</h2>
+<p class="mut text-sm mb-4">Readiness ${s}% — all admission requirements satisfied.</p>
+<div class="grid sm:grid-cols-2 gap-2 text-sm"><p><b>Provider:</b> ${esc(c.prov)}</p><p><b>Attending:</b> ${esc(c.phys)}</p><p><b>Diagnosis:</b> ${c.dx}</p><p><b>Type:</b> ${c.ty}</p><p><b>Admission date:</b> ${c.date}</p><p><b>PA:</b> ${S.paState}${c.pa==='Denied'?' (overturned on appeal)':''}</p><p><b>Insurance:</b> Verified</p><p><b>Bed:</b> Assigned · Nursing notified</p><p><b>Documentation, orders, consent:</b> Complete</p><p><b>Residual risk:</b> ${risks().map(r=>r[0].replace(' ×1.4','')+' '+r[1]).join(' · ')}</p></div>
+${c.ty==='Observation'?`<p class="text-xs mt-3 a p-3 rounded-xl">${OBS}</p>`:''}<p class="text-xs mut mt-3">Simulation complete — restart to test another diagnosis.</p></div>`;
+return `<div id="final" class="card p-7 mt-5 fade" style="border:2px solid var(--warn)"><h2 class="text-2xl font-extrabold" style="color:var(--warn)">⚠ Not Ready</h2>
+<p class="mut text-sm mb-4">Readiness ${s}% — below the 90% admit threshold.${S.paState==='Denied'&&c.ty==='ICU'?' Denied PA + ICU cannot exceed 69% from admin tasks alone.':''}</p>
+<div class="grid md:grid-cols-3 gap-4"><div><h3 class="font-bold mb-2">Missing Items</h3>${miss.map(m=>`<p class="text-sm">• ${m[0]}</p>`).join('')||'<p class="text-sm mut">Minor gaps only.</p>'}</div>
+<div><h3 class="font-bold mb-2">Required Actions</h3>${miss.map(m=>`<p class="text-sm">→ ${m[1]}</p>`).join('')}</div>
+<div><h3 class="font-bold mb-2">Remaining Risks</h3>${risks().filter(r=>r[1]>20).map(r=>`<p class="text-sm" style="color:${rtone(r[1])}">• ${r[0]}: ${r[1]}</p>`).join('')||'<p class="text-sm mut">Low across the board.</p>'}</div></div></div>`}
+render();
+</script></body></html>
