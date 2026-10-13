@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Think Like a Marketing Strategist: Grow This Brand</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+:root{--bg:#0f1220;--pn:#181c30;--ln:#2a3050;--tx:#e9ebf5;--mu:#99a0c0;--ac:#ffb454;--tl:#5eead4;--bd:#ff7a7a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style",Georgia,serif;line-height:1.2;margin:0 0 .5em}
+h1{font-size:clamp(2rem,6vw,3.4rem)}h2{font-size:1.7rem}h3{font-size:1.15rem}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 60px}
+.fade{animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--pn);border:1px solid var(--ln);border-radius:14px;padding:18px;margin:14px 0}
+.what{border-left:4px solid var(--tl);background:#141a2c;border-radius:6px 14px 14px 6px;padding:12px 16px;margin:14px 0}
+.what b{color:var(--tl)}
+.ask{border:1px dashed var(--ac);border-radius:14px;padding:16px;margin:18px 0;background:#1a1a26}
+.ask h3{color:var(--ac)}
+pre{white-space:pre-wrap;background:#0b0e1a;border-radius:10px;padding:12px;font:13px/1.5 ui-monospace,Menlo,monospace;color:#cfd6f5;margin:8px 0}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--ln);background:#20253f;color:var(--tx);padding:10px 16px;transition:.2s}
+button:hover{border-color:var(--ac)}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--tl);outline-offset:2px}
+button.pri{background:var(--ac);color:#1b1405;border-color:var(--ac);font-weight:700}
+button.pri:disabled{opacity:.35;cursor:not-allowed}
+.opt{display:block;width:100%;text-align:left;margin:8px 0}
+.opt.on{border-color:var(--tl);background:#17302f}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+input,textarea{width:100%;background:#0b0e1a;color:var(--tx);border:1px solid var(--ln);border-radius:10px;padding:10px;font:inherit;margin:4px 0 12px}
+label{font-size:.9rem;color:var(--mu)}
+.prog{display:flex;gap:4px;margin-bottom:6px}.prog i{flex:1;height:5px;border-radius:3px;background:var(--ln);transition:.4s}.prog i.d{background:var(--tl)}.prog i.c{background:var(--ac)}
+.mu{color:var(--mu);font-size:.92rem}
+.bar{height:8px;border-radius:4px;background:var(--ln);overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--tl));transition:width .8s}
+.tag{display:inline-block;font-size:.8rem;padding:2px 10px;border-radius:99px;border:1px solid var(--ln);color:var(--mu);margin-right:6px}
+.good{color:var(--tl)}.bad{color:var(--bd)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState}=React;
+const R=a=>a[Math.floor(Math.random()*a.length)];
+const STEPS=['Welcome','Mode','Brand','Platforms','Pillars','Roadmap','Event','Report'];
+const AUD={young:'Young adults (16–28)',local:'Local community',pro:'Professionals & businesses',family:'Parents & families'};
+const CLIENTS=[
+{name:'Sunrise Sourdough',what:'neighborhood artisan bakery',aud:'local',budget:'$300/month',adm:['SuperMart bakery aisle','Café chain on Main St'],ch:'Loved by regulars, but nobody outside the street knows it exists.'},
+{name:'VoltRide',what:'electric commuter bikes',aud:'young',budget:'$1,500/month',adm:['CityGlide','PedalMax'],ch:'Premium price makes buyers hesitate and compare for weeks.'},
+{name:'LedgerLeaf',what:'bookkeeping software for freelancers',aud:'pro',budget:'$2,000/month',adm:['Big-name accounting giants','Spreadsheet templates'],ch:'People hesitate to trust a brand-new tool with their money.'},
+{name:'Little Sprouts Toy Co',what:'eco-friendly wooden toys',aud:'family',budget:'$800/month',adm:['PlastiFun','Big-box toy stores'],ch:'Sales spike at the holidays, then disappear for months.'},
+{name:'Iron Oak Gym',what:'independent local gym',aud:'local',budget:'$500/month',adm:['FitChain 24/7','Home workout apps'],ch:'New Year members quit by March.'},
+{name:'Pixel Pantry',what:'gaming snack subscription box',aud:'young',budget:'$600/month',adm:['SnackCrate','Convenience-store snacks'],ch:'Hard to stand out in a crowded snack market.'}];
+const PL={
+Instagram:{i:'📸',f:{young:3,local:2,pro:1,family:2},why:'Visual storytelling and Reels reward consistent creative content.'},
+TikTok:{i:'🎵',f:{young:3,local:1,pro:0,family:2},why:'Short video reaches strangers fast, but needs a lot of creative energy.'},
+LinkedIn:{i:'💼',f:{young:0,local:1,pro:3,family:1},why:'Where professionals look for expertise, partners and hires.'},
+'X / Twitter':{i:'🐦',f:{young:1,local:0,pro:2,family:0},why:'Fast conversation and ideas. Great for opinions, weak for products that need visuals.'},
+YouTube:{i:'▶️',f:{young:2,local:1,pro:2,family:2},why:'Searchable, long-lasting videos that build deep trust over time.'},
+Facebook:{i:'👍',f:{young:0,local:3,pro:1,family:3},why:'Groups, events and local reach, especially for older and family audiences.'},
+Newsletter:{i:'✉️',f:{young:0,local:1,pro:3,family:1},why:'You own the list. No algorithm decides who sees your message.'}};
+const PERS=['LinkedIn','X / Twitter','YouTube','Newsletter'];
+const fit=(p,a,ps)=>Math.min(3,PL[p].f[a]+(ps&&PERS.includes(p)?1:0));
+const VER=['Poor fit','Weak fit','Good fit','Strong fit'];
+const PB=[
+{n:'Education',g:'aware',d:'Teach something useful. Helps strangers discover you.'},
+{n:'Social Proof',g:'trust',d:'Reviews, results, customer stories. Reduces risk for new buyers.'},
+{n:'Behind the Scenes',g:'trust',d:'Show how things are made. Humanizes the brand.'},
+{n:'Promotions',g:'sales',d:'Offers and launches. Drives sales, but only works with trust built first.'},
+{n:'Entertainment',g:'aware',d:'Fun, shareable content. Wide reach, low commitment.'},
+{n:'Community',g:'trust',d:'Questions, polls, user content. Turns buyers into fans.'}];
+const PP=[
+{n:'Thought Leadership',g:'aware',d:'Share your point of view. Makes you known for something specific.'},
+{n:'Personal Story',g:'trust',d:'Your journey and lessons. People follow people they relate to.'},
+{n:'Behind the Scenes',g:'trust',d:'Your process and daily work. Shows authenticity.'},
+{n:'Audience Education',g:'aware',d:'Teach what you know. Proves expertise and earns shares.'},
+{n:'Wins & Proof',g:'trust',d:'Client results and milestones. Shows you deliver.'},
+{n:'Offers & Invitations',g:'sales',d:'Services, courses, calls. Turns attention into opportunity.'}];
+const GL={aware:'builds awareness',trust:'builds trust',sales:'drives sales'};
+const EB=[
+{t:'A customer posts a harsh public review',o:[
+['Delete it and hope no one noticed',20,'Hiding criticism looks guilty and often makes it spread.'],
+['Reply publicly, empathize, and offer a fix',95,'Everyone watching sees how you treat people. This builds trust.'],
+['Ignore it',40,'Silence leaves the story to the reviewer.']]},
+{t:'A micro-influencer mentions you unprompted',o:[
+['Thank them and propose a small collaboration',90,'Turning a spark into a relationship multiplies reach.'],
+['Repost and move on',60,'Fine, but no relationship was built.'],
+['Ignore it',20,'A free endorsement was wasted.']]},
+{t:'A competitor launches a huge sale',o:[
+['Match their discount',35,'You start a price war that hurts your margins.'],
+['Double down on your unique value and story',90,'Differentiation beats discounting for small brands.'],
+['Go silent until it passes',30,'Your audience sees only your competitor.']]}];
+const EP=[
+{t:'Your post goes viral overnight',o:[
+['Follow up fast, stay on niche, invite people to your newsletter',95,'You convert a spike into an audience you own.'],
+['Change your topic to chase similar attention',25,'Chasing attention blurs niche clarity.'],
+['Post nothing while you wait',40,'Momentum fades quickly.']]},
+{t:'A podcast invites you as a guest',o:[
+['Say yes after checking audience fit, then prepare 3 talking points',90,'Right audience plus preparation builds authority.'],
+['Say yes to every invite',60,'Reach is good, but a mismatched audience dilutes focus.'],
+['Decline out of nervousness',30,'Fear costs you credibility-building exposure.']]},
+{t:'Someone publicly disagrees with your opinion',o:[
+['Respond calmly, focusing on ideas not the person',90,'Respectful debate shows confidence and authenticity.'],
+['Ignore completely',55,'Safe, but you miss a chance to show your thinking.'],
+['Clap back angrily',20,'Heat gets attention, but costs trust.']]},
+{t:'Someone copies your content word for word',o:[
+['Message them privately, then keep creating',90,'Your voice and story cannot be copied. Stay consistent.'],
+['Publicly call them out',45,'Can attract sympathy, but can also drown your message.'],
+['Stop posting',15,'Retreating hands them your audience.']]},
+{t:'You gain 2,000 new followers in a day',o:[
+['Post a welcome and double down on your niche',90,'You show new followers what to expect.'],
+['Run a giveaway immediately',45,'Attracts people who want free things, not your message.'],
+['Do nothing different',50,'Safe, but the attention is wasted.']]}];
+
+function Card({children,cls=''}){return <div className={'card fade '+cls}>{children}</div>}
+function What({a,b}){return <div className="what"><b>What is this?</b> {a}<br/><b>Why does it matter?</b> {b}</div>}
+function Ask({text}){
+ const [c,setC]=useState(false);
+ const cp=()=>{const done=()=>{setC(true);setTimeout(()=>setC(false),1500)};
+  if(navigator.clipboard)navigator.clipboard.writeText(text).then(done,done);else done()};
+ return <div className="ask fade"><h3>💬 How to ask Claude</h3>
+  <p className="mu">Good prompts give Claude a role, context, a task and a format. Copy and reuse this one:</p>
+  <pre>{text}</pre><button onClick={cp}>{c?'Copied ✓':'Copy prompt'}</button></div>}
+function Bar({v}){return <div className="bar"><span style={{width:v+'%'}}/></div>}
+function Progress({s}){return <div><div className="prog">{STEPS.map((x,i)=><i key={x} className={i<s?'d':i===s?'c':''}/>)}</div>
+ <p className="mu">Step {s+1} of {STEPS.length}: {STEPS[s]}</p></div>}
+
+function Mode({pick}){
+ const m=[['biz','🏢','Use My Own Business','Apply strategy to a real business you run or know.'],
+ ['personal','🙋','Build My Personal Brand','No business? Use your name, expertise and story as the brand.'],
+ ['random','🎲','A New Client Has Arrived','Get a random business with a budget and a challenge.']];
+ return <div><h2>Who are we growing today?</h2><div className="grid">
+ {m.map(x=><button key={x[0]} className="card" onClick={()=>pick(x[0])}><div style={{fontSize:'2rem'}}>{x[1]}</div><h3>{x[2]}</h3><span className="mu">{x[3]}</span></button>)}</div></div>}
+
+function Brand({mode,b,setB,rec,next}){
+ const ps=mode==='personal',rn=mode==='random';
+ const [f,setF]=useState({name:'',what:'',detail:'',adm:'',aud:rn?'':'' });
+ const [aud,setAud]=useState(''),[done,setDone]=useState(false);
+ const ok=rn?aud:(f.name.trim()&&f.what.trim()&&aud);
+ const go=()=>{
+  let nb,s,n;
+  if(rn){nb=b;s=aud===b.aud?100:40;n=aud===b.aud?'You read the audience correctly.':'You misread the audience. The real target was '+AUD[b.aud]+'.'}
+  else{nb={name:f.name,what:f.what,aud,adm:[f.adm||'(none named yet)'],detail:f.detail};
+   s=f.detail.trim().length>=20?85:55;n=s>=85?'You described your audience in detail, which makes every later decision sharper.':'Your audience description was thin. Vague audiences lead to vague marketing.'}
+  setB(nb);rec('Audience',s,n);setDone(true)};
+ const ref=ps?`${b.name} (personal brand in ${b.what})`:`${b.name} (${b.what})`;
+ return <div><h2>{ps?'Understand yourself and your audience':'Understand the brand and its audience'}</h2>
+ <What a={ps?'Defining who you are, what expertise you offer, and who needs it.':'Defining what you sell, who buys it and who you compete with.'}
+  b="Marketing starts with understanding people. If you don't know who you're talking to, no platform or post will fix it."/>
+ {rn?<Card><h3>{b.name}</h3><p>{b.what}</p>
+  <span className="tag">Budget: {b.budget}</span><span className="tag">Competitors: {b.adm.join(', ')}</span>
+  <p><b>Challenge:</b> {b.ch}</p></Card>
+ :<Card><label>{ps?'Your name':'Business name'}</label><input value={f.name} onChange={e=>setF({...f,name:e.target.value})} disabled={done}/>
+  <label>{ps?'Your expertise or niche (this is your "product")':'What do you sell?'}</label><input value={f.what} onChange={e=>setF({...f,what:e.target.value})} disabled={done}/>
+  <label>Describe your ideal customer in a sentence or two (age, problem, habits)</label><textarea rows="2" value={f.detail} onChange={e=>setF({...f,detail:e.target.value})} disabled={done}/>
+  <label>{ps?'People in your space you admire':'Main competitors'}</label><input value={f.adm} onChange={e=>setF({...f,adm:e.target.value})} disabled={done}/></Card>}
+ <Card><h3>{rn?'Who is the best core audience for this client?':'Which group best describes your core audience?'}</h3>
+  {Object.keys(AUD).map(k=><button key={k} disabled={done} className={'opt '+(aud===k?'on':'')} onClick={()=>setAud(k)}>{AUD[k]}</button>)}
+  {!done&&<button className="pri" disabled={!ok} onClick={go}>Check my thinking</button>}</Card>
+ {done&&<><Card><h3 className="good">Result</h3><p>{rn&&aud===b.aud?'✅ ':'💡 '}{rn?(aud===b.aud?'You read the audience correctly. ':'The real target was '+AUD[b.aud]+'. '):''}
+  Knowing your audience in detail decides every platform, post and budget choice that follows.</p></Card>
+  <Ask text={`Act as a senior marketing strategist. I run ${ref}. Interview me with 5 questions about my ${ps?'story, expertise and goals':'product and customers'}, then write a one-paragraph audience profile covering age, problems, where they spend time and what makes them trust a brand. Use plain language.`}/>
+  <button className="pri" onClick={next}>Continue to platforms</button></>}</div>}
+
+function Platforms({b,ps,plat,setPlat,rec,next}){
+ const [done,setDone]=useState(false);
+ const sc=n=>fit(n,b.aud,ps);
+ const tog=n=>{if(done)return;setPlat(plat.includes(n)?plat.filter(x=>x!==n):plat.length<3?[...plat,n]:plat)};
+ const names=Object.keys(PL),best=names.map(sc).sort((x,y)=>y-x).slice(0,3).reduce((a,c)=>a+c,0);
+ const pct=Math.round(plat.reduce((a,n)=>a+sc(n),0)/best*100);
+ const go=()=>{rec('Platforms',pct,pct>=80?'Your platforms match your audience well.':'Some chosen platforms did not match where your audience spends time.');setDone(true)};
+ const ref=ps?`${b.name}, a personal brand in ${b.what}`:`${b.name} (${b.what})`;
+ return <div><h2>Choose your 3 best platforms</h2>
+ <What a="Picking where your marketing lives."
+  b="You can't be everywhere. Each platform has its own audience, format and effort level. Fit beats follower counts."/>
+ {ps&&<p className="mu">Personal brands tend to do best on LinkedIn, X, YouTube and newsletters, so those get a fit bonus.</p>}
+ {names.map(n=><button key={n} className={'opt '+(plat.includes(n)?'on':'')} onClick={()=>tog(n)}>
+  <div className="row"><b>{PL[n].i} {n}</b>{done&&<span className={sc(n)>=2?'good':'bad'}>{VER[sc(n)]}</span>}</div>
+  <span className="mu">{PL[n].why}</span></button>)}
+ {!done&&<button className="pri" disabled={plat.length!==3} onClick={go}>Lock in ({plat.length}/3)</button>}
+ {done&&<><Card><h3>Platform fit: {pct}%</h3><Bar v={pct}/>
+  <p>Fit for <b>{AUD[b.aud]}</b> shown above. A strong platform match means your effort reaches people who can actually become customers or followers.</p></Card>
+  <Ask text={`Act as a social media strategist. My brand is ${ref}. My audience is ${AUD[b.aud]}. Compare Instagram, TikTok, LinkedIn, X, YouTube, Facebook and email newsletters for me. For each, give a fit score from 1 to 5, one reason, and the weekly effort needed. Then recommend the best three.`}/>
+  <button className="pri" onClick={next}>Continue to content pillars</button></>}</div>}
+
+function Pillars({b,ps,pil,setPil,rec,next}){
+ const L=ps?PP:PB,[done,setDone]=useState(false);
+ const tog=n=>{if(done)return;setPil(pil.includes(n)?pil.filter(x=>x!==n):pil.length<3?[...pil,n]:pil)};
+ const g=new Set(pil.map(n=>L.find(p=>p.n===n).g));
+ const s=(g.has('trust')?40:0)+(g.has('aware')?40:0)+(g.has('sales')?20:0);
+ const go=()=>{rec('Pillars',s,s===100?'Your pillars balance awareness, trust and sales.':s>=80?'Solid, but you left out a goal.':'Your pillars lack balance. Pillars should cover awareness, trust and a path to sales.');setDone(true)};
+ const ref=ps?`${b.name}, a personal brand in ${b.what}`:`${b.name} (${b.what})`;
+ return <div><h2>Choose exactly 3 content pillars</h2>
+ <What a="Pillars are the 3 repeating themes your content is built around."
+  b="They keep you consistent and recognizable, and each one serves a different goal: awareness, trust, or sales."/>
+ {L.map(p=><button key={p.n} className={'opt '+(pil.includes(p.n)?'on':'')} onClick={()=>tog(p.n)}>
+  <div className="row"><b>{p.n}</b><span className="tag">{GL[p.g]}</span></div><span className="mu">{p.d}</span></button>)}
+ {!done&&<button className="pri" disabled={pil.length!==3} onClick={go}>Lock in ({pil.length}/3)</button>}
+ {done&&<><Card><h3>Balance score: {s}%</h3><Bar v={s}/>
+  <p>Your pillars: {pil.join(', ')}. Together they {[...g].map(x=>GL[x]).join(', ')}.</p></Card>
+  <Ask text={`Act as a content strategist. For ${ref}, my three content pillars are: ${pil.join(', ')}. For each pillar, explain which goal it supports (awareness, trust, sales), list 5 angles and suggest 2 content formats. Do not write full posts.`}/>
+  <button className="pri" onClick={next}>Build my 30-day roadmap</button></>}</div>}
+
+function Roadmap({b,ps,pil,next}){
+ const [p1,p2,p3]=pil;
+ const W=ps?[
+ ['Define your point of view','Write down the one idea you want to be known for. Rewrite your bio and profile photo so a stranger understands you in 5 seconds.','Clarity comes before content.','Profile views'],
+ ['Plant your flag with '+p1,'Publish consistently on your top platform around '+p1+'.','Repetition makes you recognizable.','Reach and saves'],
+ ['Build connection with '+p2,'Add '+p2+' content and reply to people in your space.','People follow people, not topics.','Replies and shares'],
+ ['Invite with '+p3,'Use '+p3+' to invite followers into a conversation, newsletter or offer. Review what worked.','Attention without a next step is wasted.','Sign-ups and conversations']]
+ :[
+ ['Foundation','Set up profiles, brand voice and goals. Know your audience and one clear message.','A messy foundation wastes every later post.','Profile completeness'],
+ ['Awareness through '+p1,'Focus content on '+p1+' to reach new people on your chosen platforms.','Strangers must discover you first.','Reach and followers'],
+ ['Trust through '+p2,'Add '+p2+' and respond to every comment.','Trust is the bridge between interest and purchase.','Engagement rate'],
+ ['Action through '+p3,'Use '+p3+' alongside a clear call to action. Measure results and decide what to repeat.','Measurement turns guesses into strategy.','Clicks and conversions']];
+ const ref=ps?`${b.name}, a personal brand in ${b.what}`:`${b.name} (${b.what})`;
+ return <div><h2>Your 30-day roadmap</h2>
+ <What a="A weekly plan of goals and strategy, not individual posts."
+  b="Strategy answers why you post. Without it, content is just noise. Each week builds on the last."/>
+ {W.map((w,i)=><Card key={i}><div className="row"><h3>Week {i+1}: {w[0]}</h3><span className="tag">Track: {w[3]}</span></div>
+  <p>{w[1]}</p><p className="mu">Why: {w[2]}</p></Card>)}
+ <Ask text={`Act as a marketing planner. Build a 4-week strategy roadmap for ${ref} using these pillars: ${pil.join(', ')}. For each week give the goal, strategy, one metric to track and why it matters. Do not write individual posts.`}/>
+ <button className="pri" onClick={next}>Face a surprise event</button></div>}
+
+function Event({b,ps,rec,next}){
+ const [e]=useState(()=>R(ps?EP:EB)),[c,setC]=useState(null);
+ const pick=i=>{if(c!==null)return;setC(i);rec('Event',e.o[i][1],e.o[i][2])};
+ const ref=ps?`${b.name}, a personal brand in ${b.what}`:`${b.name} (${b.what})`;
+ return <div><h2>⚡ Unexpected event</h2>
+ <What a="Real marketing never goes to plan. Something unexpected happens and you must respond."
+  b="How you react under pressure shapes reputation more than any planned post."/>
+ <Card><h3>{e.t}</h3><p>How do you respond?</p>
+  {e.o.map((o,i)=><button key={i} disabled={c!==null} className={'opt '+(c===i?'on':'')} onClick={()=>pick(i)}>{o[0]}</button>)}</Card>
+ {c!==null&&<><Card><h3 className={e.o[c][1]>=70?'good':'bad'}>Consequence ({e.o[c][1]}/100)</h3><p>{e.o[c][2]}</p></Card>
+  <Ask text={`Act as a crisis and opportunity advisor. For ${ref}, this just happened: "${e.t}". Give me 3 possible responses, the likely consequence of each, and which you'd choose and why.`}/>
+  <button className="pri" onClick={next}>See my Growth Report</button></>}</div>}
+
+function Report({b,ps,sc,nt,plat,pil,again}){
+ const ks=Object.keys(sc),avg=Math.round(ks.reduce((a,k)=>a+sc[k],0)/ks.length);
+ const best=ks.reduce((a,k)=>sc[k]>sc[a]?k:a),worst=ks.reduce((a,k)=>sc[k]<sc[a]?k:a);
+ const pot=avg>=80?'High':avg>=60?'Medium':'Low';
+ const L=ps?['Authenticity: people follow real voices, so your story and opinions are your edge.','Consistency: showing up on your pillars beats occasional brilliance.','Niche clarity: being known for one thing makes opportunities find you.']
+ :['Know your audience first: every other choice depends on it.','Pick fewer platforms and do them well: fit beats presence everywhere.','Balance content for awareness, trust and sales, and respond to the unexpected with your values.'];
+ const ref=ps?`${b.name}, a personal brand in ${b.what}`:`${b.name} (${b.what})`;
+ const S=[['Audience Understanding',sc.Audience,nt.Audience],['Platform Strategy',sc.Platforms,'Chosen: '+plat.join(', ')+'. '+nt.Platforms],['Content Strategy',sc.Pillars,'Pillars: '+pil.join(', ')+'. '+nt.Pillars]];
+ return <div><h1>📈 Growth Report</h1><p className="mu">{b.name} · {ps?'Personal brand':b.what}</p>
+ <div className="grid">{S.map(s=><Card key={s[0]}><h3>{s[0]}</h3><Bar v={s[1]}/><p>{s[1]}%</p><p className="mu">{s[2]}</p></Card>)}
+ <Card><h3>Growth Potential: {pot}</h3><Bar v={avg}/><p>{avg}% overall. Based on audience, platforms, pillars and event response.</p></Card></div>
+ <Card><h3 className="good">Best Decision: {best}</h3><p>{nt[best]}</p></Card>
+ <Card><h3 className="bad">Biggest Mistake: {worst}</h3><p>{nt[worst]}</p></Card>
+ <Card><h3>Three Marketing Lessons</h3>{L.map((l,i)=><p key={i}>{i+1}. {l}</p>)}</Card>
+ <Ask text={`Act as a marketing mentor. Here is my 30-day plan for ${ref}: audience ${AUD[b.aud]}, platforms ${plat.join(', ')}, pillars ${pil.join(', ')}. Review it, name my 3 biggest risks, and give me one improvement to test next month.`}/>
+ <button className="pri" onClick={again}>🔁 Play again</button></div>}
+
+function App(){
+ const [s,setS]=useState(0),[mode,setMode]=useState(null),[b,setB]=useState({});
+ const [plat,setPlat]=useState([]),[pil,setPil]=useState([]),[sc,setSc]=useState({}),[nt,setNt]=useState({}),[k,setK]=useState(0);
+ const rec=(x,v,n)=>{setSc(o=>({...o,[x]:v}));setNt(o=>({...o,[x]:n}))};
+ const nx=()=>{setS(s+1);window.scrollTo({top:0,behavior:'smooth'})};
+ const pick=m=>{setMode(m);setB(m==='random'?R(CLIENTS):{});nx()};
+ const again=()=>{setS(0);setMode(null);setB({});setPlat([]);setPil([]);setSc({});setNt({});setK(k+1);window.scrollTo(0,0)};
+ const ps=mode==='personal';
+ return <div className="wrap" key={k}>{s>0&&<Progress s={s}/>}
+ <div key={s} className="fade">
+ {s===0&&<div style={{paddingTop:'8vh'}}><h1>Think Like a Marketing Strategist: Grow This Brand</h1>
+  <p style={{fontSize:'1.15rem'}}>Marketing strategy is deciding who to reach, where to show up, what to say and why. Content comes after.</p>
+  <What a="A strategy is a set of choices about audience, platforms and messages that work together."
+   b="Anyone can post. Strategists know why they post, which saves time, money and effort."/>
+  <p className="mu">You'll make real strategic decisions, see the consequences, and learn how to ask Claude better questions along the way.</p>
+  <button className="pri" onClick={nx}>Start the simulation</button></div>}
+ {s===1&&<Mode pick={pick}/>}
+ {s===2&&<Brand mode={mode} b={b} setB={setB} rec={rec} next={nx}/>}
+ {s===3&&<Platforms b={b} ps={ps} plat={plat} setPlat={setPlat} rec={rec} next={nx}/>}
+ {s===4&&<Pillars b={b} ps={ps} pil={pil} setPil={setPil} rec={rec} next={nx}/>}
+ {s===5&&<Roadmap b={b} ps={ps} pil={pil} next={nx}/>}
+ {s===6&&<Event b={b} ps={ps} rec={rec} next={nx}/>}
+ {s===7&&<Report b={b} ps={ps} sc={sc} nt={nt} plat={plat} pil={pil} again={again}/>}
+ </div></div>}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
