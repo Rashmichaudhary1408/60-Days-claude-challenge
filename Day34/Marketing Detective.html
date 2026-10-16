@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Marketing Detective</title>
+<style>
+:root{--ac:#d97757;--ac2:#f2a583;--bg:#14110f;--bg2:#1f1a17;--ink:#f3ece4;--paper:#efe3c8;--pt:#2b2218;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[data-t=blue]{--ac:#4aa3ff;--ac2:#9fd0ff;--bg:#0c1118;--bg2:#141c27}
+[data-t=green]{--ac:#3ecf8e;--ac2:#9be8c4;--bg:#0b130f;--bg2:#13201a}
+[data-t=red]{--ac:#e5484d;--ac2:#f2a0a3;--bg:#150d0e;--bg2:#221415}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:radial-gradient(circle at 50% 0,var(--bg2),var(--bg) 70%) fixed;color:var(--ink);font:16px/1.5 Georgia,'Times New Roman',serif;min-height:100vh}
+h1,h2,h3{font-family:'Courier New',monospace;letter-spacing:.04em;margin:.2em 0}
+.wrap{max-width:1100px;margin:0 auto;padding:18px}
+.fade{animation:in .5s ease both}@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.btn{background:var(--ac);color:#1a120d;border:0;padding:12px 22px;font:bold 15px 'Courier New',monospace;border-radius:6px;cursor:pointer;box-shadow:0 0 18px color-mix(in srgb,var(--ac) 45%,transparent);transition:.2s}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1)}.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.g{background:transparent;color:var(--ac);border:1px solid var(--ac);box-shadow:none}
+.glow{color:var(--ac);text-shadow:0 0 14px color-mix(in srgb,var(--ac) 60%,transparent)}
+.themes{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.sw{width:120px;padding:12px;border:2px solid #444;border-radius:10px;background:var(--bg2);cursor:pointer;text-align:center;font:13px 'Courier New',monospace;color:var(--ink);transition:.2s}
+.sw:hover{transform:translateY(-4px)}.sw.on{border-color:var(--ac);box-shadow:0 0 16px var(--ac)}
+.sw i{display:block;height:26px;border-radius:5px;margin-bottom:6px}
+.folder{background:var(--paper);color:var(--pt);border-radius:4px 14px 8px 8px;padding:22px;position:relative;box-shadow:0 14px 40px #000a;background-image:repeating-linear-gradient(0deg,#0000 0 27px,#0001 28px)}
+.folder:before{content:'';position:absolute;top:-14px;left:0;width:140px;height:16px;background:var(--paper);border-radius:8px 8px 0 0}
+.stamp{position:absolute;right:16px;top:14px;border:3px solid #b3261e;color:#b3261e;font:bold 14px 'Courier New',monospace;padding:2px 10px;transform:rotate(8deg);opacity:.8}
+.folder dt{font:bold 12px 'Courier New',monospace;text-transform:uppercase;color:#7a5a36;margin-top:10px}.folder dd{margin:0}
+.grid{display:grid;grid-template-columns:260px 1fr;gap:16px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.tray{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--paper);color:var(--pt);padding:10px 12px;border-radius:3px;cursor:grab;position:relative;box-shadow:0 6px 14px #0008;font:bold 13px 'Courier New',monospace;transition:.2s;user-select:none}
+.card:hover{transform:rotate(-1.5deg) translateY(-3px)}.card.view{outline:2px solid var(--ac)}.card.lock{opacity:.5;cursor:not-allowed;background:#bfb59a}
+.card.pinned{opacity:.35}.card small{display:block;font:12px Georgia;color:#6a5a44;font-weight:normal}
+.pin{position:absolute;top:-7px;left:50%;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff9,var(--ac));box-shadow:0 3px 5px #0009}
+.cork{min-height:230px;border-radius:10px;padding:16px;border:6px solid #4a3220;background:#a9794c radial-gradient(#0002 1px,transparent 1.5px) 0 0/9px 9px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:18px;margin-bottom:16px;transition:.2s}
+.cork.over{box-shadow:inset 0 0 40px var(--ac),0 0 24px var(--ac)}
+.slot{border:2px dashed #0006;border-radius:6px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#3a2814;font:12px 'Courier New',monospace;text-align:center;padding:6px}
+.note{background:#ffe27a;color:#3a2e05;padding:12px;transform:rotate(-2deg);box-shadow:0 8px 14px #0007;font:14px 'Comic Sans MS','Segoe Print',cursive;position:relative;cursor:pointer}
+.note:nth-child(2){transform:rotate(2deg)}
+.bar{height:14px;background:#0003;border-radius:7px;overflow:hidden;margin:3px 0 9px}.bar b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),var(--ac2));transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.row{display:flex;justify-content:space-between;font:12px 'Courier New',monospace}
+.prog{display:flex;gap:6px;margin-bottom:14px}.prog span{flex:1;height:5px;background:#fff2;border-radius:3px}.prog span.on{background:var(--ac);box-shadow:0 0 8px var(--ac)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:16px 0}
+.opt{background:var(--bg2);border:1px solid #fff3;border-radius:8px;padding:14px;cursor:pointer;text-align:left;color:var(--ink);font:inherit;transition:.2s}
+.opt:hover{border-color:var(--ac);transform:translateY(-3px)}.opt.on{border-color:var(--ac);box-shadow:0 0 18px var(--ac);background:color-mix(in srgb,var(--ac) 14%,var(--bg2))}
+.opt b{font-family:'Courier New',monospace;color:var(--ac)}
+.big{font:bold clamp(40px,10vw,90px) 'Courier New',monospace;color:#e5484d;border:6px solid #e5484d;padding:0 24px;display:inline-block;transform:rotate(-8deg);animation:slam .7s cubic-bezier(.2,2,.4,1) both}
+.big.no{color:var(--ac);border-color:var(--ac)}
+@keyframes slam{from{transform:scale(5) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(-8deg);opacity:1}}
+.c{text-align:center}.hint{color:#cbbfae;font-size:14px}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}.kp div{background:#0003;border-radius:6px;padding:8px;text-align:center}.kp b{display:block;font:bold 20px 'Courier New',monospace;color:var(--ac)}
+.fx{position:fixed;inset:0;pointer-events:none;overflow:hidden}.fx i{position:absolute;top:-20px;width:8px;height:14px;animation:fall 2.6s linear forwards}@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+</style></head><body data-t="orange"><div class="wrap" id="app"></div><div class="fx" id="fx"></div>
+<script>
+(function(){
+var MK={aud:["Wrong Audience Targeting","Spending on people who were never likely to buy."],msg:["Mismatched Messaging","The message didn't match what the audience cared about."],chan:["Wrong Channel Mix","The budget sat on channels where the audience isn't."],fun:["Broken Conversion Funnel","Interest was created, but the path to purchase leaked."],price:["Offer & Pricing Mismatch","The offer didn't fit what buyers valued or could pay."],meas:["Chasing Vanity Metrics","Success was judged by numbers that don't drive revenue."]};
+var CASES=[
+{n:"BrewBolt Energy",i:"Beverages",o:"Win young professionals with a new cold-brew energy can",a:"Office workers aged 28-45",ch:"TikTok, Gaming Twitch, Billboards, Email",b:[["TikTok/Twitch",55],["Billboards",25],["Email",8],["Influencers",12]],m:[2400000,3.8,6.1,.4,38000],c:["\"Funny ad, but I'm 40 and don't game.\"","\"Never saw it at my office or my commute.\""],s:"Videos hit 1.2M views; 70% of viewers were under 20.",k:"chan",cl:["55% of budget went to platforms where the core audience is scarce.","Email, where professionals live, got 8%.","High reach but conversions of only 0.4%."],e:"Strong creative was placed in the wrong rooms. The target audience wasn't on the channels getting most of the money, so reach looked great while buyers never saw the ad.",im:["Move budget to LinkedIn, podcasts, commuter media","Test office-delivery sampling","Track conversions by audience age"]},
+{n:"PawPerfect Pet Co.",i:"Pet Supplies",o:"Launch premium organic dog food",a:"Urban pet owners with high incomes",ch:"Instagram, Google Search, Vet partnerships",b:[["Instagram",40],["Search",30],["Vets",10],["Discounts",20]],m:[900000,2.9,5.2,3.1,61000],c:["\"Love the idea, but where's the 'organic' proof?\"","\"Ad says premium, but there's a 50% off banner?\""],s:"Comments split between praise and 'is it really premium?'",k:"msg",cl:["Premium positioning was undercut by constant discount banners.","Ads never explained what 'organic' meant.","Comments ask for proof, not price."],e:"The brand promised premium quality yet shouted discounts, confusing buyers about what it stood for. Mixed messages eroded trust.",im:["Drop banner discounts, lead with certification","Show sourcing stories","Test one consistent message"]},
+{n:"NovaFit App",i:"Fitness Tech",o:"Convert free trial users into paid subscribers",a:"Beginners starting fitness journeys",ch:"YouTube, Instagram Reels, App Store Ads",b:[["YouTube",30],["Reels",30],["App Store",30],["Onboarding",10]],m:[3100000,4.4,7.8,1.1,29000],c:["\"Signup was easy, then I got lost.\"","\"Paywall appeared before I saw any plan.\""],s:"Reels went viral; 92% of trial users quit within 3 days.",k:"fun",cl:["Onboarding got only 10% of budget.","The paywall appears before value is shown.","Great clicks, tiny conversions."],e:"Acquisition worked; the activation funnel leaked. Users arrived excited but weren't guided to value before being asked to pay.",im:["Redesign onboarding with a first-win plan","Delay paywall","Add day-2 and day-3 nudges"]},
+{n:"Lumen Skincare",i:"Beauty",o:"Grow sales of a $90 anti-aging serum",a:"Women 45-60",ch:"Influencers, Facebook, Print",b:[["Influencers",50],["Facebook",25],["Print",10],["Sampling",15]],m:[1800000,3.1,9.4,.9,44000],c:["\"Influencer was 22, why would I trust her on wrinkles?\"","\"Cute reel, couldn't find the price.\""],s:"High likes, many tags of friends, few save/purchase actions.",k:"aud",cl:["Influencers were 18-25, far from the 45-60 target.","High engagement came from the wrong age group.","Buyers aged 45+ were under 8% of clickers."],e:"Money followed engagement rather than the buyer. Influencers spoke to a younger audience, so reactions never became sales.",im:["Partner with credible 45+ voices","Use dermatologist proof","Segment results by age"]},
+{n:"QuickLoan Pro",i:"Fintech",o:"Increase loan applications",a:"Freelancers needing short-term cash",ch:"Google Ads, Display, Affiliate",b:[["Google Ads",45],["Display",35],["Affiliate",20]],m:[5600000,.6,1.1,.8,22000],c:["\"Ad promised 'instant' but it took 3 days.\"","\"Too many forms.\""],s:"Display impressions huge, clicks low, reviews call it misleading.",k:"meas",cl:["The team celebrated 5.6M impressions.","CTR of 0.6% was ignored in reports.","Cost per sale was never tracked."],e:"Leadership optimized for reach and impressions while revenue per dollar stayed hidden. Vanity metrics hid a poor cost per customer.",im:["Report CAC and revenue per channel","Cut low-quality display","Set goals on funded loans"]},
+{n:"Trailhead Outfitters",i:"Outdoor Gear",o:"Sell a $450 expedition jacket",a:"Serious hikers and climbers",ch:"Instagram, Email, Retail Displays",b:[["Instagram",35],["Email",20],["Retail",30],["Reviews",15]],m:[700000,2.2,4.5,.7,36000],c:["\"$450? Why not $250 like others?\"","\"No specs. What temp rating?\""],s:"Mentions praise the look; many ask about specs and price.",k:"price",cl:["Comments question value, never the look.","Specs were missing from ads and product page.","Competitors with proof sold at lower price."],e:"The price wasn't justified. Without proof of value (specs, tests, warranty), customers compared on price alone.",im:["Publish lab tests & warranty","Add comparison charts","Test a lower-priced entry model"]},
+{n:"Fresh Crate Meals",i:"Food Delivery",o:"Reduce subscriber churn",a:"Busy families",ch:"Email, Facebook, Referrals",b:[["New-user promos",60],["Email",15],["Referrals",15],["Support",10]],m:[1200000,3.5,5.9,4.2,98000],c:["\"Great intro price, then doubled!\"","\"Why do new users get better deals?\""],s:"Strong signups; cancellations spike in month 3.",k:"aud",cl:["60% of spend chases new customers, not retention.","Loyal users get worse deals.","Churn peaks at month 3."],e:"The brand aimed at new buyers while the stated objective was retention. The audience that mattered was existing subscribers.",im:["Shift to loyalty offers","Launch month-2 check-in emails","Reward referrals from long-time users"]},
+{n:"EduSpark Academy",i:"Online Education",o:"Enroll adults in a coding bootcamp",a:"Career-changers 25-40",ch:"LinkedIn, YouTube, Webinars",b:[["LinkedIn",30],["YouTube",30],["Webinars",30],["Alumni",10]],m:[650000,2.7,4.0,.5,48000],c:["\"Says 'learn anything'. I want a job in data.\"","\"Webinar registration asked 14 questions.\""],s:"Webinars have 1,200 signups but 11% attendance.",k:"fun",cl:["14-field registration form.","Only 11% of registrants attend.","No follow-up email after missed webinars."],e:"Interest existed, but friction and no follow-up leaked prospects before enrolment.",im:["Shorten forms to 3 fields","Send replay + reminders","Add a fast-start call"]},
+{n:"Halo Home Smart Bulbs",i:"Consumer Electronics",o:"Beat rivals in smart lighting",a:"Tech-savvy homeowners",ch:"Amazon Ads, YouTube, PR",b:[["Amazon",40],["YouTube",30],["PR",20],["Community",10]],m:[2000000,3.3,3.8,2.6,120000],c:["\"Love it but setup was confusing.\"","\"Ad says 'works with everything' - not my hub.\""],s:"Tech reviewers loved it; customers returned 18%.",k:"msg",cl:["Ads claimed 'works with everything'.","Return rate is 18%, mostly compatibility.","Reviews cite setup confusion."],e:"Overpromising created expectations the product couldn't meet, producing returns and negative reviews.",im:["State compatibility clearly","Add setup guides","Replace broad claims with specifics"]},
+{n:"SunnyDays Resort",i:"Travel",o:"Fill off-season rooms",a:"Retirees and remote workers",ch:"Facebook, Search, TV",b:[["TV",50],["Search",20],["Facebook",20],["Email",10]],m:[4200000,1.1,2.4,.9,67000],c:["\"Saw the TV ad, forgot the name.\"","\"No long-stay offer, did I miss it?\""],s:"TV mentions spike but search traffic barely moves.",k:"chan",cl:["Half of budget on broad TV.","Search only 20% where intent is highest.","Spikes in awareness didn't reach bookings."],e:"Expensive broad media captured attention but not intent. Targeted search and email would reach ready-to-book visitors.",im:["Shift to intent search","Run long-stay email campaign","Retarget website visitors"]}
+];
+var S={},app=document.getElementById("app"),used=[];
+var TH=[["orange","Claude Orange","#d97757"],["blue","Noir Blue","#4aa3ff"],["green","Case Green","#3ecf8e"],["red","Crimson","#e5484d"]];
+var fmt=function(n){return n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?Math.round(n/1e3)+"K":""+n};
+function steps(k){return '<div class="prog">'+[0,1,2,3,4,5].map(function(i){return '<span class="'+(i<=k?"on":"")+'"></span>'}).join("")+'</div>'}
+function set(h){app.innerHTML='<div class="fade">'+h+'</div>';window.scrollTo(0,0)}
+function pick(){if(used.length>=CASES.length)used=[];var x;do{x=Math.floor(Math.random()*CASES.length)}while(used.indexOf(x)>-1);used.push(x);return CASES[x]}
+function intro(){set('<div class="c" style="padding:30px 0"><div class="hint">CASE FILES · CLASSIFIED</div><h1 class="glow" style="font-size:clamp(34px,8vw,64px)">MARKETING DETECTIVE</h1><p class="hint">Campaigns fail for a reason. Find the one mistake.</p><div class="themes">'+TH.map(function(t){return '<div class="sw '+(document.body.dataset.t==t[0]?"on":"")+'" data-th="'+t[0]+'"><i style="background:'+t[2]+'"></i>'+t[1]+'</div>'}).join("")+'</div><button class="btn" data-a="start">ACCEPT A CASE ▸</button></div>')}
+function brief(){var c=S.c;set(steps(0)+'<div class="folder"><div class="stamp">CONFIDENTIAL</div><h2>CASE #'+(100+Math.floor(Math.random()*900))+': '+c.n+'</h2><dl><dt>Industry</dt><dd>'+c.i+'</dd><dt>Objective</dt><dd>'+c.o+'</dd><dt>Target audience</dt><dd>'+c.a+'</dd><dt>Channels</dt><dd>'+c.ch+'</dd></dl><p><i>The campaign launched with high hopes. Results were disappointing. Nobody knows why. Until now.</i></p></div><p class="c"><button class="btn" data-a="board">OPEN INVESTIGATION BOARD ▸</button></p>')}
+function cards(){var c=S.c;return[
+["Budget Ledger","budget","<p>Where the money went:</p>"+c.b.map(function(x){return '<div class="row"><span>'+x[0]+'</span><span>'+x[1]+'%</span></div><div class="bar"><b data-w="'+x[1]+'"></b></div>'}).join("")],
+["Metrics Report","metrics",'<div class="kp"><div><b>'+fmt(c.m[0])+'</b>Reach</div><div><b>'+c.m[1]+'%</b>CTR</div><div><b>'+c.m[2]+'%</b>Engagement</div><div><b>'+c.m[3]+'%</b>Conversion</div><div><b>$'+fmt(c.m[4])+'</b>Sales</div></div>'],
+["Customer Comments","comments","<p>"+c.c.join("</p><p>")+"</p>"],
+["Social Feed","social","<p>"+c.s+"</p>"],
+["Clue Note A","clue0","🔎 "+c.cl[0]],["Clue Note B","clue1","🔎 "+c.cl[1]],["Clue Note C","clue2","🔎 "+c.cl[2]]]}
+function board(){
+var cs=cards(),viewed=S.v.length,h=steps(1)+'<h2 class="glow">INVESTIGATION BOARD</h2><p class="hint">Open evidence to examine it. Sealed notes unlock after you examine 3 files. Drag (or tap ★) up to 3 key items onto the cork board.</p><div class="grid"><div class="tray">';
+cs.forEach(function(x,i){var lock=x[1].indexOf("clue")==0&&viewed<3,p=S.p.indexOf(i)>-1;
+h+='<div class="card '+(lock?"lock ":"")+(S.o===i?"view ":"")+(p?"pinned":"")+'" '+(lock||p?'':'draggable="true"')+' data-i="'+i+'"><span class="pin"></span>'+(lock?"🔒 Sealed note":x[0])+'<small>'+(lock?"Examine "+(3-viewed)+" more file(s)":p?"Pinned to board":"Click to examine")+'</small></div>'});
+h+='</div><div><div class="cork" id="cork">';
+for(var k=0;k<3;k++){var i=S.p[k];h+=i==null?'<div class="slot">Drop evidence here</div>':'<div class="note" data-un="'+i+'"><span class="pin"></span><b>'+cs[i][0]+'</b><br>'+(cs[i][1].indexOf("clue")==0?cs[i][2]:"(tap to unpin)")+'</div>'}
+h+='</div><div class="folder" style="min-height:150px">'+(S.o==null?'<p class="hint" style="color:#6a5a44">Select a file from the tray to inspect it.</p>':'<h3>'+cs[S.o][0]+'</h3>'+cs[S.o][2]+'<p><button class="btn g" style="color:#7a3b1f;border-color:#7a3b1f" data-pin="'+S.o+'">★ Pin to board</button></p>')+'</div></div></div><p class="c"><button class="btn" data-a="solve" '+(S.p.length<3?"disabled":"")+'>SOLVE THE CASE ('+S.p.length+'/3 pinned) ▸</button></p>';
+set(h);var t=document.getElementById("cork");
+setTimeout(function(){document.querySelectorAll(".bar b").forEach(function(b){b.style.width=b.dataset.w+"%"})},60);
+t.ondragover=function(e){e.preventDefault();t.classList.add("over")};t.ondragleave=function(){t.classList.remove("over")};
+t.ondrop=function(e){e.preventDefault();pin(+e.dataTransfer.getData("text"))};
+document.querySelectorAll(".card[draggable]").forEach(function(d){d.ondragstart=function(e){e.dataTransfer.setData("text",d.dataset.i)}})}
+function pin(i){if(S.p.length<3&&S.p.indexOf(i)<0&&!isNaN(i)){S.p.push(i);if(S.v.indexOf(i)<0)S.v.push(i)}board()}
+function solve(){set(steps(2)+steps(3).replace(/<div class="prog">/,'<div class="prog" style="display:none">')+'<h2 class="glow">WHAT WAS THE PRIMARY MISTAKE?</h2><p class="hint">Choose carefully. The verdict is final.</p><div class="opts">'+Object.keys(MK).map(function(k){return '<button class="opt '+(S.g==k?"on":"")+'" data-g="'+k+'"><b>'+MK[k][0]+'</b><br>'+MK[k][1]+'</button>'}).join("")+'</div><p class="c"><button class="btn g" data-a="board">◂ Back to board</button> <button class="btn" data-a="close" '+(S.g?"":"disabled")+'>SUBMIT VERDICT</button></p>')}
+function close(){var ok=S.g==S.c.k,cl=S.p.filter(function(i){return i>3}).length;S.ok=ok;S.sc=(ok?60:0)+cl*10+(S.v.length>=6?10:0);
+set(steps(4)+'<div class="c" style="padding:50px 0"><div class="hint">'+(ok?"The evidence holds up...":"The trail goes cold...")+'</div><div class="big '+(ok?"":"no")+'">'+(ok?"CASE CLOSED":"CASE COLD")+'</div><p><button class="btn" data-a="report">VIEW LEARNING REPORT ▸</button></p></div>');
+if(ok){var f=document.getElementById("fx");for(var i=0;i<50;i++){var e=document.createElement("i");e.style.left=Math.random()*100+"%";e.style.background=["var(--ac)","#ffe27a","#fff"][i%3];e.style.animationDelay=Math.random()*1.2+"s";f.appendChild(e)}setTimeout(function(){f.innerHTML=""},4500)}}
+function report(){var c=S.c,rank=S.sc>=90?"Master Detective":S.sc>=60?"Senior Investigator":S.sc>=30?"Junior Sleuth":"Rookie";
+set(steps(5)+'<div class="folder"><div class="stamp">'+(S.ok?"SOLVED":"UNSOLVED")+'</div><h2>LEARNING REPORT: '+c.n+'</h2><p><b>Rank: '+rank+' · Score '+S.sc+'/100</b></p><div class="row"><span>Verdict accuracy</span><span>'+(S.ok?60:0)+'/60</span></div><div class="bar"><b data-w="'+(S.ok?100:0)+'"></b></div><div class="row"><span>Clues pinned</span><span>'+S.p.filter(function(i){return i>3}).length+'/3</span></div><div class="bar"><b data-w="'+S.p.filter(function(i){return i>3}).length*33.4+'"></b></div><dl><dt>Primary mistake</dt><dd><b>'+MK[c.k][0]+'</b>'+(S.ok?"":" (you chose: "+MK[S.g][0]+")")+'</dd><dt>Explanation</dt><dd>'+c.e+'</dd><dt>Supporting clues</dt><dd>'+c.cl.map(function(x){return "• "+x}).join("<br>")+'</dd><dt>Suggested improvements</dt><dd>'+c.im.map(function(x){return "✔ "+x}).join("<br>")+'</dd></dl></div><p class="c"><button class="btn" data-a="start">NEW CASE ↻</button> <button class="btn g" data-a="intro">Change theme</button></p>');
+setTimeout(function(){document.querySelectorAll(".bar b").forEach(function(b){b.style.width=b.dataset.w+"%"})},80)}
+app.addEventListener("click",function(e){var t=e.target.closest("[data-a],[data-th],[data-i],[data-pin],[data-g],[data-un]");if(!t)return;var d=t.dataset;
+if(d.th){document.body.dataset.t=d.th;return intro()}
+if(d.g){S.g=d.g;return solve()}
+if(d.pin)return pin(+d.pin);
+if(d.un){S.p=S.p.filter(function(x){return x!=+d.un});return board()}
+if(d.i!=null){var i=+d.i,x=cards()[i];if(x[1].indexOf("clue")==0&&S.v.length<3)return;if(S.v.indexOf(i)<0)S.v.push(i);S.o=i;return board()}
+var a=d.a;if(a=="intro")intro();else if(a=="start"){S={c:pick(),p:[],v:[],o:null,g:null};brief()}else if(a=="board")board();else if(a=="solve")solve();else if(a=="close")close();else if(a=="report")report()});
+intro();
+})();
+</script></body></html>
