@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Task Compass</title>
+<style>
+:root{--bd:rgba(255,255,255,.14);--tx:#eef0ff;--mu:#a3a9cf;--g:#5df0b0;--r:#ff7a8a}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--tx);background:linear-gradient(135deg,#0b0d1a,#1a1040,#0b2a3a,#150b2e);background-size:400% 400%;animation:bg 18s ease infinite}
+@keyframes bg{50%{background-position:100% 50%}}
+#app{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+.glass{background:rgba(255,255,255,.07);border:1px solid var(--bd);border-radius:20px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:18px;margin:14px 0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+h1{margin:0;font-size:1.7rem;background:linear-gradient(90deg,#7cf,#c8f,#f8a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.top p{margin:2px 0 0;color:var(--mu);font-size:.9rem}
+.tag{padding:6px 12px;border-radius:99px;border:1px solid var(--bd);font-size:.85rem;background:rgba(255,255,255,.06)}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 8px}
+.steps span{font-size:.78rem;padding:5px 11px;border-radius:99px;border:1px solid var(--bd);color:var(--mu);transition:.3s}
+.steps .on{color:#fff;background:linear-gradient(90deg,#6a5cff,#d04cff);border-color:transparent}
+.steps .dn{color:var(--g)}
+.bar{height:7px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden}
+.bar div{height:100%;background:linear-gradient(90deg,#5df0b0,#6a8cff,#d04cff);transition:width .6s}
+.ticket{border-left:6px solid #8a7bff;position:relative}
+.ticket small{color:var(--mu);letter-spacing:.08em;font-size:.72rem}
+.ticket h2{margin:6px 0;font-size:1.3rem;line-height:1.3}
+.ticket p{margin:0;color:var(--mu);font-size:.9rem}
+.slots{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center}
+.ar{font-size:1.4rem;color:var(--mu)}
+.slot{min-width:150px;min-height:92px;border:2px dashed rgba(255,255,255,.3);border-radius:16px;padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:.25s;background:rgba(255,255,255,.04)}
+.slot small{font-size:.68rem;color:var(--mu);text-transform:uppercase;letter-spacing:.08em}
+.slot em{color:var(--mu);font-size:.8rem}
+.slot.over{border-color:#8a7bff;background:rgba(138,123,255,.2);transform:scale(1.04)}
+.slot.full{border-style:solid;border-color:rgba(255,255,255,.2)}
+.slot.snap{animation:snap .4s}
+@keyframes snap{0%{transform:scale(1.18)}60%{transform:scale(.95)}100%{transform:scale(1)}}
+.slot.ok{border-color:var(--g);box-shadow:0 0 18px rgba(93,240,176,.35);animation:rv .6s backwards}
+.slot.no{border-color:var(--r);box-shadow:0 0 18px rgba(255,122,138,.3);animation:rv .6s backwards}
+@keyframes rv{from{border-color:rgba(255,255,255,.2);box-shadow:none;transform:scale(1)}50%{transform:scale(1.08)}}
+.pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:12px}
+.card{--c:#888;cursor:grab;user-select:none;padding:10px 8px;border-radius:14px;text-align:center;background:linear-gradient(160deg,color-mix(in srgb,var(--c) 40%,#151830),#151830);border:1px solid var(--c);box-shadow:0 4px 14px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.08);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-4px) rotate(-1.5deg);box-shadow:0 10px 24px rgba(0,0,0,.5),0 0 16px var(--c)}
+.card i{font-style:normal;font-size:1.6rem;display:block}
+.card b{font-size:.8rem;display:block;margin-top:2px}
+.card.used{opacity:.3;pointer-events:none}
+.slot .card{width:130px}
+.btn{border:0;cursor:pointer;color:#fff;font-weight:700;font-size:1rem;padding:12px 26px;border-radius:99px;background:linear-gradient(90deg,#6a5cff,#d04cff);box-shadow:0 6px 20px rgba(138,92,255,.4);transition:.2s}
+.btn:hover{transform:translateY(-2px)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.row{text-align:center;margin:16px 0}
+.fb{animation:fin .6s backwards}
+@keyframes fin{from{opacity:0;transform:translateY(14px)}}
+.fb h3{margin:12px 0 4px;font-size:.95rem;color:#b9b2ff}
+.fb p{margin:0 0 6px;line-height:1.5;color:#dfe2ff}
+.chip{display:inline-block;margin:3px 4px 3px 0;padding:4px 10px;border-radius:99px;font-size:.8rem;border:1px solid var(--c);background:color-mix(in srgb,var(--c) 22%,transparent)}
+.hero{text-align:center;padding:30px 10px}
+.hero .big{font-size:4rem;animation:fl 3s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(-10px) rotate(8deg)}}
+.hero p{color:var(--mu);max-width:560px;margin:10px auto}
+.dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;align-items:center}
+.rp{transform-origin:150px 150px;animation:gr 1s ease-out}
+@keyframes gr{from{transform:scale(0)}}
+.m{margin:10px 0}.m div.t{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:3px}
+.m .b{height:10px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden}
+.m .b i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#5df0b0,#6a8cff);animation:w 1s}
+@keyframes w{from{width:0!important}}
+.cf{position:fixed;top:-20px;font-size:1.6rem;pointer-events:none;animation:fall 3s linear forwards;z-index:9}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+@media(max-width:560px){.slot{min-width:120px}.slot .card{width:105px}h1{font-size:1.4rem}}
+</style></head><body><div id="app"></div>
+<script>
+const R={fe:{n:"Frontend Developer",e:"🎨",c:"#ff6bb5"},be:{n:"Backend Developer",e:"⚙️",c:"#5aa9ff"},qa:{n:"QA Engineer",e:"🧪",c:"#46d9a0"},pm:{n:"Product Manager",e:"🧭",c:"#ffb54a"},ux:{n:"UX Designer",e:"✏️",c:"#c07cff"},cs:{n:"Customer Support",e:"🎧",c:"#4fd8e8"},em:{n:"Engineering Manager",e:"👥",c:"#ff7a6b"},sre:{n:"DevOps / SRE",e:"🛠️",c:"#a8d64a"}};
+const S1=[
+{t:"A customer reports that payments fail only on iPhones.",o:"fe",a:["qa","be","cs"],w:"The problem appears on one device family, which points to how the interface behaves in that browser. The Frontend Developer is usually the first person to investigate and own the fix. QA can reproduce it, Backend can confirm the payment API is healthy, and Support keeps the customer informed."},
+{t:"The API takes about 8 seconds to respond during peak traffic.",o:"be",a:["sre","em"],w:"Slow server responses usually come from queries, services or code that Backend engineers maintain, so they often own the diagnosis. DevOps / SRE may help with infrastructure and monitoring, and the Engineering Manager can help prioritise the work."},
+{t:"Users say they cannot find the export button.",o:"ux",a:["fe","pm","cs"],w:"The feature works, but people cannot discover it. That is a design and usability question, so the UX Designer commonly leads. Frontend implements changes, the Product Manager weighs priority, and Support shares what users actually say."}];
+const S2=[
+{t:"A customer says profile photos disappear after uploading.",f:["cs","qa","be","pm"],w:"Support captures the details first, QA reproduces the issue so it is a clear, testable bug, Backend fixes the root cause, and the Product Manager confirms priority and closes the loop with the customer. Many teams work this way because each handoff adds clarity."},
+{t:"The production website is completely down.",f:["sre","be","em"],w:"Urgent incidents often start with the person watching systems and alerts (SRE). Backend helps find the cause, and the Engineering Manager coordinates communication and decisions. Shorter chains tend to suit emergencies."},
+{t:"Many customers ask for a dark mode.",f:["cs","pm","ux","fe","qa"],w:"Support gathers the requests, the Product Manager decides whether it is worth doing, the UX Designer shapes how it should look, Frontend builds it, and QA checks it before release. Product ideas commonly travel from need, to decision, to design, to build, to verification."}];
+const S3=[
+{t:"Customer satisfaction scores suddenly drop this month.",p:"pm",s:["cs","qa","ux"],w:"No single role holds the whole picture. The Product Manager usually coordinates because satisfaction connects to the overall product experience. Support brings customer voices, QA looks for quality regressions and UX checks for usability friction.",fl:"Support shares feedback themes ➜ Product Manager ➜ QA and UX investigate ➜ Product Manager aligns a plan."},
+{t:"A major feature is delayed by three weeks.",p:"em",s:["pm","fe","be"],w:"Delivery and capacity are often an Engineering Manager concern. The Product Manager helps re-scope and communicate, while Frontend and Backend explain what is realistically blocking progress.",fl:"Engineers surface blockers ➜ Engineering Manager ➜ Product Manager re-scopes ➜ stakeholders are updated."},
+{t:"Traffic doubles overnight after a viral post.",p:"sre",s:["be","pm","cs"],w:"Keeping systems healthy under load usually sits with DevOps / SRE. Backend helps with performance hot spots, the Product Manager considers what to prioritise, and Support prepares for a wave of questions.",fl:"SRE watches capacity ➜ Backend tunes services ➜ Product Manager decides priorities ➜ Support informs customers."}];
+const stages=[{name:"Who Owns This?",items:S1,n:()=>1,h:"Drag ONE role into the ownership slot (or tap a card)."},{name:"Task Routing",items:S2,n:i=>i.f.length,h:"Build the workflow: place roles in the order the work commonly travels."},{name:"Collaboration",items:S3,n:()=>4,h:"Assign up to four roles. The first slot is the Primary Owner, the rest support."}];
+const $=s=>document.querySelector(s),app=$("#app");
+let st=0,q=0,slots=[],done=false,snap=-1,fb="",view="intro",sc={o:[],d:[],w:[],c:[]},nt={over:0,under:0};
+const chip=r=>`<span class="chip" style="--c:${R[r].c}">${R[r].e} ${R[r].n}</span>`;
+const card=(r,x="")=>`<div class="card ${x}" draggable="true" data-r="${r}" style="--c:${R[r].c}"><i>${R[r].e}</i><b>${R[r].n}</b></div>`;
+let ac;function beep(f){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;o.type="sine";g.gain.value=.05;g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.18);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.2)}catch(e){}}
+function head(){const p=(st*3+q+(done?1:0))/9*100;return`<div class="top"><div><h1>🧭 Task Compass</h1><p>Learn how work flows through real organizations.</p></div><div class="tag">🏢 Tech Company</div></div><div class="steps">${stages.map((s,i)=>`<span class="${i==st?"on":i<st?"dn":""}">${i<st?"✓":i+1}. ${s.name}</span>`).join("")}</div><div class="bar"><div style="width:${p}%"></div></div>`}
+function intro(){app.innerHTML=`<div class="top"><div><h1>🧭 Task Compass</h1><p>Learn how work flows through real organizations.</p></div><div class="tag">🏢 Tech Company</div></div><div class="glass hero"><div class="big">🧭</div><h2>Welcome to the team</h2><p>Work tickets will land on your desk. Decide who owns them, how they travel, and who needs to collaborate. There are no wrong answers to fear, only reasoning to explore. Real organisations often differ, so treat the explanations as common patterns.</p><div class="row"><button class="btn" data-a="start">Start the simulation ▶</button></div></div>`}
+function mark(i,it){const r=slots[i];if(!r)return"";const ok=st==0?r==it.o:st==1?r==it.f[i]:i==0?r==it.p:it.s.includes(r);return ok?"ok":"no"}
+function play(){const S=stages[st],it=S.items[q],n=S.n(it);if(!slots.length)slots=Array(n).fill(null);
+const sl=slots.map((r,i)=>{const lb=st==0?"Primary Owner":st==1?"Step "+(i+1):i==0?"Primary Owner":"Support";const m=done?mark(i,it):"";const dl=st==1&&done?`style="animation-delay:${i*.6}s"`:"";
+return(st==1&&i?'<span class="ar">➜</span>':"")+`<div class="slot ${r?"full":""} ${snap==i?"snap":""} ${m}" ${dl} data-i="${i}"><small>${lb}</small>${r?card(r):"<em>drop here</em>"}</div>`}).join("");
+const ready=st==0?slots[0]:st==1?slots.every(Boolean):slots[0]&&slots.some((x,i)=>i&&x);
+const pool=Object.keys(R).map(r=>card(r,slots.includes(r)||done?"used":"")).join("");
+app.innerHTML=head()+`<div class="glass ticket"><small>TICKET #${1040+st*3+q} · TASK ${q+1} OF 3 · ${S.name.toUpperCase()}</small><h2>${it.t}</h2><p>${S.h}</p></div><div class="glass"><div class="slots">${st==1?'<span class="chip" style="--c:#888">📥 Request</span><span class="ar">➜</span>':""}${sl}${st==1?'<span class="ar">➜</span><span class="chip" style="--c:#888">🙂 Customer</span>':""}</div></div>${done?"":`<div class="pool">${pool}</div><div class="row"><button class="btn" data-a="go" ${ready?"":"disabled"}>Submit ✔</button></div>`}${done?fb+`<div class="row"><button class="btn" data-a="next">${st==2&&q==2?"See my dashboard ➜":"Next ticket ➜"}</button></div>`:""}`;snap=-1}
+function place(i,r){if(done)return;slots=slots.map(x=>x==r?null:x);slots[i]=r;snap=i;beep(520+i*60);play()}
+function submit(){const S=stages[st],it=S.items[q];done=true;let h="";
+if(st==0){const r=slots[0],ok=r==it.o;sc.o.push(ok?1:it.a.includes(r)?.4:0);
+h=`<h3>✓ Primary Owner</h3><p>${chip(it.o)}</p><h3>✓ Why they own it</h3><p>${it.w}</p><h3>✓ Roles that may assist</h3><p>${it.a.map(chip).join("")}</p><h3>Your choice</h3><p>${ok?"Your pick matches the common ownership pattern.":it.a.includes(r)?`${R[r].n} is a valuable collaborator here, though often not the first owner.`:`${R[r].n} may be pulled in later if needed, but usually does not hold this problem first.`}</p>`}
+else if(st==1){const f=it.f,inc=slots.filter(r=>f.includes(r)).length,pos=slots.filter((r,i)=>r==f[i]).length;sc.d.push(inc/f.length);sc.w.push(pos/f.length);nt.over+=f.length-inc;
+slots.forEach((r,i)=>setTimeout(()=>beep(380+i*90),i*600));
+h=`<div class="fb" style="animation-delay:${f.length*.6}s"><h3>Commonly used order</h3><p>📥 ${f.map(r=>R[r].e+" "+R[r].n).join(" ➜ ")} ➜ 🙂 Customer</p><h3>Why this order is common</h3><p>${it.w}</p><h3>Your flow</h3><p>${pos==f.length?"Your sequence matches this common pattern.":`${pos} of ${f.length} steps matched. Other orders can work in some teams, so compare the reasoning above.`}</p></div>`;fb=h;play();return}
+else{const c=slots.filter(Boolean),hits=c.filter(r=>r!=it.p&&it.s.includes(r)).length,ex=c.filter(r=>r!=it.p&&!it.s.includes(r)).length,miss=it.s.length-hits;
+sc.c.push(Math.max(0,Math.min(1,(slots[0]==it.p?.4:c.includes(it.p)?.2:0)+.6*hits/it.s.length-.1*ex)));nt.over+=ex;nt.under+=miss;
+h=`<h3>Primary Owner</h3><p>${chip(it.p)}</p><h3>Supporting Teams</h3><p>${it.s.map(chip).join("")}</p><h3>Reasoning</h3><p>${it.w}</p><h3>Possible Communication Flow</h3><p>${it.fl}</p><h3>Your team</h3><p>${c.length?`You involved ${c.length} role${c.length>1?"s":""}. ${miss?`Teams like ${it.s.filter(r=>!c.includes(r)).map(r=>R[r].n).join(", ")||"others"} may add useful perspective. `:""}${ex?"Some extra roles could add coordination overhead. ":""}Complex problems usually need several people working together.`:""}</p>`}
+fb=`<div class="glass fb">${h}</div>`;beep(660);setTimeout(()=>beep(880),120);play()}
+function next(){slots=[];done=false;fb="";q++;if(q==3){q=0;st++}if(st==3){view="end";end()}else play()}
+const m=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+function radar(v){const k=Object.keys(v),pt=(i,f)=>{const a=-Math.PI/2+i*Math.PI/2;return[150+Math.cos(a)*105*f,150+Math.sin(a)*105*f]};
+const ring=f=>`<polygon points="${k.map((_,i)=>pt(i,f).join(",")).join(" ")}" fill="none" stroke="rgba(255,255,255,.15)"/>`;
+const lb=k.map((x,i)=>{const p=pt(i,1.25);return`<text x="${p[0]}" y="${p[1]+4}" text-anchor="middle" fill="#cfd3ff" font-size="12">${x}</text>`}).join("");
+return`<svg viewBox="-40 0 380 300" width="100%">${ring(.33)}${ring(.66)}${ring(1)}${k.map((_,i)=>`<line x1="150" y1="150" x2="${pt(i,1)[0]}" y2="${pt(i,1)[1]}" stroke="rgba(255,255,255,.15)"/>`).join("")}<polygon class="rp" points="${k.map((x,i)=>pt(i,Math.max(.04,v[x]/100)).join(",")).join(" ")}" fill="rgba(138,123,255,.4)" stroke="#9d8cff" stroke-width="2"/>${lb}</svg>`}
+function end(){const v={Ownership:m(sc.o)*100,Delegation:m(sc.d)*100,Collaboration:m(sc.c)*100,Workflow:m(sc.w)*100},k=Object.keys(v),best=k.reduce((a,b)=>v[b]>v[a]?b:a);
+const T={Ownership:"You often recognised who should hold a problem first, which keeps work from bouncing around.",Delegation:"You tended to involve sensible people at each step of the work.",Collaboration:"You recognised that bigger problems often pull in several teams.",Workflow:"You sequenced handoffs in ways that resemble how work commonly travels."};
+app.innerHTML=head().replace(/width:[\d.]+%/,"width:100%")+`<div class="glass hero" style="padding:18px"><div class="big">🏆</div><h2>Your Organizational Thinking Dashboard</h2></div><div class="glass dash"><div>${radar(v)}</div><div>${k.map(x=>`<div class="m"><div class="t"><span>${x}</span><span>${Math.round(v[x])}% understanding</span></div><div class="b"><i style="width:${v[x]}%"></i></div></div>`).join("")}</div></div>
+<div class="glass fb"><h3>What you understood well</h3><p>${T[best]}</p><h3>Where you tended to over-assign responsibility</h3><p>${nt.over>1?"In some tasks you may have involved roles that were not strictly needed. Extra voices can add coordination cost, so it can help to ask who is essential at this moment.":"You were fairly selective about who to involve, which often keeps work moving."}</p><h3>Where you underestimated collaboration</h3><p>${nt.under>1?"In some larger situations, supporting teams may have been left out. Their perspectives often reveal causes a single team cannot see.":"You generally made room for supporting teams in bigger situations."}</p><h3>One insight</h3><p>Many real workplace problems are solved by teams rather than individuals. Clear ownership gives a problem direction, and collaboration helps it get resolved.</p></div><div class="row"><button class="btn" data-a="again">Play again ↻</button></div>`;
+for(let i=0;i<36;i++){const d=document.createElement("div");d.className="cf";d.textContent=["🎉","✨","🧭","⭐"][i%4];d.style.left=Math.random()*100+"vw";d.style.animationDelay=Math.random()*1.5+"s";document.body.appendChild(d);setTimeout(()=>d.remove(),5000)}
+[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f),i*140))}
+app.addEventListener("dragstart",e=>{const c=e.target.closest(".card");if(c&&!done)e.dataTransfer.setData("text/plain",c.dataset.r)});
+app.addEventListener("dragover",e=>{const s=e.target.closest(".slot");if(s&&!done){e.preventDefault();s.classList.add("over")}});
+app.addEventListener("dragleave",e=>{const s=e.target.closest(".slot");if(s)s.classList.remove("over")});
+app.addEventListener("drop",e=>{const s=e.target.closest(".slot");if(s&&!done){e.preventDefault();const r=e.dataTransfer.getData("text/plain");if(R[r])place(+s.dataset.i,r)}});
+app.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(b){const a=b.dataset.a;if(a=="start"){view="play";play()}else if(a=="go")submit();else if(a=="next")next();else if(a=="again"){st=0;q=0;slots=[];done=false;fb="";sc={o:[],d:[],w:[],c:[]};nt={over:0,under:0};view="intro";intro()}return}
+if(done)return;const c=e.target.closest(".card"),s=e.target.closest(".slot");
+if(s&&s.classList.contains("full")){slots[+s.dataset.i]=null;beep(300);play()}
+else if(c&&c.classList.contains("used")==false){const i=slots.indexOf(null);place(st==0?0:i<0?0:i,c.dataset.r)}});
+intro();
+</script></body></html>
