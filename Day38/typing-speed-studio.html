@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Typing Speed Studio</title>
+<style>
+:root{--bg:#14151a;--p:#1c1e25;--p2:#262932;--fg:#e8e9ee;--mut:#7d8294;--acc:#f5b94a;--ok:#e8e9ee;--bad:#ef5b6b;--fs:26px;color-scheme:dark}
+[data-theme=light]{--bg:#f4f2ee;--p:#fff;--p2:#ebe8e1;--fg:#24262d;--mut:#8a8d99;--acc:#c2410c;--ok:#24262d;--bad:#d62839;color-scheme:light}
+[data-theme=sepia]{--bg:#efe3cc;--p:#f7edda;--p2:#e5d5b6;--fg:#4a3b28;--mut:#9a8461;--acc:#9c4a1a;--ok:#4a3b28;--bad:#b3261e;color-scheme:light}
+[data-theme=midnight]{--bg:#0b0f24;--p:#121836;--p2:#1c2450;--fg:#dfe4ff;--mut:#7480b8;--acc:#7cf0c8;--ok:#dfe4ff;--bad:#ff6b8b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;transition:background .3s,color .3s}
+.app{max-width:1000px;margin:0 auto;padding:20px 18px 60px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.logo{font:700 22px Georgia,serif;letter-spacing:-.3px}.logo small{font:600 11px system-ui;color:var(--acc);border:1px solid var(--acc);border-radius:20px;padding:2px 8px;margin-left:8px;vertical-align:middle;text-transform:uppercase;letter-spacing:1px}
+button,select,textarea{font:inherit;color:inherit}
+button{background:var(--p);border:1px solid transparent;border-radius:10px;padding:7px 14px;cursor:pointer;transition:.18s}
+button:hover{background:var(--p2);transform:translateY(-1px)}button.on{background:var(--acc);color:var(--bg);font-weight:600}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+select{background:var(--p);border:1px solid var(--p2);border-radius:8px;padding:6px 10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin:8px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;margin:18px 0}
+.st{background:var(--p);border-radius:12px;padding:9px 12px;text-align:center}.st b{display:block;font-size:22px;font-variant-numeric:tabular-nums;color:var(--acc)}.st span{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--mut)}
+#box{background:var(--p);border-radius:16px;padding:26px 30px;height:calc(var(--fs)*1.75*3 + 52px);overflow:hidden;cursor:text;box-shadow:0 8px 30px #0003}
+#box.focus{height:calc(var(--fs)*1.75 + 52px)}
+#txt{position:relative;font:var(--fs)/1.75 "SF Mono",Menlo,Consolas,monospace;white-space:pre-wrap;color:var(--mut);transition:transform .15s}
+.c{transition:color .12s,background .12s}.c.ok{color:var(--ok)}.c.bad{color:var(--bad);background:#ef5b6b22;border-radius:3px}
+.c.cur{box-shadow:-2px 0 0 var(--acc);animation:bl 1s steps(2) infinite}@keyframes bl{50%{box-shadow:-2px 0 0 transparent}}
+#bar{height:5px;background:var(--p);border-radius:5px;margin:14px 0 8px;overflow:hidden}#fill{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
+#hint{text-align:center;color:var(--mut);font-size:13px;margin:6px 0}#pause{text-align:center;color:var(--acc);font-weight:600}
+.card{background:var(--p);border-radius:16px;padding:20px;margin:14px 0}.card h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--mut)}
+.big{display:flex;flex-wrap:wrap;gap:26px;align-items:flex-end}.big div b{font-size:54px;line-height:1;color:var(--acc);display:block}.big div span{color:var(--mut);font-size:12px;text-transform:uppercase}.big .s b{font-size:30px;color:var(--fg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+svg text{fill:var(--mut);font-size:10px}.badge{display:inline-block;background:var(--p2);border-radius:20px;padding:4px 12px;margin:3px;font-size:13px}.badge.n{background:var(--acc);color:var(--bg);font-weight:600}
+.kr{display:flex;justify-content:center;gap:5px;margin:5px 0}.kr b{width:36px;height:36px;display:grid;place-items:center;border-radius:8px;background:var(--p2);font-weight:500;text-transform:uppercase}
+ul{margin:6px 0;padding-left:18px}li{margin:3px 0}
+dialog{background:var(--p);color:var(--fg);border:0;border-radius:16px;padding:22px;max-width:620px;width:92%}dialog::backdrop{background:#0009}
+textarea{width:100%;height:160px;background:var(--bg);border:1px solid var(--p2);border-radius:10px;padding:10px}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:5px 8px;text-align:left;border-bottom:1px solid var(--p2)}
+label{display:flex;gap:10px;align-items:center;margin:10px 0;justify-content:space-between}
+@media(max-width:600px){#box{padding:16px}.big div b{font-size:40px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.fade{animation:fi .4s ease}@keyframes fi{from{opacity:0;transform:translateY(8px)}}
+</style></head><body><div class="app">
+<header><div class="logo">Typing Speed Studio<small>Academic</small></div><nav class="row"><button id="bHist">History</button><button id="bSet">Settings</button></nav></header>
+<div class="row" id="modes" role="tablist" aria-label="Mode"></div><div class="row" id="opts"></div>
+<div class="row"><label style="gap:8px">Discipline <select id="cat"><option>Mixed</option><option>Sciences</option><option>Humanities</option><option>Social Sciences</option></select></label></div>
+<section class="stats" id="stats" aria-label="Live statistics"></section>
+<main><div id="box" tabindex="0" aria-label="Typing area. Start typing to begin."><div id="txt"></div></div>
+<div id="bar"><i id="fill"></i></div><div id="hint">Just start typing &middot; <kbd>Tab</kbd> restart &middot; <kbd>Esc</kbd> pause &middot; <kbd>Enter</kbd> finish (Zen)</div><div id="pause" hidden>Paused. Press Esc to resume.</div></main>
+<section id="res" hidden aria-live="polite"></section>
+</div>
+<dialog id="dHist"><h3>History &amp; personal bests</h3><div id="hBody"></div><div class="row"><button id="hClr">Clear history</button><button onclick="this.closest('dialog').close()">Close</button></div></dialog>
+<dialog id="dSet"><h3>Settings</h3>
+<label>Theme <select id="sTheme"><option value="dark">Dark</option><option value="light">Light</option><option value="sepia">Sepia</option><option value="midnight">Midnight</option></select></label>
+<label>Font size <input id="sFs" type="range" min="18" max="40" aria-label="Font size"></label>
+<label>Sound effects <input id="sSnd" type="checkbox"></label>
+<div class="row"><button onclick="this.closest('dialog').close()">Done</button></div></dialog>
+<dialog id="dCus"><h3>Custom text</h3><textarea id="cTxt" aria-label="Custom text" placeholder="Paste any text to practise..."></textarea><div class="row"><button id="cGo" class="on">Use text</button><button onclick="this.closest('dialog').close()">Cancel</button></div></dialog>
+<script>
+const $=s=>document.querySelector(s),ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const pick=a=>a[Math.random()*a.length|0],cap=s=>s[0].toUpperCase()+s.slice(1);
+const BANK={
+Sciences:{S:['the mitochondrial membrane','quantum entanglement','protein folding','thermohaline circulation','stellar nucleosynthesis','synaptic plasticity','the CRISPR-Cas9 system','plate tectonics','the gut microbiome'],V:['regulates','constrains','amplifies','reveals','mediates','challenges','accelerates'],O:['the rate of cellular respiration','our understanding of causality','long-term energy storage','emergent behaviour in complex systems','the reproducibility of experimental results','gene expression across tissues','heat transfer through the lithosphere'],Q:['although measurement uncertainty remains considerable','as demonstrated by recent longitudinal data','which complicates conventional hypotheses','under carefully controlled laboratory conditions','provided that confounding variables are isolated']},
+Humanities:{S:['Renaissance humanism','the modernist novel','Kantian ethics','postcolonial criticism','medieval historiography','the hermeneutic tradition','Enlightenment rationalism','oral storytelling','phenomenology'],V:['reframes','interrogates','anticipates','undermines','illuminates','reconfigures','preserves'],O:['the boundaries of individual autonomy','collective memory and cultural identity','the authority of the canonical text','conceptions of beauty and the sublime','narratives of progress and decline','the relationship between language and thought'],Q:['though scholars continue to dispute its origins','as the surviving manuscripts suggest','which invites a more sceptical interpretation','particularly within its historical context','and yet its legacy remains profoundly ambiguous']},
+'Social Sciences':{S:['behavioural economics','social capital','urban segregation','cognitive dissonance','institutional trust','demographic transition','cross-cultural research','the welfare state','linguistic variation'],V:['predicts','moderates','shapes','obscures','explains','correlates with','destabilises'],O:['patterns of household consumption','political participation among young adults','educational attainment across generations','perceptions of fairness in negotiation','the diffusion of technological innovation','inequality in access to healthcare'],Q:['even after controlling for socioeconomic status','according to a representative national survey','though causal inference remains difficult','which policymakers frequently overlook','across a diverse range of populations']}};
+const QUOTES=['The important thing is not to stop questioning. Curiosity has its own reason for existing.','If I have seen further, it is by standing on the shoulders of giants.','The mark of an educated mind is the ability to entertain a thought without accepting it.','Science is organised knowledge; wisdom is organised life.','The unexamined life is not worth living.','Nothing in biology makes sense except in the light of evolution.','We are what we repeatedly do. Excellence, then, is not an act but a habit.','Education is not the filling of a pail, but the lighting of a fire.'];
+function gen(cat,n,lv){let out=[],w=0;while(w<n){const b=BANK[cat==='Mixed'?pick(Object.keys(BANK)):cat];let s=cap(pick(b.S)+' '+pick(b.V)+' '+pick(b.O));if(Math.random()<[0,.2,.5,.8,1][lv-1])s+=', '+pick(b.Q);if(lv>=5)s+='; moreover, '+pick(b.S)+' '+pick(b.V)+' '+pick(b.O);s+='.';out.push(s);w+=s.split(' ').length}return out.join(' ')}
+const MODES={time:'Time',words:'Words',quote:'Quote',custom:'Custom',adaptive:'Adaptive',focus:'Focus',zen:'Zen'};
+const OPT={time:[15,30,60,120],words:[25,50,100,250],adaptive:[25,50,100,250],focus:[25,50,100,250]};
+let set=Object.assign({theme:'dark',fs:26,snd:false},ld('tss_set',{}));
+let S={mode:'time',p:30,custom:'',cat:'Mixed',lvl:ld('tss_lvl',2)},T,tm,ac;
+function applySet(){document.documentElement.dataset.theme=set.theme;document.documentElement.style.setProperty('--fs',set.fs+'px');$('#sTheme').value=set.theme;$('#sFs').value=set.fs;$('#sSnd').checked=set.snd;sv('tss_set',set);scroll()}
+const beep=f=>{if(!set.snd)return;try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;o.type='triangle';g.gain.value=.04;o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.06);o.stop(ac.currentTime+.07)}catch(e){}};
+const ST=[['wpm','WPM'],['raw','Raw'],['cpm','CPM'],['acc','Accuracy'],['time','Time'],['mis','Mistakes'],['str','Streak'],['cmp','Done %'],['rem','Left']];
+$('#stats').innerHTML=ST.map(([k,l])=>`<div class="st"><b id="s_${k}">0</b><span>${l}</span></div>`).join('');
+function build(){$('#modes').innerHTML=Object.entries(MODES).map(([k,v])=>`<button role="tab" class="${k==S.mode?'on':''}" data-m="${k}">${v}</button>`).join('');
+$('#opts').innerHTML=(OPT[S.mode]||[]).map(v=>`<button class="${v==S.p?'on':''}" data-p="${v}">${v}${S.mode=='time'?'s':' words'}</button>`).join('')}
+$('#modes').onclick=e=>{const m=e.target.dataset.m;if(!m)return;S.mode=m;S.p=OPT[m]?(m=='time'?30:50):0;build();if(m=='custom'){$('#dCus').showModal();return}newTest()};
+$('#opts').onclick=e=>{const p=e.target.dataset.p;if(!p)return;S.p=+p;build();newTest()};
+$('#cat').onchange=e=>{S.cat=e.target.value;newTest()};
+$('#cGo').onclick=()=>{const v=$('#cTxt').value.replace(/[\u2018\u2019]/g,"'").replace(/[\u201c\u201d]/g,'"').replace(/\s+/g,' ').trim();if(v.length<5)return;S.custom=v;$('#dCus').close();newTest()};
+function mk(){const m=S.mode;if(m=='time')return gen(S.cat,260,S.lvl);if(m=='quote')return pick(QUOTES);if(m=='custom')return S.custom||pick(QUOTES);if(m=='zen')return gen(S.cat,150,S.lvl);
+const lv=m=='adaptive'?S.lvl:2,t=gen(S.cat,S.p,lv).split(' ');return t.slice(0,S.p).join(' ')}
+function newTest(text){clearInterval(tm);$('#res').hidden=true;$('#box').hidden=false;$('#bar').hidden=false;$('#hint').hidden=false;$('#pause').hidden=true;
+$('#box').classList.toggle('focus',S.mode=='focus');
+T={text:text||mk(),i:0,st:[],on:false,paused:false,fin:false,el:0,cc:0,kc:0,kw:0,kt:0,streak:0,best:0,errs:{},smp:[],sec:0,burst:0,errSec:0,last:0,iv:[]};
+const f=document.createDocumentFragment();T.sp=[...T.text].map(c=>{const s=document.createElement('span');s.className='c';s.textContent=c;f.appendChild(s);return s});$('#txt').replaceChildren(f);
+$('#txt').style.transform='';T.sp[0].classList.add('cur');upd();$('#box').focus({preventScroll:true});
+$('#hint').firstChild.textContent=S.mode=='adaptive'?`Adaptive level ${S.lvl}/5 \u00b7 `:'Just start typing \u00b7 '}
+function scroll(){if(!T||!T.sp)return;const c=T.sp[Math.min(T.i,T.sp.length-1)],lh=set.fs*1.75;$('#txt').style.transform=`translateY(-${Math.max(0,c.offsetTop-(S.mode=='focus'?0:lh))}px)`}
+function metrics(){const t=Math.max(T.el,1);return{wpm:Math.min(400,T.cc/5/(t/60)),raw:Math.min(400,T.kt/5/(t/60)),acc:T.kt?T.kc/T.kt*100:100}}
+function upd(){const m=metrics(),z=S.mode=='zen',tm_=S.mode=='time';
+const v={wpm:z?'\u2013':Math.round(m.wpm),raw:z?'\u2013':Math.round(m.raw),cpm:z?'\u2013':Math.round(m.wpm*5),acc:Math.round(m.acc),time:tm_?Math.max(0,Math.ceil(S.p-T.el))+'s':Math.floor(T.el)+'s',mis:T.kw,str:T.streak,cmp:0,rem:''};
+const pc=tm_?T.el/S.p:T.i/T.text.length;v.cmp=Math.min(100,Math.round(pc*100));
+v.rem=tm_?Math.max(0,Math.ceil(S.p-T.el))+'s':z?'\u221e':T.text.slice(T.i).split(' ').filter(Boolean).length+'w';
+for(const k in v)$('#s_'+k).textContent=v[k];$('#fill').style.width=Math.min(100,pc*100)+'%'}
+function tick(){if(!T.on||T.paused||T.fin)return;T.el=(performance.now()-T.t0)/1000;
+while(T.sec<Math.floor(T.el)){T.sec++;const m=metrics();T.smp.push({wpm:T.cc/5/(T.sec/60),raw:T.kt/5/(T.sec/60),b:T.burst*12,acc:m.acc,e:T.errSec});T.burst=0;T.errSec=0}
+if(S.mode=='time'&&T.el>=S.p){T.el=S.p;return finish()}upd()}
+function start(){T.on=true;T.t0=performance.now();T.last=T.t0;tm=setInterval(tick,100);$('#hint').hidden=true}
+function pause(){if(!T.on||T.fin)return;T.paused=!T.paused;if(T.paused)T.ps=performance.now();else T.t0+=performance.now()-T.ps;$('#pause').hidden=!T.paused;$('#box').style.opacity=T.paused?.3:1}
+function key(ch){if(T.fin||T.paused)return;if(!T.on)start();const now=performance.now();T.iv.push(now-T.last);T.last=now;
+if(T.i>=T.text.length)return;const exp=T.text[T.i],ok=ch===exp,s=T.sp[T.i];
+T.kt++;T.burst++;s.classList.remove('cur');s.classList.add(ok?'ok':'bad');T.st[T.i]=ok?1:2;
+if(ok){T.kc++;T.cc++;T.streak++;T.best=Math.max(T.best,T.streak);beep(620)}else{T.kw++;T.errSec++;T.streak=0;const k=exp.toLowerCase();T.errs[k]=(T.errs[k]||0)+1;beep(180)}
+T.i++;if(T.i<T.text.length)T.sp[T.i].classList.add('cur');
+if(S.mode=='time'&&T.i>T.text.length-80){const add=' '+gen(S.cat,60,S.lvl),f=document.createDocumentFragment();[...add].forEach(c=>{const s=document.createElement('span');s.className='c';s.textContent=c;f.appendChild(s);T.sp.push(s)});T.text+=add;$('#txt').appendChild(f)}
+scroll();upd();if(S.mode!='time'&&S.mode!='zen'&&T.i>=T.text.length){T.el=(performance.now()-T.t0)/1000;finish()}}
+function back(){if(T.fin||T.paused||!T.on||T.i<1)return;if(T.i<T.text.length)T.sp[T.i].classList.remove('cur');T.i--;if(T.st[T.i]==1)T.cc--;T.st[T.i]=0;const s=T.sp[T.i];s.className='c cur';scroll();upd()}
+document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]')||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
+if(e.key=='Tab'){e.preventDefault();return newTest()}if(e.key=='Escape'){pause();return}
+if(e.key=='Enter'&&!$('#res').hidden){e.preventDefault();return newTest()}
+if(e.key=='Enter'&&S.mode=='zen'&&T.on&&!T.fin){T.el=(performance.now()-T.t0)/1000;return finish()}
+if(e.key=='Backspace'){e.preventDefault();return back()}
+if(e.ctrlKey||e.metaKey||e.altKey||e.key.length!==1)return;e.preventDefault();key(e.key)});
+const erf=x=>{const t=1/(1+.3275911*Math.abs(x)),y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x);return x>=0?y:-y};
+function chart(sets,mx){const W=600,H=150,n=Math.max(...sets.map(s=>s.d.length));if(n<1)return'';mx=mx||Math.max(10,...sets.flatMap(s=>s.d))*1.15;
+const X=i=>n>1?30+i/(n-1)*(W-40):W/2,Y=v=>H-18-v/mx*(H-30);let g=[0,.5,1].map(f=>`<line x1="30" x2="${W-10}" y1="${Y(mx*f)}" y2="${Y(mx*f)}" stroke="var(--p2)"/><text x="2" y="${Y(mx*f)+3}">${Math.round(mx*f)}</text>`).join('');
+return`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img">${g}${sets.map(s=>`<polyline fill="none" stroke="${s.c}" stroke-width="2" ${s.dash?'stroke-dasharray="4 3"':''} points="${s.d.map((v,i)=>X(i)+','+Y(v)).join(' ')}"/>${(s.pts||[]).map(i=>`<circle cx="${X(i)}" cy="${Y(s.d[i])}" r="3.5" fill="var(--bad)"/>`).join('')}`).join('')}<text x="30" y="${H-3}">1s</text><text x="${W-30}" y="${H-3}">${n}s</text></svg>`}
+function finish(){if(T.fin)return;T.fin=true;clearInterval(tm);const el=Math.max(T.el,1);
+if(!T.smp.length||T.sec<Math.floor(el))T.smp.push({wpm:T.cc/5/(el/60),raw:T.kt/5/(el/60),b:T.burst*12,acc:metrics().acc,e:T.errSec});
+const wpm=Math.min(400,T.cc/5/(el/60)),raw=Math.min(400,T.kt/5/(el/60)),acc=T.kt?T.kc/T.kt*100:100;
+const b=T.smp.map(s=>s.b),mean=b.reduce((a,c)=>a+c,0)/b.length,sd=Math.sqrt(b.reduce((a,c)=>a+(c-mean)**2,0)/b.length),cv=mean?sd/mean:1,cons=b.length<2?100:Math.round(100*(1-Math.tanh(cv+cv**3/3+cv**5/5)));
+const wrong=T.st.filter(x=>x==2).length,extra=T.st.reduce((a,x,i)=>a+(x==2&&T.text[i]==' '?1:0),0),missed=S.mode=='time'||S.mode=='zen'?0:T.text.length-T.i;
+const comp=S.mode=='time'?100:Math.round(T.i/T.text.length*100),pct=Math.round(50*(1+erf((wpm-40)/16/Math.SQRT2))*10)/10;
+const label=S.mode+(S.p?' '+S.p:'')+' \u00b7 '+S.cat;const pb=ld('tss_pb',{}),isPB=wpm>(pb[label]||0)&&T.kc>=10;if(isPB){pb[label]=Math.round(wpm*10)/10;sv('tss_pb',pb)}
+const hist=ld('tss_h',[]);const rec={d:Date.now(),m:label,wpm:Math.round(wpm*10)/10,raw:Math.round(raw),acc:Math.round(acc*10)/10,cons,el:Math.round(el)};
+if(T.kt>=10){hist.push(rec);sv('tss_h',hist.slice(-200))}
+const days=[...new Set(ld('tss_h',[]).map(h=>new Date(h.d).toDateString()))];let ds=0,dd=new Date();while(days.includes(dd.toDateString())){ds++;dd.setDate(dd.getDate()-1)}
+if(S.mode=='adaptive'&&T.kt>=10){const prev=hist.slice(-6,-1).filter(h=>h.m.startsWith('adaptive')),avg=prev.length?prev.reduce((a,h)=>a+h.wpm,0)/prev.length:0;S.lvl=Math.max(1,Math.min(5,S.lvl+(acc>=96&&wpm>=avg*.95?1:acc<90?-1:0)));sv('tss_lvl',S.lvl)}
+const weak=Object.entries(T.errs).sort((a,b)=>b[1]-a[1]).slice(0,5),mx=Math.max(1,...Object.values(T.errs));
+const ivm=T.iv.length?T.iv.reduce((a,c)=>a+c,0)/T.iv.length:0,total=ld('tss_h',[]).length;
+const bad=[];if(wpm>=40)bad.push(['\ud83d\ude80 40+ WPM']);if(wpm>=60)bad.push(['\u26a1 60+ WPM']);if(wpm>=80)bad.push(['\ud83d\udd25 80+ WPM']);if(acc>=98&&T.kt>=30)bad.push(['\ud83c\udfaf Precision 98%']);if(!T.kw&&T.kt>=30)bad.push(['\ud83d\udc8e Flawless']);if(cons>=80)bad.push(['\ud83c\udfb5 Steady rhythm']);if(el>=100)bad.push(['\ud83c\udfc3 Endurance']);if(ds>=3)bad.push(['\ud83d\udcc5 '+ds+'-day streak']);if(total==1)bad.push(['\u2728 First session']);if(total>=10)bad.push(['\ud83d\udcda 10 sessions']);if(isPB)bad.push(['\ud83c\udfc6 New personal best',1]);
+const str=[],wk=[],tip=[];(acc>=95?str:wk).push(acc>=95?'Accuracy is excellent ('+acc.toFixed(1)+'%)':'Accuracy is below 95%');(cons>=70?str:wk).push(cons>=70?'Consistent pacing':'Uneven pacing between bursts');(wpm>=50?str:wk).push(wpm>=50?'Above-average speed':'Speed has room to grow');
+if(acc<92)tip.push('Slow down 10-15%. Accuracy builds speed more reliably than rushing.');if(cons<65)tip.push('Aim for a steady rhythm; avoid pausing before long, technical words.');if(weak.length)tip.push('Drill words containing '+weak.slice(0,3).map(w=>'"'+(w[0]==' '?'space':w[0])+'"').join(', ')+'.');if(wpm<35)tip.push('Keep eyes on the text, not the keyboard, and use all ten fingers.');if(!tip.length)tip.push('Try Adaptive mode or longer sessions to push your limits.');
+const rows=['qwertyuiop','asdfghjkl','zxcvbnm'].map(r=>`<div class="kr">${[...r].map(k=>`<b title="${T.errs[k]||0} errors" style="background:color-mix(in srgb,var(--bad) ${Math.round((T.errs[k]||0)/mx*85)}%,var(--p2))">${k}</b>`).join('')}</div>`).join('');
+const errPts=T.smp.map((s,i)=>s.e?i:-1).filter(i=>i>=0),z=S.mode=='zen';
+const R=$('#res');R.className='fade';R.innerHTML=`<div class="card"><div class="big"><div><b>${Math.round(wpm)}</b><span>WPM</span></div><div><b>${acc.toFixed(1)}%</b><span>Accuracy</span></div><div class="s"><b>${Math.round(raw)}</b><span>Raw WPM</span></div><div class="s"><b>${cons}%</b><span>Consistency</span></div><div class="s"><b>${comp}%</b><span>Complete</span></div><div class="s"><b>${Math.round(el)}s</b><span>Duration</span></div></div>
+<p style="color:var(--mut)">${label} &middot; faster than about <b style="color:var(--acc)">${pct}%</b> of typists (estimate based on a ~40 WPM average) &middot; PB: ${(pb[label]||0)} WPM</p><div>${bad.map(x=>`<span class="badge ${x[1]?'n':''}">${x[0]}</span>`).join('')}</div></div>
+<div class="grid"><div class="card"><h3>WPM progress <span style="color:var(--acc)">&#9632; net</span> <span>&#9632; raw</span></h3>${chart([{d:T.smp.map(s=>s.wpm),c:'var(--acc)',pts:errPts},{d:T.smp.map(s=>s.raw),c:'var(--mut)',dash:1}])}</div>
+<div class="card"><h3>Accuracy over time</h3>${chart([{d:T.smp.map(s=>s.acc),c:'var(--ok)'}],100)}</div></div>
+<div class="grid"><div class="card"><h3>Characters</h3><p style="font-size:18px;margin:0"><b style="color:var(--acc)">${T.kc}</b> correct &middot; <b style="color:var(--bad)">${wrong}</b> incorrect &middot; <b>${extra}</b> extra &middot; <b>${missed}</b> missed</p><p style="color:var(--mut)">Mistakes: ${T.kw} &middot; Best streak: ${T.best} &middot; Total keystrokes: ${T.kt}</p></div>
+<div class="card"><h3>Typing rhythm</h3>${chart([{d:T.smp.map(s=>s.b),c:'var(--acc)'}])}<p style="color:var(--mut);margin:4px 0 0">Avg key interval ${Math.round(ivm)} ms</p></div></div>
+<div class="grid"><div class="card"><h3>Error heatmap</h3>${rows}<p style="color:var(--mut);text-align:center;margin:6px 0 0">${weak.length?'Most mistyped: '+weak.map(w=>(w[0]==' '?'space':w[0])+' ('+w[1]+')').join(', '):'No mistakes. Perfect run!'}</p></div>
+<div class="card"><h3>Performance summary</h3><b>Strengths</b><ul>${str.map(s=>'<li>'+s+'</li>').join('')||'<li>Keep practising</li>'}</ul><b>Weaknesses</b><ul>${wk.map(s=>'<li>'+s+'</li>').join('')||'<li>None detected</li>'}</ul><b>Suggestions</b><ul>${tip.map(s=>'<li>'+s+'</li>').join('')}</ul></div></div>
+<div class="row"><button class="on" id="rNew">Next test (Enter)</button><button id="rSame">Repeat this text</button></div>`;
+$('#rNew').onclick=()=>newTest();const txt=T.text;$('#rSame').onclick=()=>newTest(txt);
+$('#box').hidden=true;$('#bar').hidden=true;$('#hint').hidden=true;R.hidden=false;R.scrollIntoView({behavior:'smooth'});$('#rNew').focus()}
+$('#bHist').onclick=()=>{const h=ld('tss_h',[]),pb=ld('tss_pb',{});$('#hBody').innerHTML=(h.length?`<div class="card">${chart([{d:h.slice(-30).map(x=>x.wpm),c:'var(--acc)'}])}<small style="color:var(--mut)">WPM, last ${Math.min(30,h.length)} sessions</small></div>`:'<p>No sessions yet. Go type!</p>')+(Object.keys(pb).length?'<h4>Personal bests</h4><ul>'+Object.entries(pb).map(([k,v])=>`<li>${k}: <b>${v}</b> WPM</li>`).join('')+'</ul>':'')+(h.length?'<table><tr><th>Date</th><th>Mode</th><th>WPM</th><th>Acc</th></tr>'+h.slice(-12).reverse().map(x=>`<tr><td>${new Date(x.d).toLocaleDateString()}</td><td>${x.m}</td><td>${x.wpm}</td><td>${x.acc}%</td></tr>`).join('')+'</table>':'');$('#dHist').showModal()};
+$('#hClr').onclick=()=>{sv('tss_h',[]);sv('tss_pb',{});$('#bHist').click()};
+$('#bSet').onclick=()=>$('#dSet').showModal();
+$('#sTheme').onchange=e=>{set.theme=e.target.value;applySet()};$('#sFs').oninput=e=>{set.fs=+e.target.value;applySet()};$('#sSnd').onchange=e=>{set.snd=e.target.checked;applySet()};
+$('#box').onclick=()=>$('#box').focus();
+build();newTest();applySet();
+</script></body></html>
