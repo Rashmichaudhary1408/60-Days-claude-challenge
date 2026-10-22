@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interactive Learning Studio: Python OOP</title>
+<style>
+:root{--bg:#eef2f7;--card:#fff;--ink:#12233a;--mut:#56677d;--line:#c5d1df;--acc:#1b5fd1;--acc2:#b36b00;--ok:#13795b;--bad:#b3261e;--code:#0f1b2d;--codeink:#d7e6ff;color-scheme:light}
+[data-theme=dark]{--bg:#0b1422;--card:#122036;--ink:#e6eefb;--mut:#93a6c0;--line:#27405f;--acc:#6aa8ff;--acc2:#ffb454;--ok:#4cd6a6;--bad:#ff8b82;--code:#07101c;--codeink:#cfe3ff;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{font-family:Georgia,"Iowan Old Style",serif;line-height:1.2;margin:0 0 .5em}
+h1{font-size:2.1rem}h2{font-size:1.6rem}h3{font-size:1.15rem;margin-top:1.6em}
+p,li{max-width:72ch}
+code,pre{font-family:ui-monospace,Menlo,Consolas,monospace}
+code{background:color-mix(in srgb,var(--acc) 14%,transparent);padding:.05em .35em;border-radius:4px;font-size:.9em}
+pre{background:var(--code);color:var(--codeink);padding:14px 16px;border-radius:8px;overflow:auto;font-size:.88rem;line-height:1.5;border:1px solid var(--line)}
+pre code{background:none;padding:0}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:10px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.brand{font:700 1.05rem Georgia,serif}
+.bar{flex:1;min-width:140px;height:8px;background:var(--line);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .5s}
+.xp{font-weight:600;color:var(--acc2);white-space:nowrap}
+button,select,input{font:inherit;color:inherit}
+.btn{background:var(--acc);color:var(--bg);border:0;border-radius:7px;padding:8px 14px;cursor:pointer;font-weight:600}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
+.btn:focus-visible,.tab:focus-visible,.opt:focus-visible,summary:focus-visible{outline:3px solid var(--acc2);outline-offset:2px}
+.wrap{display:grid;grid-template-columns:230px 1fr;max-width:1150px;margin:0 auto}
+nav{padding:18px 12px;position:sticky;top:58px;align-self:start}
+.tab{display:block;width:100%;text-align:left;background:none;border:0;border-left:3px solid var(--line);padding:9px 12px;margin-bottom:4px;cursor:pointer;color:var(--mut)}
+.tab[aria-current=true]{border-color:var(--acc);color:var(--ink);font-weight:700;background:var(--card)}
+.tab:disabled{opacity:.45;cursor:not-allowed}
+.tab .ck{color:var(--ok)}
+main{padding:22px 26px 70px;min-width:0}
+.pane{display:none}.pane.on{display:block;animation:in .35s}
+@keyframes in{from{opacity:0}to{opacity:1}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin:16px 0}
+.note{border-left:4px solid var(--acc2)}
+.mis{border-left:4px solid var(--bad)}
+.key{border-left:4px solid var(--ok)}
+.card>b:first-child{display:block;margin-bottom:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+table{border-collapse:collapse;width:100%;font-size:.93rem;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:color-mix(in srgb,var(--acc) 12%,transparent)}
+svg{max-width:100%;height:auto;display:block;margin:8px auto}
+svg .bx{fill:var(--card);stroke:var(--acc);stroke-width:1.6}
+svg .bx2{fill:color-mix(in srgb,var(--acc2) 18%,var(--card));stroke:var(--acc2);stroke-width:1.6}
+svg text{fill:var(--ink);font:13px system-ui}
+svg .ln{stroke:var(--mut);stroke-width:1.5;fill:none}
+.lab{font-size:.82rem;color:var(--mut)}
+.lab.s{font-weight:600}
+.lab.s::before{content:"";}
+.demo{background:color-mix(in srgb,var(--acc) 7%,var(--card));border:1px dashed var(--acc);border-radius:10px;padding:14px 18px;margin:16px 0}
+.demo input,.demo select{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px 8px;margin:3px 4px 3px 0}
+.out{background:var(--code);color:var(--codeink);border-radius:8px;padding:10px 12px;font-family:ui-monospace,monospace;font-size:.86rem;min-height:2.4em;margin-top:8px;white-space:pre-wrap}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 10px;margin:2px;font-size:.85rem}
+.pill.on{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin:6px 0;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--acc)}
+.opt.good{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,var(--card))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,var(--card))}
+.fb{font-size:.92rem;margin:4px 0 10px;padding-left:4px}
+details{margin:8px 0}summary{cursor:pointer;color:var(--acc);font-weight:600}
+.badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--acc2);color:var(--acc2);border-radius:99px;padding:3px 12px;margin:3px;font-weight:600}
+.badge.off{opacity:.35;border-style:dashed}
+.next{display:flex;justify-content:space-between;margin-top:26px}
+@media(max-width:800px){.wrap{display:block}nav{position:static;display:flex;overflow-x:auto;padding:8px}.tab{border-left:0;border-bottom:3px solid var(--line);width:auto;white-space:nowrap}.tab[aria-current=true]{border-color:var(--acc)}main{padding:16px}h1{font-size:1.7rem}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{header,nav,.btn,.next,.demo,.quiz{display:none!important}.pane{display:block!important;page-break-after:always}body{background:#fff;color:#000}.card,pre{border:1px solid #999;background:#fff;color:#000}svg text{fill:#000}}
+</style>
+</head>
+<body>
+<header>
+  <span class="brand">Interactive Learning Studio · Python OOP</span>
+  <div class="bar" role="progressbar" aria-label="Course progress"><i id="pb"></i></div>
+  <span id="pct" class="lab"></span>
+  <span class="xp" id="xp">0 XP</span>
+  <button class="btn ghost" id="th">Dark mode</button>
+  <button class="btn ghost" onclick="print()">Print notes</button>
+</header>
+<div class="wrap"><nav id="nav" aria-label="Course sections"></nav><main id="main"></main></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const box=(c,t,b)=>`<div class="card ${c}"><b>${t}</b>${b}</div>`;
+const code=c=>`<pre><code>${c}</code></pre>`;
+const reveal=(t,b)=>`<details><summary>${t}</summary>${b}</details>`;
+
+/* ---------- MODULES ---------- */
+const MODS=[
+{t:"Classes and Objects",sub:"Foundation",time:"25 min",
+ body:`
+ <p>Object-oriented programming (OOP) organizes a program around <b>objects</b>: bundles of data (<em>attributes</em>) and behavior (<em>methods</em>). A <b>class</b> is the definition that says what every object of that kind has and can do.</p>
+ ${box("note","Analogy: blueprint and houses","<p>A class is an architect's blueprint. It is not a house; you cannot live in it. Each call like <code>Dog(\"Rex\")</code> builds one house (an <b>instance</b>) from the blueprint. Two houses share a design but have different owners, paint, and furniture.</p>")}
+ <h3>Your first class</h3>
+ ${code(`class Dog:
+    count = 0                      # class attribute: shared by all dogs
+
+    def __init__(self, name, age): # runs when you call Dog(...)
+        self.name = name           # instance attributes: one set per dog
+        self.age = age
+        Dog.count += 1
+
+    def speak(self):
+        return f"{self.name} says Woof!"
+
+    def __repr__(self):            # what you see when you print the object
+        return f"Dog({self.name!r}, {self.age})"
+
+rex = Dog("Rex", 3)
+luna = Dog("Luna", 5)
+print(rex.speak())   # Rex says Woof!
+print(Dog.count)     # 2`)}
+ <p><code>self</code> is the object the method was called on. Writing <code>rex.speak()</code> is shorthand for <code>Dog.speak(rex)</code>, which is why every method lists <code>self</code> first.</p>
+ <svg viewBox="0 0 580 170" role="img" aria-label="One Dog class produces two objects">
+  <rect class="bx2" x="10" y="20" width="170" height="120" rx="8"/><text x="28" y="44" font-weight="700">class Dog</text><text x="28" y="70">count (shared)</text><text x="28" y="92">__init__(name, age)</text><text x="28" y="114">speak()</text>
+  <path class="ln" d="M180 60 L290 35M180 100 L290 125"/>
+  <rect class="bx" x="290" y="10" width="270" height="52" rx="8"/><text x="304" y="32">rex: name="Rex", age=3</text><text x="304" y="51" class="lab">own copy of attributes</text>
+  <rect class="bx" x="290" y="102" width="270" height="52" rx="8"/><text x="304" y="124">luna: name="Luna", age=5</text><text x="304" y="143" class="lab">own copy of attributes</text>
+ </svg>
+ <h3>Class vs. object, side by side</h3>
+ <table><tr><th></th><th>Class</th><th>Object (instance)</th></tr>
+ <tr><td>What it is</td><td>Template / definition</td><td>A concrete thing built from it</td></tr>
+ <tr><td>Created with</td><td><code>class Dog:</code></td><td><code>Dog("Rex", 3)</code></td></tr>
+ <tr><td>Data</td><td>Class attributes (shared)</td><td>Instance attributes (own)</td></tr>
+ <tr><td>How many</td><td>One</td><td>As many as you need</td></tr></table>
+ <div class="demo"><b>Try it: build Dog objects</b><br>
+  <input id="dn" placeholder="name" value="Rex" size="8" aria-label="Dog name"><input id="da" type="number" value="3" min="0" style="width:70px" aria-label="Dog age">
+  <button class="btn" onclick="mkDog()">Create Dog</button> <button class="btn ghost" onclick="dogs=[];Dog_c=0;drawDogs()">Reset</button>
+  <div class="out" id="dout">No objects yet. Click Create Dog.</div></div>
+ <h3>Practical exercise</h3>
+ <p>Write a class <code>Book</code> with <code>title</code> and <code>pages</code>, plus a method <code>is_long()</code> that returns <code>True</code> when pages exceed 300. Predict: what does <code>Book("A", 400).is_long()</code> print?</p>
+ ${reveal("Show solution",code(`class Book:
+    def __init__(self, title, pages):
+        self.title = title
+        self.pages = pages
+    def is_long(self):
+        return self.pages > 300
+
+print(Book("A", 400).is_long())  # True`))}
+ ${box("mis","Common misconceptions",`<ul><li><b>"self is a keyword."</b> It is only a convention; Python passes the instance as the first argument whatever you name it. Always use <code>self</code> anyway.</li><li><b>"A class attribute is per-object."</b> It is shared. Mutating a list defined at class level changes it for every instance.</li><li><b>"__init__ creates the object."</b> <code>__new__</code> creates it; <code>__init__</code> only initializes it.</li></ul>`)}
+ ${box("key","Key takeaways","<ul><li>Class = blueprint, object = instance.</li><li><code>__init__</code> sets up instance attributes via <code>self</code>.</li><li>Class attributes are shared; instance attributes are per object.</li><li>Define <code>__repr__</code> for readable debugging output.</li></ul>")}`,
+ quiz:[
+ {q:"What does `self` refer to inside a method?",o:["The class itself","The specific object the method was called on","The parent class","A global variable"],a:1,e:"self is the instance. rex.speak() passes rex as self. The class is reached via type(self) or the class name, and there is no parent involved yet."},
+ {q:"After `a=Dog('A',1); b=Dog('B',2)`, what is `Dog.count` if __init__ does `Dog.count += 1` and count started at 0?",o:["0","1","2","It raises an error"],a:2,e:"count lives on the class and both constructions incremented the same shared value, giving 2. Instance attributes would have given each object its own count."},
+ {q:"Which line creates an instance?",o:["class Dog:","def Dog():","rex = Dog('Rex', 3)","self.rex = Dog"],a:2,e:"Calling the class like a function builds an instance. 'class Dog:' defines the blueprint, and the other options define a function or assign without calling."},
+ {q:"Which method gives a developer-friendly string when you print an object in a list?",o:["__init__","__repr__","__new__","__call__"],a:1,e:"__repr__ controls how the object is shown in lists and the REPL. __init__ initializes, __new__ allocates, __call__ makes instances callable."}]},
+
+{t:"Encapsulation and Properties",sub:"Protecting state",time:"30 min",
+ body:`
+ <p><b>Encapsulation</b> means bundling data with the methods that operate on it, and controlling how outside code touches that data. Callers use a small public interface; the internals can change without breaking them.</p>
+ ${box("note","Analogy: the ATM","<p>You press buttons (deposit, withdraw) and see a balance. You cannot reach into the vault and change the number. The machine enforces rules: no withdrawing more than you have.</p>")}
+ <svg viewBox="0 0 560 150" role="img" aria-label="Public interface wrapping private state">
+  <rect class="bx" x="10" y="10" width="540" height="130" rx="10"/><text x="26" y="34" font-weight="700">Public interface</text>
+  <text x="26" y="58">deposit(amount)</text><text x="26" y="80">withdraw(amount)</text><text x="26" y="102">balance (property)</text>
+  <rect class="bx2" x="300" y="46" width="230" height="78" rx="8"/><text x="316" y="72" font-weight="700">Hidden state</text><text x="316" y="96">_balance, validation rules</text>
+  <path class="ln" d="M170 80 L300 80"/>
+ </svg>
+ <h3>Three access conventions</h3>
+ <table><tr><th>Syntax</th><th>Meaning</th><th>Enforced?</th></tr>
+ <tr><td><code>name</code></td><td>Public API</td><td>n/a</td></tr>
+ <tr><td><code>_name</code></td><td>"Internal, please don't touch"</td><td>Convention only</td></tr>
+ <tr><td><code>__name</code></td><td>Name-mangled to <code>_Class__name</code></td><td>Avoids accidental clashes; not true privacy</td></tr></table>
+ <h3>Properties: validation without ugly getters</h3>
+ ${code(`class Account:
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self._balance = balance
+
+    @property
+    def balance(self):            # read like an attribute: acct.balance
+        return self._balance
+
+    def deposit(self, amount):
+        if amount <= 0:
+            raise ValueError("Deposit must be positive")
+        self._balance += amount
+
+    def withdraw(self, amount):
+        if amount > self._balance:
+            raise ValueError("Insufficient funds")
+        self._balance -= amount`)}
+ <p>A <code>@property</code> lets you start with a plain attribute and later add validation, with no change for the callers. Add a setter with <code>@balance.setter</code> when assignment should be allowed but checked.</p>
+ <div class="demo"><b>Try it: guarded account</b><br>
+  <input id="am" type="number" value="50" style="width:90px" aria-label="Amount">
+  <button class="btn" onclick="acct('d')">deposit</button> <button class="btn" onclick="acct('w')">withdraw</button> <button class="btn ghost" onclick="acct('x')">acct.__balance</button>
+  <div class="out" id="aout">balance = 100</div></div>
+ <h3>Practical exercise</h3>
+ <p>Add a <code>Temperature</code> class that stores Celsius, rejects values below -273.15, and exposes a read-only <code>fahrenheit</code> property.</p>
+ ${reveal("Show solution",code(`class Temperature:
+    def __init__(self, c):
+        self.celsius = c           # goes through the setter
+    @property
+    def celsius(self):
+        return self._c
+    @celsius.setter
+    def celsius(self, v):
+        if v < -273.15:
+            raise ValueError("Below absolute zero")
+        self._c = v
+    @property
+    def fahrenheit(self):
+        return self._c * 9/5 + 32`))}
+ ${box("mis","Common misconceptions",`<ul><li><b>"Double underscore makes it private."</b> Python only renames it; <code>acct._Account__x</code> still works. Privacy is a social contract.</li><li><b>"Write getX/setX like Java."</b> Use plain attributes first, upgrade to <code>@property</code> only when you need logic.</li></ul>`)}
+ ${box("key","Key takeaways","<ul><li>Expose a small public interface; hide the rest behind <code>_</code>.</li><li><code>@property</code> adds validation while keeping attribute syntax.</li><li>Raise exceptions (<code>ValueError</code>) to reject invalid state.</li></ul>")}`,
+ quiz:[
+ {q:"What does a single leading underscore (`_balance`) signal?",o:["The attribute is truly inaccessible","It is internal; outside code should not rely on it","It is a class attribute","It is read-only"],a:1,e:"A single underscore is a convention for internal use. Python will not stop access, and it does not make the value read-only or shared."},
+ {q:"What does `__secret` inside class `A` become?",o:["Deleted after init","_A__secret","A.secret","Locked by the interpreter"],a:1,e:"Name mangling renames it to _A__secret to prevent subclass clashes. It is still reachable, so it is not security."},
+ {q:"Why use @property instead of a plain public attribute?",o:["It makes code run faster","To add validation or computed values while keeping obj.attr syntax","Python requires it","It makes data private"],a:1,e:"Properties let you add logic later without changing how callers read or write the attribute. They are not faster and not required."},
+ {q:"Which is the best way to reject a negative deposit?",o:["Print a warning and continue","Silently ignore it","Raise ValueError","Return None and hope"],a:2,e:"Raising an exception makes invalid use impossible to miss. Printing or ignoring lets bad state or silent failure spread."}]},
+
+{t:"Inheritance and Composition",sub:"Reuse and structure",time:"35 min",
+ body:`
+ <p><b>Inheritance</b> lets a class (child) reuse and specialize another class (parent). It models an <b>is-a</b> relationship: a Dog <em>is an</em> Animal.</p>
+ ${box("note","Analogy: family recipes","<p>A child learns the family recipe (inherits), then tweaks one step (overrides) while keeping the rest. A cook who owns a stove does not inherit from Stove; they simply <em>have</em> one. That is composition.</p>")}
+ <svg viewBox="0 0 560 190" role="img" aria-label="Animal parent with Dog and Puppy descendants">
+  <rect class="bx2" x="200" y="8" width="160" height="42" rx="8"/><text x="236" y="34" font-weight="700">Animal</text>
+  <rect class="bx" x="60" y="80" width="150" height="42" rx="8"/><text x="112" y="106">Cat</text>
+  <rect class="bx" x="350" y="80" width="150" height="42" rx="8"/><text x="404" y="106">Dog</text>
+  <rect class="bx" x="350" y="145" width="150" height="40" rx="8"/><text x="397" y="170">Puppy</text>
+  <path class="ln" d="M250 50 L135 80M310 50 L425 80M425 122 L425 145"/>
+ </svg>
+ ${code(`class Animal:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        return "..."
+    def move(self):
+        return f"{self.name} moves"
+
+class Dog(Animal):
+    def speak(self):               # override
+        return "Woof"
+
+class Puppy(Dog):
+    def __init__(self, name):
+        super().__init__(name)     # reuse parent setup
+        self.tiny = True
+    def speak(self):
+        return super().speak() + " (squeaky)"
+
+print(Puppy("Bit").speak())        # Woof (squeaky)
+print(Puppy.__mro__)               # lookup order`)}
+ <p>Python finds a method by walking the <b>MRO</b> (method resolution order): the class, then its parents, left to right, using the C3 rule so no class appears before its own children. <code>isinstance(p, Dog)</code> is true for a Puppy; <code>type(p) is Dog</code> is not.</p>
+ <div class="demo"><b>Try it: who answers the call?</b><br>
+  <span id="pills"></span><div class="out" id="iout"></div></div>
+ <h3>Inheritance vs. composition</h3>
+ <table><tr><th></th><th>Inheritance</th><th>Composition</th></tr>
+ <tr><td>Relationship</td><td>is-a</td><td>has-a</td></tr>
+ <tr><td>Example</td><td><code>class Dog(Animal)</code></td><td><code>Car</code> holds an <code>Engine</code></td></tr>
+ <tr><td>Coupling</td><td>Tight: child depends on parent internals</td><td>Loose: swap parts freely</td></tr>
+ <tr><td>Prefer when</td><td>True specialization</td><td>Reusing behavior or combining features</td></tr></table>
+ ${code(`class Engine:
+    def start(self): return "vroom"
+class Car:
+    def __init__(self):
+        self.engine = Engine()     # composition
+    def start(self):
+        return self.engine.start()`)}
+ <h3>Practical exercise</h3>
+ <p>Create <code>Employee(name, salary)</code> with <code>pay()</code> returning salary, and <code>Manager</code> that adds a <code>bonus</code> and overrides <code>pay()</code> to include it, reusing the parent with <code>super()</code>.</p>
+ ${reveal("Show solution",code(`class Employee:
+    def __init__(self, name, salary):
+        self.name, self.salary = name, salary
+    def pay(self): return self.salary
+
+class Manager(Employee):
+    def __init__(self, name, salary, bonus):
+        super().__init__(name, salary)
+        self.bonus = bonus
+    def pay(self): return super().pay() + self.bonus`))}
+ ${box("mis","Common misconceptions",`<ul><li><b>"Inheritance is for code reuse."</b> Misused, it creates fragile hierarchies. Ask "is it truly an X?" and prefer composition otherwise.</li><li><b>"super() calls the parent."</b> It calls the <em>next class in the MRO</em>, which matters with multiple inheritance.</li><li><b>"Overriding __init__ is optional to chain."</b> If you skip <code>super().__init__()</code>, parent attributes never get set.</li></ul>`)}
+ ${box("key","Key takeaways","<ul><li>Use inheritance for is-a, composition for has-a.</li><li>Override to specialize; call <code>super()</code> to extend.</li><li>MRO decides which method runs; inspect with <code>Class.__mro__</code>.</li><li><code>isinstance</code> respects inheritance; <code>type(x) is</code> does not.</li></ul>")}`,
+ quiz:[
+ {q:"Which relationship suits inheritance?",o:["A Car has an Engine","A Dog is an Animal","A Library has Books","A User has a Password"],a:1,e:"Dog is-a Animal is a specialization. The other three are has-a relationships, which are better modeled by composition."},
+ {q:"In Puppy.speak() above, what does super().speak() call?",o:["Animal.speak directly","Dog.speak, the next class in the MRO","Puppy.speak again","Nothing"],a:1,e:"super() follows the MRO: Puppy, then Dog, then Animal. Dog defines speak, so that is the one that runs."},
+ {q:"If a child class skips super().__init__(...), what happens?",o:["Python calls it automatically","Parent attributes set in its __init__ are missing","A syntax error occurs","Nothing changes"],a:1,e:"Once a child defines its own __init__, Python does not chain to the parent's. Attributes the parent would set will not exist."},
+ {q:"Given p = Puppy('Bit'), which is True?",o:["type(p) is Dog","isinstance(p, Dog)","isinstance(p, Cat)","p is Animal"],a:1,e:"isinstance accepts subclasses, so a Puppy counts as a Dog. type(p) is Puppy exactly, so the first option is False."}]},
+
+{t:"Polymorphism and Abstraction",sub:"Mastery",time:"35 min",
+ body:`
+ <p><b>Polymorphism</b> ("many forms") means different objects respond to the same call in their own way. Code written against a shared interface works with any object that supports it, so you can add new types without editing existing code.</p>
+ ${box("note","Analogy: the universal remote","<p>Press <em>Power</em>. The TV, speaker, and lamp each turn on in their own way. The remote never needs to know which device it is talking to.</p>")}
+ <svg viewBox="0 0 560 170" role="img" aria-label="Shape interface with three implementations">
+  <rect class="bx2" x="205" y="8" width="150" height="40" rx="8"/><text x="236" y="33" font-weight="700">Shape.area()</text>
+  <rect class="bx" x="20" y="105" width="150" height="50" rx="8"/><text x="50" y="135">Circle.area()</text>
+  <rect class="bx" x="205" y="105" width="150" height="50" rx="8"/><text x="225" y="135">Rectangle.area()</text>
+  <rect class="bx" x="390" y="105" width="150" height="50" rx="8"/><text x="412" y="135">Triangle.area()</text>
+  <path class="ln" d="M240 48 L95 105M280 48 L280 105M320 48 L465 105"/>
+ </svg>
+ ${code(`from abc import ABC, abstractmethod
+import math
+
+class Shape(ABC):                      # abstract base class
+    @abstractmethod
+    def area(self): ...
+
+class Circle(Shape):
+    def __init__(self, r): self.r = r
+    def area(self): return math.pi * self.r ** 2
+
+class Rectangle(Shape):
+    def __init__(self, w, h): self.w, self.h = w, h
+    def area(self): return self.w * self.h
+
+shapes = [Circle(2), Rectangle(3, 4)]
+print(sum(s.area() for s in shapes))   # one loop, many behaviors
+# Shape()  -> TypeError: can't instantiate abstract class`)}
+ <p><b>Abstraction</b> hides complexity behind a contract. An abstract base class (ABC) declares the methods subclasses <em>must</em> implement. Python also supports <b>duck typing</b>: if it has <code>area()</code>, it works, no inheritance required.</p>
+ <div class="demo"><b>Try it: one loop, three behaviors</b><br>
+  <label>Circle r <input type="range" id="s1" min="1" max="10" value="3" oninput="shp()"></label>
+  <label>Rect side <input type="range" id="s2" min="1" max="10" value="4" oninput="shp()"></label>
+  <label>Triangle base <input type="range" id="s3" min="1" max="10" value="5" oninput="shp()"></label>
+  <div class="out" id="sout"></div></div>
+ <h3>Duck typing vs. abstract base classes</h3>
+ <table><tr><th></th><th>Duck typing</th><th>ABC</th></tr>
+ <tr><td>Contract</td><td>Implicit</td><td>Explicit, checked at instantiation</td></tr>
+ <tr><td>Error timing</td><td>When the missing method is called</td><td>When you create the object</td></tr>
+ <tr><td>Best for</td><td>Small, flexible code</td><td>Large systems, plugin APIs</td></tr></table>
+ <h3>Operator overloading and dataclasses</h3>
+ ${code(`from dataclasses import dataclass
+
+@dataclass
+class Vec:
+    x: float
+    y: float
+    def __add__(self, o):              # enables v1 + v2
+        return Vec(self.x + o.x, self.y + o.y)
+
+print(Vec(1, 2) + Vec(3, 4))           # Vec(x=4, y=6)`)}
+ <h3>Practical exercise</h3>
+ <p>Add a <code>Triangle(base, height)</code> to the shape example without changing the summing code. Then explain why that is polymorphism.</p>
+ ${reveal("Show solution",code(`class Triangle(Shape):
+    def __init__(self, b, h): self.b, self.h = b, h
+    def area(self): return 0.5 * self.b * self.h
+
+shapes.append(Triangle(3, 5))  # sum(...) line unchanged`)+"<p>The summing loop depends only on <code>area()</code>, so a new type plugs in without edits.</p>")}
+ ${box("mis","Common misconceptions",`<ul><li><b>"Polymorphism requires inheritance."</b> In Python, duck typing gives it without a shared parent.</li><li><b>"Abstract classes can be instantiated if they have some code."</b> Any unimplemented <code>@abstractmethod</code> blocks instantiation.</li><li><b>"Overloading means same name, different arguments."</b> Python has no such overloading; use defaults or <code>functools.singledispatch</code>.</li></ul>`)}
+ ${box("key","Key takeaways","<ul><li>Program to an interface (the method name), not a concrete class.</li><li>ABC + <code>@abstractmethod</code> enforces a contract at creation time.</li><li>Dunder methods (<code>__add__</code>, <code>__eq__</code>) let your objects behave like built-ins.</li><li><code>@dataclass</code> removes boilerplate for data-holding classes.</li></ul>")}`,
+ quiz:[
+ {q:"What best defines polymorphism?",o:["Hiding data inside a class","Different objects responding to the same call in their own way","A class inheriting from two parents","Creating many instances"],a:1,e:"Polymorphism is one interface, many behaviors. Hiding data is encapsulation, two parents is multiple inheritance, and many instances is just instantiation."},
+ {q:"What happens on Shape() if Shape is an ABC with an unimplemented @abstractmethod?",o:["Returns an empty Shape","TypeError at instantiation","Nothing until area() is called","It silently succeeds"],a:1,e:"ABCs block instantiation while abstract methods remain. That early failure is exactly their advantage over pure duck typing."},
+ {q:"Which dunder method makes `a + b` work for your class?",o:["__plus__","__add__","__sum__","__iadd__ only"],a:1,e:"__add__ implements +. __plus__ and __sum__ do not exist for this, and __iadd__ only handles +=."},
+ {q:"Duck typing means…",o:["Objects must inherit from a common base","If an object has the needed method, it works","Types are checked at compile time","Only built-in types are allowed"],a:1,e:"Python cares about what an object can do, not what it inherits from. The other options describe nominal or static typing."}]}
+];
+
+/* ---------- STATE ---------- */
+let S={passed:{},xp:0,final:false,theme:null,tab:0};
+try{Object.assign(S,JSON.parse(localStorage.getItem("ils-oop")||"{}"))}catch(e){}
+const save=()=>{try{localStorage.setItem("ils-oop",JSON.stringify(S))}catch(e){}};
+
+const TABS=["Introduction",...MODS.map((m,i)=>`Module ${i+1}: ${m.t}`),"Final challenge","Resources"];
+const open=i=>i<=1||(i<=4?!!S.passed[i-1]:!!S.passed[4]);
+const done=i=>i>=1&&i<=4?S.passed[i]!=null:i===5?S.final:false;
+
+/* ---------- STATIC PANES ---------- */
+const INTRO=`<h1>Python Object-Oriented Programming</h1>
+<p>Classes, inheritance, and polymorphism, taught from first principles with live demos, exercises, and quizzes.</p>
+<div class="grid">
+${box("","Estimated time","<p>About 2.5 hours across 4 modules, a final challenge, and review.</p>")}
+${box("","Prerequisites","<p>Python basics: variables, functions, lists, dictionaries, and <code>if</code>/<code>for</code>.</p>")}</div>
+${box("key","Learning objectives","<ul><li>Model real things as classes and instances.</li><li>Protect object state with encapsulation and properties.</li><li>Reuse and specialize behavior with inheritance, and know when to choose composition.</li><li>Write flexible code with polymorphism and abstract base classes.</li></ul>")}
+${box("","Expected outcomes","<p>You will be able to design a small multi-class system, such as the library application in the final challenge, and justify each design choice.</p>")}
+${box("note","Reward system","<p>Each module quiz awards <b>25 XP per correct answer</b> on your first pass. Score 3 of 4 or better to unlock the next module (retry as often as you like). The final challenge awards 150 XP.</p><div id='badges'></div>")}
+<div class="next"><span></span><button class="btn" onclick="go(1)">Start Module 1</button></div>`;
+
+const FINAL=`<h1>Final practical challenge</h1>
+<p>You are designing a <b>library system</b>. Choose the right OOP tool for each requirement.</p>
+<div class="card" id="ch"></div>
+<button class="btn" onclick="chk()">Check my design</button><div id="chr" class="card" style="display:none"></div>
+${reveal("Show a reference implementation",code(`from abc import ABC, abstractmethod
+
+class LibraryItem(ABC):
+    def __init__(self, title):
+        self.title = title
+    @abstractmethod
+    def loan_days(self): ...
+
+class Book(LibraryItem):
+    def loan_days(self): return 21
+class DVD(LibraryItem):
+    def loan_days(self): return 7
+
+class Member:
+    def __init__(self, name):
+        self.name, self._fines = name, 0
+    @property
+    def fines(self): return self._fines
+    @fines.setter
+    def fines(self, v):
+        if v < 0: raise ValueError("No negative fines")
+        self._fines = v
+
+class Library:
+    def __init__(self):
+        self.items = []            # composition
+    def add(self, item): self.items.append(item)`))}
+<p class="lab">Stretch goal: add <code>__len__</code> to <code>Library</code> and a <code>Magazine</code> with a 3-day loan, without touching existing classes.</p>`;
+const CH=[
+["LibraryItem holds the title and logic shared by Book and DVD, and must never be created directly.",["Abstract base class","Instance attribute","Two unrelated classes"],0],
+["Library code calls item.loan_days() on every item and each type answers differently.",["Encapsulation","Polymorphism via overriding","Class attributes"],1],
+["A member's fines must never be set below zero.",["Property with a validating setter","A global variable","Inheritance from int"],0],
+["A Library keeps a collection of items.",["Library inherits from list of items","Composition (has-a)","Multiple inheritance"],1],
+["Book and DVD should be interchangeable wherever a LibraryItem is expected.",["Duck typing only, no shared parent ever","Inheritance from a common base","Name mangling"],1]];
+
+const SHEET=`<h2>Cheat sheet</h2>
+<table><tr><th>Concept</th><th>Syntax</th></tr>
+<tr><td>Class and init</td><td><code>class A:</code> / <code>def __init__(self, x): self.x = x</code></td></tr>
+<tr><td>Class attribute</td><td><code>A.count</code> (shared)</td></tr>
+<tr><td>Internal / mangled</td><td><code>_x</code> / <code>__x</code> becomes <code>_A__x</code></td></tr>
+<tr><td>Property</td><td><code>@property</code>, <code>@x.setter</code></td></tr>
+<tr><td>Inherit / extend</td><td><code>class B(A):</code>, <code>super().method()</code></td></tr>
+<tr><td>Inspect</td><td><code>isinstance(o, A)</code>, <code>issubclass(B, A)</code>, <code>B.__mro__</code></td></tr>
+<tr><td>Abstract</td><td><code>class A(ABC)</code> + <code>@abstractmethod</code></td></tr>
+<tr><td>Dunders</td><td><code>__repr__ __str__ __eq__ __add__ __len__ __iter__</code></td></tr>
+<tr><td>Dataclass</td><td><code>@dataclass class P: x: int</code></td></tr></table>
+<h2 style="margin-top:1.5em">Summary notes</h2>
+<ul><li>Class = blueprint; object = instance with its own state.</li><li>Encapsulate: small public interface, internals behind <code>_</code>, validation via properties.</li><li>Inheritance models is-a; composition models has-a. Prefer composition when unsure.</li><li>Polymorphism lets one call work on many types; ABCs make the contract explicit.</li></ul>`;
+const RES=`<h1>Continue learning</h1>${SHEET}
+<h2 style="margin-top:1.5em">Books</h2><ul><li><i>Fluent Python</i> by Luciano Ramalho (data model, ABCs, protocols)</li><li><i>Python Distilled</i> by David Beazley</li><li><i>Effective Python</i> by Brett Slatkin</li><li><i>Design Patterns</i> by Gamma, Helm, Johnson, Vlissides</li></ul>
+<h2>Documentation</h2><ul><li><code>docs.python.org/3/tutorial/classes.html</code></li><li><code>docs.python.org/3/reference/datamodel.html</code></li><li><code>docs.python.org/3/library/abc.html</code></li><li><code>docs.python.org/3/library/dataclasses.html</code></li></ul>
+<h2>Research papers and specifications</h2><ul><li>Liskov and Wing, "A Behavioral Notion of Subtyping" (1994): when a subclass can safely replace its parent</li><li>"A Monotonic Superclass Linearization for Dylan" (1996): the C3 algorithm behind Python's MRO</li><li>PEP 3119 (Abstract Base Classes) and PEP 557 (Data Classes)</li></ul>
+<h2>Communities</h2><ul><li>r/learnpython, Python Discord, Stack Overflow (python tag), Real Python community</li></ul>
+<h2>Practice platforms</h2><ul><li>Exercism Python track, Codewars, HackerRank, LeetCode "Design" problems</li></ul>
+<h2>Search keywords</h2><p><span class="pill">python class vs instance attribute</span><span class="pill">python MRO C3 linearization</span><span class="pill">python property setter validation</span><span class="pill">composition over inheritance python</span><span class="pill">python abc abstractmethod example</span><span class="pill">liskov substitution principle python</span></p>
+<h2>AI prompts for further learning</h2><ul>
+<li>"Quiz me on Python inheritance with 5 tricky MRO questions, one at a time, and explain each answer."</li>
+<li>"Review this class for encapsulation problems and suggest properties: [paste code]."</li>
+<li>"Refactor this inheritance hierarchy into composition and explain the trade-offs: [paste code]."</li>
+<li>"Give me 3 mini projects (inventory, game, bank) that need ABCs and polymorphism, with acceptance tests."</li></ul>`;
+
+/* ---------- RENDER ---------- */
+function build(){
+ const panes=[`<section class="pane" id="p0">${INTRO}</section>`];
+ MODS.forEach((m,i)=>panes.push(`<section class="pane" id="p${i+1}"><p class="lab">Module ${i+1} of 4 · ${m.sub} · about ${m.time}</p><h1>${m.t}</h1>${m.body}<div class="quiz card" id="q${i+1}"></div><div class="next"><button class="btn ghost" onclick="go(${i})">Back</button><button class="btn" id="nx${i+1}" onclick="go(${i+2})" disabled>Next</button></div></section>`));
+ panes.push(`<section class="pane" id="p5">${FINAL}</section>`,`<section class="pane" id="p6">${RES}</section>`);
+ $("#main").innerHTML=panes.join("");
+ MODS.forEach((_,i)=>quiz(i+1));
+ drawCh();shp();drawDogs();pills();acctInit();
+}
+function nav(){
+ $("#nav").innerHTML=TABS.map((t,i)=>`<button class="tab" ${open(i)?"":"disabled"} aria-current="${S.tab===i}" onclick="go(${i})">${t} ${done(i)?'<span class="ck">✓</span>':!open(i)?"🔒":""}</button>`).join("");
+ const n=[1,2,3,4].filter(i=>S.passed[i]!=null).length+(S.final?1:0);
+ $("#pb").style.width=n*20+"%";$("#pct").textContent=n*20+"% complete";$("#xp").textContent=S.xp+" XP";
+ const B=["Object Builder","Guardian","Heir","Shapeshifter"];
+ const b=$("#badges");if(b)b.innerHTML=B.map((x,i)=>`<span class="badge ${S.passed[i+1]!=null?"":"off"}">${x}</span>`).join("")+`<span class="badge ${S.final?"":"off"}">Architect</span>`;
+ [1,2,3,4].forEach(i=>{const x=$("#nx"+i);if(x)x.disabled=S.passed[i]==null});
+}
+function go(i){if(!open(i))return;S.tab=i;document.querySelectorAll(".pane").forEach((p,k)=>p.classList.toggle("on",k===i));nav();save();scrollTo({top:0})}
+
+/* ---------- QUIZ ---------- */
+function quiz(m){
+ const Q=MODS[m-1].quiz,el=$("#q"+m);let ans=0,sc=0;
+ el.innerHTML=`<h3 style="margin-top:0">Module ${m} quiz</h3><p class="lab">4 questions. Score 3 or more to unlock the next section.</p>`+Q.map((q,qi)=>`<div id="qq${m}${qi}"><p><b>${qi+1}. ${q.q.replace(/`([^`]+)`/g,"<code>$1</code>")}</b></p>${q.o.map((o,oi)=>`<button class="opt" data-q="${qi}" data-o="${oi}">${o}</button>`).join("")}<div class="fb"></div></div>`).join("")+`<div id="qs${m}"></div>`;
+ el.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+  const qi=+b.dataset.q,oi=+b.dataset.o,q=Q[qi],w=$("#qq"+m+qi);
+  w.querySelectorAll(".opt").forEach((x,k)=>{x.disabled=true;if(k===q.a)x.classList.add("good")});
+  const ok=oi===q.a;if(!ok)b.classList.add("wrong");else sc++;
+  w.querySelector(".fb").innerHTML=(ok?"<b style='color:var(--ok)'>Correct.</b> ":"<b style='color:var(--bad)'>Not quite.</b> ")+q.e.replace(/`([^`]+)`/g,"<code>$1</code>");
+  if(++ans===4){
+   const pass=sc>=3,first=S.passed[m]==null;
+   if(pass){if(first)S.xp+=sc*25;S.passed[m]=Math.max(S.passed[m]||0,sc)}
+   const msg=sc===4?"Perfect. You have this down.":sc===3?"Solid. Review the explanations for the one you missed.":"Reread the module's takeaways and try again.";
+   $("#qs"+m).innerHTML=`<div class="card ${pass?"key":"mis"}"><b>Score: ${sc}/4. ${pass?"Next section unlocked"+(first?" (+"+sc*25+" XP)":""):"Below the pass mark"}</b><p>${msg}</p>${pass?"":`<button class="btn" onclick="quiz(${m})">Retry quiz</button>`}</div>`;
+   save();nav();
+  }});
+}
+
+/* ---------- FINAL ---------- */
+function drawCh(){$("#ch").innerHTML=CH.map((c,i)=>`<p><b>${i+1}.</b> ${c[0]}<br><select id="c${i}" aria-label="Answer ${i+1}"><option value="">Choose…</option>${c[1].map((o,k)=>`<option value="${k}">${o}</option>`).join("")}</select></p>`).join("")}
+function chk(){
+ let s=0,h="";CH.forEach((c,i)=>{const v=$("#c"+i).value,ok=v!==""&&+v===c[2];if(ok)s++;h+=`<p>${ok?"✓":"✗"} ${i+1}. ${ok?"Right.":"Better choice: <b>"+c[1][c[2]]+"</b>."}</p>`});
+ const pass=s>=4,first=!S.final;if(pass){S.final=true;if(first)S.xp+=150}
+ const r=$("#chr");r.style.display="block";r.className="card "+(pass?"key":"mis");
+ r.innerHTML=`<b>${s}/5 ${pass?"· Challenge complete! Architect badge earned"+(first?" (+150 XP)":""):"· Aim for 4 or more and try again"}</b>${h}`;save();nav();
+}
+
+/* ---------- DEMOS ---------- */
+let dogs=[],Dog_c=0;
+function mkDog(){const n=$("#dn").value||"Dog",a=+$("#da").value||0;dogs.push({n,a});Dog_c++;drawDogs()}
+function drawDogs(){const o=$("#dout");if(!o)return;o.textContent=dogs.length?dogs.map((d,i)=>`d${i+1} = Dog("${d.n}", ${d.a})\nd${i+1}.speak() -> ${d.n} says Woof!`).join("\n")+`\nDog.count -> ${Dog_c}   (shared by every instance)`:"No objects yet. Click Create Dog."}
+let bal=100;
+function acctInit(){}
+function acct(k){const a=+$("#am").value,o=$("#aout");
+ if(k==="x")return o.textContent=`acct.__balance -> AttributeError: no attribute '__balance'\n(real name is _Account__balance, still reachable: privacy is a convention)\nbalance = ${bal}`;
+ let m="";if(!(a>0))m="ValueError: Amount must be positive";else if(k==="d"){bal+=a;m="deposit("+a+") ok"}else if(a>bal)m="ValueError: Insufficient funds";else{bal-=a;m="withdraw("+a+") ok"}
+ o.textContent=m+"\nbalance = "+bal}
+const CL={Animal:{p:null,speak:"...",sd:"Animal",mv:"Animal",m:["Animal","object"]},Dog:{speak:"Woof",sd:"Dog",mv:"Animal",m:["Dog","Animal","object"]},Puppy:{speak:"Woof (squeaky)",sd:"Puppy",mv:"Animal",m:["Puppy","Dog","Animal","object"]}};
+function pills(){$("#pills").innerHTML=Object.keys(CL).map(k=>`<button class="btn ghost" onclick="pick('${k}')">${k}("x")</button>`).join(" ");pick("Puppy")}
+function pick(k){const c=CL[k];$("#iout").textContent=`MRO: ${c.m.join(" -> ")}\n${k}("x").speak() -> "${c.speak}"   (found in ${c.sd})\n${k}("x").move()  -> "x moves"   (found in ${c.mv})`}
+function shp(){const r=+$("#s1").value,w=+$("#s2").value,b=+$("#s3").value;const a=[Math.PI*r*r,w*w,.5*b*b];
+ $("#sout").textContent=`for s in shapes: s.area()\nCircle(${r}).area()    -> ${a[0].toFixed(1)}\nRectangle(${w},${w}).area() -> ${a[1].toFixed(1)}\nTriangle(${b},${b}).area()  -> ${a[2].toFixed(1)}\nsum -> ${a.reduce((x,y)=>x+y).toFixed(1)}`}
+
+/* ---------- THEME + INIT ---------- */
+function theme(t){document.documentElement.dataset.theme=t;$("#th").textContent=t==="dark"?"Light mode":"Dark mode";S.theme=t;save()}
+$("#th").onclick=()=>theme(document.documentElement.dataset.theme==="dark"?"light":"dark");
+theme(S.theme||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"));
+build();
+MODS.forEach((_,i)=>{if(S.passed[i+1]!=null)quiz(i+1)});
+go(open(S.tab)?S.tab:0);
+</script>
+</body>
+</html>
