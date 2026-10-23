@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Personal Financial Command Center</title>
+<style>
+:root{--bg:#eef3f6;--card:#fff;--ink:#12243a;--mut:#5d6f82;--line:#d9e2e9;--sea:#13808a;--sun:#e8962a;--red:#d1503b;--grn:#2a9461}
+[data-t=dark]{--bg:#0c1722;--card:#13233a;--ink:#e8eef4;--mut:#93a4b7;--line:#233650;--sea:#3cc0c8;--sun:#f5b84a;--red:#f0806b;--grn:#52c993}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;margin:0;letter-spacing:-.01em}
+h2{font-size:22px;margin-bottom:12px}h3{font-size:17px;margin-bottom:8px}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+header b{font:700 18px Georgia,serif;margin-right:auto}
+nav{display:flex;gap:4px;overflow-x:auto;max-width:100%;padding:2px}
+nav button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:6px 14px;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s}
+nav button.on,.btn.p{background:var(--sea);border-color:var(--sea);color:#fff}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
+main{max-width:1080px;margin:0 auto;padding:20px 18px 60px}
+section{display:none}section.on{display:block}
+.g{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.c{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.c.w{grid-column:1/-1}
+.mut{color:var(--mut);font-size:13px}.big{font:700 28px Georgia,serif}
+.hero{border-radius:20px;border:1px solid var(--line);background:var(--card);padding:24px;margin-bottom:14px}
+.hero h1{font-size:clamp(26px,5vw,40px);line-height:1.15}
+.trk{position:relative;height:12px;background:var(--line);border-radius:99px;margin:46px 4px 30px}
+.fill{height:100%;width:0;background:linear-gradient(90deg,var(--sea),var(--sun));border-radius:99px;transition:width 1.6s cubic-bezier(.2,.8,.2,1)}
+.plane{position:absolute;top:-34px;left:0;font-size:26px;transition:left 1.6s cubic-bezier(.2,.8,.2,1);transform:translateX(-50%)}
+.ms{position:absolute;top:18px;font-size:11px;color:var(--mut);transform:translateX(-50%)}
+.bar{height:9px;background:var(--line);border-radius:99px;overflow:hidden;margin:4px 0}
+.bar i{display:block;height:100%;border-radius:99px;transition:width .6s}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+input,select{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 9px;max-width:100%}
+input[type=range]{width:100%;padding:0;accent-color:var(--sea)}
+form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:left}
+.x{background:none;border:0;color:var(--red);cursor:pointer;font-size:16px}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;background:var(--bg);border:1px solid var(--line)}
+.ins{border-left:4px solid var(--sea);padding:8px 12px;margin:8px 0;background:var(--bg);border-radius:0 8px 8px 0}
+.ins.w{border-color:var(--sun)}.ins.b{border-color:var(--red)}
+.dn{width:150px;flex:none}.dt{font:700 17px Georgia,serif;fill:var(--ink)}.ds{font-size:11px;fill:var(--mut)}
+.leg{font-size:13px;display:grid;gap:3px}.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+li{margin:5px 0}.pr{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;margin:8px 0;font-size:14px}
+.ok{color:var(--grn)}.bad{color:var(--red)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{header,form,.x,.btn{display:none!important}section{display:block!important;break-inside:avoid;margin-bottom:20px}body{background:#fff;color:#000}.c,.hero{border-color:#bbb}}
+</style>
+</head>
+<body>
+<header>
+<b>Personal Financial Command Center</b>
+<nav id="nav"></nav>
+<button class="btn" onclick="tgl()" aria-label="Toggle dark mode">◐ Theme</button>
+<button class="btn" onclick="print()">Print report</button>
+</header>
+<main>
+<section id="ov"></section><section id="mo"></section><section id="bu"></section><section id="go"></section>
+<section id="wi"></section><section id="in"></section><section id="le"></section>
+<p class="mut">Educational tool, not professional financial advice. Your data stays in this browser. <button class="btn" onclick="rst()">Reset to demo data</button></p>
+</main>
+<script>
+const K='pfcc-student-v1',$=s=>document.querySelector(s),fmt=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const C=[['Food & mess','#13808a'],['Snacks & delivery','#f0a030'],['Commute','#5b7fd6'],['Study','#8a63c8'],['Phone & subscriptions','#d9543f'],['Fun & social','#e07aa0'],['Other','#7a8a99']].map(x=>({n:x[0],c:x[1]}));
+const td=new Date(),p2=n=>String(n).padStart(2,'0'),ym=d=>d.getFullYear()+'-'+p2(d.getMonth()+1),mk=ym(td),today=mk+'-'+p2(td.getDate());
+const TABS=[['ov','Overview'],['mo','Money'],['bu','Budget'],['go','Goals'],['wi','What-if'],['in','Insights'],['le','Learn']];
+function demo(){const r=[[0,1200,2,'Mess top-up'],[0,450,9,'Cafe lunch'],[0,450,16,'Dinner out'],[1,520,4,'Swiggy'],[1,480,11,'Zomato'],[1,350,14,'Canteen snacks'],[1,500,20,'Swiggy'],[2,400,3,'Metro card'],[2,200,15,'Auto'],[3,250,6,'Printouts & notes'],[3,200,12,'Stationery'],[4,399,5,'Mobile recharge'],[5,450,8,'Movie'],[5,500,13,'Outing with friends'],[5,350,19,'Gaming'],[6,250,7,'Laundry'],[6,150,17,'Misc']];
+return{inc:7500,nid:100,chk:{},th:matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light',
+tx:r.map((x,i)=>({id:i+1,c:C[x[0]].n,a:x[1],d:mk+'-'+p2(x[2]),n:x[3]})),
+lim:{'Food & mess':2000,'Snacks & delivery':1000,'Commute':600,'Study':500,'Phone & subscriptions':400,'Fun & social':800,'Other':300},
+goals:[{n:'Goa trip with friends',t:12000,s:1500},{n:'Emergency fund',t:5000,s:0}],pace:null}}
+let S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}S=S||demo();
+const sv=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+function calc(){const tx=S.tx.filter(t=>t.d.startsWith(mk)),by={};C.forEach(c=>by[c.n]=0);tx.forEach(t=>by[t.c]=(by[t.c]||0)+t.a);
+const sp=tx.reduce((a,t)=>a+t.a,0),s=S.inc-sp,rate=S.inc?s/S.inc:0,over=C.filter(c=>by[c.n]>S.lim[c.n]);
+const gp=S.goals.length?S.goals.reduce((a,g)=>a+Math.min(g.s/g.t,1),0)/S.goals.length:0;
+const parts=[Math.min(Math.max(rate,0)/.2,1)*40,(1-over.length/C.length)*30,Math.min(gp/.5,1)*15,Math.min(tx.length/12,1)*15].map(Math.round);
+return{tx,by,sp,s,rate,over,parts,score:parts.reduce((a,b)=>a+b,0)}}
+const lab=s=>s>=75?['Strong','ok']:s>=50?['Building','']:['Needs attention','bad'];
+function ring(v){const L=2*Math.PI*54;return`<svg viewBox="0 0 140 140" width="150"><circle cx="70" cy="70" r="54" fill="none" stroke="var(--line)" stroke-width="12"/><circle cx="70" cy="70" r="54" fill="none" stroke="var(--sea)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${L*v/100} ${L}" transform="rotate(-90 70 70)"/><text x="70" y="78" text-anchor="middle" font-family="Georgia" font-weight="700" font-size="34" fill="var(--ink)">${v}</text></svg>`}
+function donut(by,sp){let o=0,L=2*Math.PI*52;return`<svg viewBox="0 0 140 140" class="dn"><circle cx="70" cy="70" r="52" fill="none" stroke="var(--line)" stroke-width="18"/>`+C.map(c=>{const d=sp?by[c.n]/sp*L:0,e=`<circle cx="70" cy="70" r="52" fill="none" stroke="${c.c}" stroke-width="18" stroke-dasharray="${d} ${L-d}" stroke-dashoffset="${-o}" transform="rotate(-90 70 70)"/>`;o+=d;return e}).join('')+`<text x="70" y="68" text-anchor="middle" class="dt">${fmt(sp)}</text><text x="70" y="84" text-anchor="middle" class="ds">spent</text></svg>`}
+function weeks(tx){const w=[0,0,0,0,0];tx.forEach(t=>w[Math.min(4,Math.ceil(+t.d.slice(8)/7)-1)]+=t.a);const m=Math.max(...w,1);
+return`<svg viewBox="0 0 300 130" width="100%">`+w.map((v,i)=>{const h=v/m*80;return`<rect x="${20+i*56}" y="${95-h}" width="38" height="${h}" rx="5" fill="var(--sea)"/><text x="${39+i*56}" y="${90-h}" text-anchor="middle" font-size="10" fill="var(--mut)">${v?fmt(v):''}</text><text x="${39+i*56}" y="112" text-anchor="middle" font-size="11" fill="var(--mut)">Wk ${i+1}</text>`}).join('')+`</svg>`}
+const pace=a=>Math.max(a.s,0);
+function eta(g,pc){const r=g.t-g.s;if(r<=0)return'Goal reached';if(pc<=0)return'No date yet: start saving';const m=Math.ceil(r/pc),d=new Date(td.getFullYear(),td.getMonth()+m,1);return`About ${m} month${m>1?'s':''} (${d.toLocaleDateString('en-IN',{month:'short',year:'numeric'})})`}
+function recs(a){const o=[],t=S.goals[0],sn=a.by['Snacks & delivery'],r=Math.round(S.inc*.15);
+if(a.rate<.1)o.push(['b',`You are saving ${Math.max(Math.round(a.rate*100),0)}% of your allowance. Aim for about ${fmt(r)} a month (15%) and move it to savings the day your allowance arrives, before you spend.`]);else o.push(['',`Nice: you are saving ${Math.round(a.rate*100)}% of your allowance. Keep the transfer automatic.`]);
+a.over.sort((x,y)=>(a.by[y.n]-S.lim[y.n])-(a.by[x.n]-S.lim[x.n])).slice(0,2).forEach(c=>o.push(['w',`${c.n} is ${fmt(a.by[c.n]-S.lim[c.n])} over its limit this month. Trim it back and that money goes straight to savings.`]));
+if(sn>600)o.push(['w',`Delivery and snacks cost ${fmt(sn)}. Halving it frees about ${fmt(sn/2)} a month, which brings your trip about ${Math.max(0,Math.ceil((t.t-t.s)/Math.max(pace(a),1))-Math.ceil((t.t-t.s)/(pace(a)+sn/2)))} months closer.`]);
+if(t)o.push(['',`${t.n}: ${eta(t,pace(a))} at your current pace. Open What-if to test faster routes.`]);
+if(!S.goals.some(g=>/emergency/i.test(g.n)&&g.s>0))o.push(['w','Start a small emergency fund (even ₹500). It stops a surprise phone repair or medical bill from wiping out your month.']);
+if(a.tx.length<10)o.push(['w','Log every spend for two weeks. People who track find leaks that guesses miss.']);
+o.push(['','Show this plan to your parents. Asking for the allowance in two instalments (start and mid-month) often curbs early-month overspending.']);return o}
+function R(){const a=calc(),g=S.goals[0],pc=pace(a),pct=g?Math.min(100,g.s/g.t*100):0,[ls,lc]=lab(a.score);
+$('#nav').innerHTML=TABS.map(t=>`<button data-k="${t[0]}" onclick="go('${t[0]}')">${t[1]}</button>`).join('');
+$('#ov').innerHTML=`<div class="hero"><div class="mut">${g?esc(g.n):'Set a goal'}</div><h1>${g?`${fmt(g.s)} saved of ${fmt(g.t)}. ${eta(g,pc)}.`:'Add a trip goal to begin.'}</h1>
+<div class="trk"><div class="fill" id="fl"></div><div class="plane" id="pl">✈</div>${[25,50,75,100].map(m=>`<span class="ms" style="left:${m}%">${m}%</span>`).join('')}</div>
+<div class="mut">Based on ${fmt(pc)} saved this month. Faster routes are in What-if.</div></div>
+<div class="g"><div class="c"><h3>Financial health score</h3><div class="row">${ring(a.score)}<div><div class="big ${lc}">${ls}</div><div class="mut">Saving ${a.parts[0]}/40<br>Budget ${a.parts[1]}/30<br>Goals ${a.parts[2]}/15<br>Tracking ${a.parts[3]}/15</div></div></div></div>
+<div class="c"><h3>This month</h3><div class="mut">Allowance</div><div class="big">${fmt(S.inc)}</div><div class="mut">Spent ${fmt(a.sp)}</div><div class="mut">Left to save</div><div class="big ${a.s<0?'bad':'ok'}">${fmt(a.s)}</div></div>
+<div class="c"><h3>Where it went</h3><div class="row">${donut(a.by,a.sp)}<div class="leg">${C.map(c=>`<div><i style="background:${c.c}"></i>${c.n} ${fmt(a.by[c.n])}</div>`).join('')}</div></div></div>
+<div class="c"><h3>Spending by week</h3>${weeks(a.tx)}</div>
+<div class="c w"><h3>Top recommendations</h3>${recs(a).slice(0,3).map(r=>`<div class="ins ${r[0]}">${r[1]}</div>`).join('')}</div></div>`;
+$('#mo').innerHTML=`<h2>Money</h2><div class="c" style="margin-bottom:14px"><div class="row"><b>Monthly allowance</b><span>₹ <input type="number" min="0" step="100" value="${S.inc}" onchange="S.inc=+this.value||0;sv();R()" aria-label="Monthly allowance"></span></div></div>
+<div class="c"><h3>Add expense</h3><form onsubmit="addTx(event)"><input type="date" id="td" value="${today}" required><select id="tc">${C.map(c=>`<option>${c.n}</option>`).join('')}</select><input type="number" id="ta" min="1" placeholder="Amount ₹" required><input id="tn" placeholder="Note" maxlength="40"><button class="btn p">Add expense</button></form>
+<table><tr><th>Date</th><th>Category</th><th>Note</th><th>Amount</th><th></th></tr>${[...S.tx].sort((x,y)=>y.d.localeCompare(x.d)||y.id-x.id).slice(0,40).map(t=>`<tr><td>${t.d.slice(5)}</td><td><span class="tag">${t.c}</span></td><td>${esc(t.n||'')}</td><td>${fmt(t.a)}</td><td><button class="x" onclick="delTx(${t.id})" aria-label="Delete">✕</button></td></tr>`).join('')||'<tr><td colspan="5">No expenses yet. Add your first one above.</td></tr>'}</table></div>`;
+$('#bu').innerHTML=`<h2>Budget</h2><div class="g">${C.map(c=>{const u=a.by[c.n],l=S.lim[c.n],f=l?Math.min(u/l*100,100):100;return`<div class="c"><div class="row"><b>${c.n}</b><span class="mut">Limit ₹ <input type="number" min="0" step="50" style="width:90px" value="${l}" onchange="S.lim['${c.n}']=+this.value||0;sv();R()" aria-label="${c.n} limit"></span></div><div class="bar"><i style="width:${f}%;background:${u>l?'var(--red)':c.c}"></i></div><div class="mut">${fmt(u)} used · ${u>l?`<span class="bad">${fmt(u-l)} over</span>`:`<span class="ok">${fmt(l-u)} left</span>`}</div></div>`}).join('')}</div>
+<div class="c" style="margin-top:14px"><b>Planned: ${fmt(Object.values(S.lim).reduce((x,y)=>x+y,0))}</b> of ${fmt(S.inc)}. Whatever is not planned is your savings. Keep at least ${fmt(S.inc*.15)} unplanned.</div>`;
+$('#go').innerHTML=`<h2>Goals</h2><div class="g">${S.goals.map((g,i)=>`<div class="c"><div class="row"><b>${esc(g.n)}</b><button class="x" onclick="S.goals.splice(${i},1);sv();R()" aria-label="Delete goal">✕</button></div><div class="bar"><i style="width:${Math.min(g.s/g.t*100,100)}%;background:var(--sea)"></i></div><div class="mut">${fmt(g.s)} of ${fmt(g.t)} · ${eta(g,pc)}</div><form style="margin:8px 0 0" onsubmit="addTo(event,${i})"><input type="number" min="1" placeholder="Add ₹" style="width:100px" required><button class="btn">Add savings</button></form></div>`).join('')}
+<div class="c"><h3>New goal</h3><form onsubmit="addG(event)"><input id="gn" placeholder="e.g. Manali trip" required><input id="gt" type="number" min="1" placeholder="Target ₹" style="width:110px" required><button class="btn p">Add goal</button></form></div></div>`;
+$('#wi').innerHTML=`<h2>What-if simulator</h2><div class="g"><div class="c"><h3>Change your habits</h3>
+<label>Save each month: <b id="v1"></b><input type="range" id="s1" min="0" max="3000" step="100" value="${Math.round(pc/100)*100}" oninput="W()"></label><br>
+<label>Cut delivery and snacks by: <b id="v2"></b><input type="range" id="s2" min="0" max="100" step="5" value="0" oninput="W()"></label><br>
+<label>Extra income (tutoring, freelancing): <b id="v3"></b><input type="range" id="s3" min="0" max="3000" step="100" value="0" oninput="W()"></label><br>
+<label>Where savings sit: <select id="s4" onchange="W()"><option value="0">Plain savings (0%)</option><option value="3">Savings account (~3%)</option><option value="6.5">Recurring deposit (~6.5%)</option></select></label>
+<p class="mut">Rates are illustrative. Check current rates with your bank.</p></div>
+<div class="c"><h3>Result</h3><div id="wr"></div></div></div>`;
+$('#in').innerHTML=`<h2>AI-style insights</h2><div class="c">${recs(a).map(r=>`<div class="ins ${r[0]}">${r[1]}</div>`).join('')}<p class="mut">Generated by rules from your own numbers, updated whenever you log spending.</p></div>`;
+$('#le').innerHTML=`<h2>Learn</h2><div class="g"><div class="c"><h3>Tips for a hostel budget</h3><ul>
+<li>Pay yourself first: move savings the day money arrives.</li><li>Use the 24-hour rule for anything over ₹500 that is not food.</li><li>Cap delivery at two orders a week; mess food is already paid for.</li><li>Check student discounts on transit, software and OTT plans.</li><li>Split group trip costs early and write them down.</li><li>Keep UPI spending visible: review your app history every Sunday.</li><li>Book trips early and travel off-peak; the saving is often 30% or more.</li></ul></div>
+<div class="c"><h3>Planning checklist</h3>${['Log every expense for 14 days','Set a limit for each category','Open a separate savings account or RD','Set up an automatic transfer on allowance day','Start an emergency fund of ₹1,000','Pick a trip, price it, set a date','Review this dashboard every Sunday','Talk through the plan with your parents'].map((t,i)=>`<label style="display:block"><input type="checkbox" ${S.chk[i]?'checked':''} onchange="S.chk[${i}]=this.checked;sv()"> ${t}</label>`).join('')}</div>
+<div class="c"><h3>Useful resources</h3><ul><li><a href="https://www.rbi.org.in" target="_blank" rel="noopener">RBI</a>: financial awareness material</li><li><a href="https://investor.sebi.gov.in" target="_blank" rel="noopener">SEBI Investor</a>: investing basics and safety</li><li><a href="https://www.amfiindia.com" target="_blank" rel="noopener">AMFI</a>: mutual fund education</li><li><a href="https://www.incometax.gov.in" target="_blank" rel="noopener">Income Tax Dept.</a>: when a student needs a PAN</li></ul></div>
+<div class="c w"><h3>Prompts to ask an AI assistant</h3>${['Explain how a recurring deposit works, with a ₹1,000 a month example, in simple words.','I get ₹7,500 a month in a hostel. Build me a weekly spending plan that saves ₹1,500.','Compare an RD, a liquid fund and a savings account for a 6-month trip fund.','Quiz me on 5 personal finance terms every student should know.','How do I split trip costs fairly with five friends and avoid awkward moments?','What should I know about credit cards before I get my first job?'].map(t=>`<div class="pr">${t} <button class="btn" onclick="navigator.clipboard&&navigator.clipboard.writeText(this.previousSibling.textContent.trim());this.textContent='Copied'">Copy prompt</button></div>`).join('')}</div></div>`;
+document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===cur));
+document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.k===cur));
+document.documentElement.dataset.t=S.th;W();
+setTimeout(()=>{const f=$('#fl');if(f){f.style.width=pct+'%';$('#pl').style.left=pct+'%'}},80)}
+function W(){const a=calc(),g=S.goals[0],e=id=>$(id);if(!e('#s1'))return;
+const s1=+e('#s1').value,s2=+e('#s2').value,s3=+e('#s3').value,r=+e('#s4').value/1200,cut=a.by['Snacks & delivery']*s2/100,m=s1+cut+s3;
+e('#v1').textContent=fmt(s1);e('#v2').textContent=s2+'% (+'+fmt(cut)+')';e('#v3').textContent=fmt(s3);
+if(!g){e('#wr').innerHTML='Add a goal first.';return}
+let b=g.s,n=0,pts=[b];while(b<g.t&&n<60&&m>0){b=b*(1+r)+m;n++;pts.push(b)}
+const base=pace(a),bn=base>0?Math.ceil((g.t-g.s)/base):null,mx=Math.max(g.t,...pts),d=new Date(td.getFullYear(),td.getMonth()+n,1);
+const path=pts.map((v,i)=>`${i?'L':'M'}${10+i/Math.max(pts.length-1,1)*280},${100-v/mx*85}`).join(' ');
+e('#wr').innerHTML=`<div class="big">${m>0?(n>=60?'Over 5 years':n+' month'+(n>1?'s':'')):'Not reachable yet'}</div><div class="mut">${g.n}${m>0&&n<60?' · '+d.toLocaleDateString('en-IN',{month:'long',year:'numeric'}):''}</div>
+<svg viewBox="0 0 300 110" width="100%"><line x1="10" x2="290" y1="${100-g.t/mx*85}" y2="${100-g.t/mx*85}" stroke="var(--sun)" stroke-dasharray="4"/><path d="${path}" fill="none" stroke="var(--sea)" stroke-width="3"/></svg>
+<p>Saving ${fmt(m)} a month. ${bn&&m>0&&n<bn?`That is <b class="ok">${bn-n} months sooner</b> than your current pace (${bn} months).`:'Move the sliders to compare with your current pace.'}</p>`}
+let cur='ov';
+function go(k){cur=k;R();scrollTo(0,0)}
+function tgl(){S.th=S.th==='dark'?'light':'dark';sv();document.documentElement.dataset.t=S.th}
+function addTx(e){e.preventDefault();S.tx.push({id:S.nid++,d:$('#td').value,c:$('#tc').value,a:+$('#ta').value,n:$('#tn').value});sv();R()}
+function delTx(i){S.tx=S.tx.filter(t=>t.id!==i);sv();R()}
+function addG(e){e.preventDefault();S.goals.push({n:$('#gn').value,t:+$('#gt').value,s:0});sv();R()}
+function addTo(e,i){e.preventDefault();S.goals[i].s+=+e.target.querySelector('input').value;sv();R()}
+function rst(){if(confirm('Replace your data with the demo data?')){S=demo();sv();R()}}
+R();
+</script>
+</body>
+</html>
