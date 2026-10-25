@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rashmi’s LinkedIn Roast & Rebuild</title>
+<style>
+:root{--bg:#eef1f5;--card:#fff;--ink:#14213d;--mute:#5b6577;--line:#d5dbe5;--red:#c62828;--redbg:#fdecec;--grn:#1b7f4b;--grnbg:#e5f5ec;--blu:#0a66c2;--hl:#fff3a8}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1624;--card:#18223a;--ink:#e8edf7;--mute:#9aa6bd;--line:#2c3856;--red:#ff7b72;--redbg:#3a1f26;--grn:#5fd197;--grnbg:#17352b;--blu:#6cb2ff;--hl:#5a4d10}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 80px}
+h1,h2,h3{font-family:Georgia,"Iowan Old Style",serif;line-height:1.2;margin:0 0 8px}
+h1{font-size:2rem}h2{font-size:1.4rem;margin-top:28px}h3{font-size:1.1rem}
+.sub{color:var(--mute);margin:0 0 16px}
+nav{display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-bottom:1px solid var(--line)}
+nav button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:20px;cursor:pointer;font:inherit;font-size:.9rem}
+nav button[aria-selected=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible{outline:3px solid var(--blu);outline-offset:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin:14px 0}
+.q{font-family:Georgia,serif;font-style:italic;background:var(--hl);padding:1px 5px;border-radius:3px}
+.row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
+.score{font:700 1.6rem Georgia,serif;color:var(--red);text-align:right;min-width:70px}
+.score small{font-size:.8rem;color:var(--mute);font-weight:400}
+.react{border-left:4px solid var(--red);padding:6px 12px;background:var(--redbg);margin:10px 0;border-radius:0 6px 6px 0}
+.pt p{margin:6px 0}
+.tag{display:inline-block;font-size:.8rem;font-weight:600;color:var(--red)}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin:4px 0 12px;position:relative}
+.bar i{display:block;height:100%;border-radius:6px;transition:width .9s ease}
+.b-old{background:var(--red)}.b-new{background:var(--grn)}
+.big{display:flex;gap:16px;flex-wrap:wrap}
+.big>div{flex:1;min-width:200px;border:2px solid var(--line);border-radius:10px;padding:14px;text-align:center}
+.big b{font:700 2.8rem Georgia,serif;display:block}
+.copy{float:right;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.8rem;margin-left:8px}
+pre{white-space:pre-wrap;font:inherit;margin:8px 0 0;background:var(--bg);padding:12px;border-radius:8px;border:1px dashed var(--line)}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+@media(max-width:640px){.ba,.row{grid-template-columns:1fr}.score{text-align:left}}
+.ba div{padding:10px;border-radius:8px;font-size:.93rem}
+.ba .o{background:var(--redbg)}.ba .n{background:var(--grnbg)}
+.ph{background:var(--hl);padding:0 4px;border-radius:3px}
+.chips span{display:inline-block;background:var(--grnbg);color:var(--grn);border-radius:14px;padding:3px 10px;margin:3px 3px 0 0;font-size:.85rem}
+.chips.x span{background:var(--redbg);color:var(--red)}
+label.ck{display:flex;gap:10px;padding:6px 0;cursor:pointer}
+.day{border-left:3px solid var(--blu);padding-left:14px;margin:18px 0}
+.share{background:var(--card);border:2px solid var(--ink);border-radius:12px;padding:22px;max-width:560px;margin:0 auto}
+.share li{margin:4px 0}
+.note{font-size:.88rem;color:var(--mute)}
+table{width:100%;border-collapse:collapse;font-size:.93rem}td,th{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+.cnt{font-size:.8rem;color:var(--mute)}
+section[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Rashmi Chaudhary: LinkedIn Roast & Rebuild</h1>
+<p class="sub">Goal: Job / Internship · Built only from your profile PDF. Yellow highlights are blanks only you can fill in truthfully.</p>
+<nav role="tablist" id="nav"></nav>
+
+<section id="roast"></section>
+<section id="rebuild" hidden></section>
+<section id="score" hidden></section>
+<section id="plan" hidden></section>
+<section id="card" hidden></section>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+let copyId=0;const copies={};
+function cp(text){const id='c'+(copyId++);copies[id]=text;return `<button class="copy" data-c="${id}">Copy</button>`}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b)return;
+ const t=copies[b.dataset.c];
+ const done=()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1500)};
+ try{navigator.clipboard.writeText(t).then(done,fb)}catch(_){fb()}
+ function fb(){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(_){}a.remove();done()}});
+
+/* ---------- DATA ---------- */
+const sections=[
+{n:'Headline',b:5,a:8,q:'“Aspiring Software Engineer | AI/ML Enthusiast | Artificial Intelligence Intern @ IBM | Python | Problem Solving.”',
+ react:'“Okay, a student. Lots of buzzwords, no proof. Next.”',
+ prob:'“Aspiring” and “Enthusiast” announce what you hope to be, not what you have done. “Problem Solving” is a skill every candidate claims, and “Artificial Intelligence Intern @ IBM” says you are interning now, but your entry ends August 2026.',
+ why:'Recruiters filter by keywords and scan for evidence. Hedge words read as low confidence, and the headline never mentions your best asset: a hackathon-placing computer vision project.',
+ cost:'You show up less in searches for “Computer Vision”, “Machine Learning” and “Software Engineering Intern”, and you get fewer profile clicks from search results, where the headline is the main thing shown.'},
+{n:'About: First 2 Lines',b:3,a:8,q:'“I am an aspiring Software Engineer and Computer Science undergraduate with a strong interest in Artificial Intelligence, Machine Learning, Data Science, and Computer Vision.”',
+ react:'“Same sentence I read in 40 other student profiles today.”',
+ prob:'You open with “I am an aspiring…” and a list of four interests. Your hackathon result, the one thing that would make someone click “see more”, is buried in the middle of the text.',
+ why:'Only the first two lines show before “see more”. Interests are cheap. A recruiter reads “strong interest in” as “has not built much yet”, which is not true for you, but that is how the line reads.',
+ cost:'Most readers never reach your Smart Intelligence Guard project, so your strongest proof goes unseen.'},
+{n:'About: Full Section',b:5,a:8,q:'“…Technical Skills & Interests:Python | Machine Learning… Problem SolvingI have also gained industry exposure…”',
+ react:'“Dense wall of text. Good projects somewhere in there. I’ll skim.”',
+ prob:'Your PDF text runs together with no line breaks (“real-world problems.My primary career goal”, “Problem SolvingI have also”). The project list and skill list are crammed into one block. The CTA, “Let’s connect, build, and grow together!”, tells people nothing specific to do.',
+ why:'Formatting is part of the first impression. A block with no breaks signals low attention to detail, and attention to detail is what hiring managers want from a software engineer. “Connect with recruiters, mentors, and enthusiasts” is a CTA for everyone, so nobody acts on it.',
+ cost:'Good projects get skimmed past, and nobody knows what you want (an internship), so nobody can offer it.'},
+{n:'Experience',b:3,a:7,q:'“Gained practical exposure to Artificial Intelligence concepts and industry-oriented learning.”',
+ react:'“Learning activity, not work. What did they actually build?”',
+ prob:'All five bullets describe what the program was or what you learned. Two of them say nearly the same thing (“completed… through FSP” and “completed… through IBM Skills Network”). There is no tool, task, output or result in any bullet.',
+ why:'“Exposure to” and “understanding of” tell a recruiter you attended, not that you did. It also reads like a program description rather than your own work.',
+ cost:'Your only experience entry adds little weight, so your projects have to carry everything. Fixing this gives you a second proof point at no cost.'},
+{n:'Skills & Keywords',b:4,a:8,q:'Top Skills: “Prompt Engineering · Generative AI · Generative AI for Web Developers”',
+ react:'“Prompt engineering? For a SWE or ML internship? Where’s the Python?”',
+ prob:'Your three pinned skills do not match your own goal (Software Engineer / AI-ML). Python, Machine Learning, C++, SQL and DSA appear only as plain text inside About, so they are not searchable skills. “Generative AI for Web Developers” is a course title, not a skill.',
+ why:'Recruiters search by skill tags, and endorsements and filters work on the Skills list, not on About text.',
+ cost:'You are missing from searches for your actual strengths: Python, Machine Learning, Computer Vision and SQL.'}
+];
+const BEFORE=42,AFTER=80;
+
+/* ---------- ROAST ---------- */
+function renderRoast(){
+ let h=`<h2>Part 1: The Roast</h2><p class="sub">Honest, specific, and meant to help.</p>
+ <div class="card"><div class="row"><div><h3>Profile Report Card (before)</h3><p class="note">Recruiter reaction in 3 seconds, per section.</p></div><div class="score">${BEFORE}<small>/100</small></div></div>`;
+ sections.forEach(s=>{h+=`<div style="display:flex;justify-content:space-between"><span>${s.n}</span><b>${s.b}/10</b></div><div class="bar"><i class="b-old" data-w="${s.b*10}" style="width:0"></i></div>`});
+ h+=`</div>`;
+ sections.forEach(s=>{h+=`<div class="card pt"><div class="row"><h3>${s.n}</h3><div class="score">${s.b}<small>/10</small></div></div>
+ <p><span class="q">${esc(s.q)}</span></p><div class="react"><b>Recruiter’s 3-second reaction:</b> ${s.react}</div>
+ <p>❌ <b>The problem:</b> ${s.prob}</p><p>🧠 <b>Why it hurts:</b> ${s.why}</p><p>🔍 <b>The invisible cost:</b> ${s.cost}</p></div>`});
+ h+=`<div class="card"><h3>What is working (so you keep it)</h3><p>Your project <b>Smart Intelligence Guard</b> (Python, OpenCV, YOLO, real-time detection, alerts) is a real build with a hackathon placing. Your education dates and IBM line are clear. The raw material is strong. The packaging is what holds it back.</p></div>`;
+ $('#roast').innerHTML=h}
+
+/* ---------- REBUILD ---------- */
+const heads=[
+ ['Option 1: Keyword-optimized (search)','Computer Science Student (B.Tech ’28) | Python · Machine Learning · Computer Vision · SQL | Hackathon 2nd Runner-Up | Seeking SWE & AI/ML Internships','Use this first. Recruiters search by skills and role, and this packs the keywords you actually have. It also states your goal, so nobody has to guess.'],
+ ['Option 2: Value proposition','B.Tech CSE Student | I build computer vision systems that detect real-world problems in real time | YOLO + OpenCV project, Hackathon 2nd Runner-Up','Use when you are applying directly or messaging hiring managers. It says what you can do for them in plain language.'],
+ ['Option 3: Authority style','Building practical computer vision & ML projects | Hackathon 2nd Runner-Up | IBM SkillsBuild AI Virtual Intern | ABES Engineering College ’28','Use once you start posting your project learnings. It positions you as someone who builds and shares.']];
+const about=`I built an AI system that watches a mall in real time, spots suspicious activity, captures a screenshot, and alerts security. It placed 2nd Runner-Up at a hackathon.
+
+I’m Rashmi, a B.Tech Computer Science student at ABES Engineering College (class of 2028). I like turning machine learning into tools that solve real problems, and I’m looking for a software engineering or AI/ML internship where I can keep building.
+
+What I’ve built:
+• Smart Intelligence Guard: real-time surveillance system using Python, OpenCV and YOLO, with automatic screenshots and alerts to security staff via Firebase/notification APIs. 2nd Runner-Up, [hackathon name].
+• Fake News Detection System: a machine learning classifier that flags potentially fake or misleading news.
+• Chest X-Ray Classification & Localization (in progress): computer vision for detecting thoracic diseases in X-ray images.
+
+Also completed: IBM SkillsBuild AI virtual internship (June–Aug 2026) and AWS Academy Generative AI Foundations.
+
+Tools: Python · C++ · SQL · Machine Learning · Computer Vision · OpenCV · Data Structures & Algorithms · Git & GitHub
+
+If you’re hiring interns in software or AI/ML, message me or see my project code in the Featured section: [add GitHub link].`;
+const kw=['Software Engineer Intern','AI/ML Internship','Computer Vision','Machine Learning','Python','OpenCV','YOLO','SQL','C++','Data Structures & Algorithms','Git & GitHub','B.Tech Computer Science'];
+const bul=[
+ ['Completed a virtual internship in Artificial Intelligence through FSP, provided by IBM.','Completed IBM SkillsBuild’s Artificial Intelligence virtual internship (June–Aug 2026, 3 months), delivered through FSP.','Merges your first and fourth bullets (they repeated each other) and names the program precisely, which also avoids overselling it.'],
+ ['Gained practical exposure to Artificial Intelligence concepts and industry-oriented learning.','Worked through hands-on AI activities covering <span class="ph">[add: 2-3 real topics, e.g. the ones in your course modules]</span>.','Concrete topics replace “exposure to concepts”. Use only what you really covered.'],
+ ['Developed understanding of AI technologies through structured learning and hands-on activities.','Built / completed <span class="ph">[add: one specific hands-on task or mini-project and the tool used]</span> as part of the program.','Recruiters want an output. If there was none, keep this bullet out rather than invent one.'],
+ ['Strengthened technical and problem-solving skills through AI-focused coursework and practical learning.','Earned certifications: <span class="ph">[add: names or badge links from your Certifications section]</span>.','Moves “learning” into verifiable proof. Your Certifications section already lists several.']];
+const addS=['Python','Machine Learning','Computer Vision','Data Structures & Algorithms','SQL','OpenCV','C++','Git & GitHub','Data Analysis','Artificial Intelligence'];
+function renderRebuild(){
+ let h=`<h2>Part 2: The Rebuild</h2><p class="sub">Formula: [Role/Identity] | [What I do] | [Proof]. Copy any block with its button.</p><h2>Headline (3 options)</h2>`;
+ heads.forEach(x=>{h+=`<div class="card">${cp(x[1])}<h3>${x[0]}</h3><pre>${esc(x[1])}</pre><p class="note">${x[2]}</p></div>`});
+ h+=`<p class="note">Why this works: the old headline said what you hope to be. These say what you can do, with proof (hackathon placing) and a clear ask (internships).</p>
+ <h2>About section (complete rewrite)</h2><div class="card">${cp(about.replace(/\[hackathon name\]/,'[hackathon name]'))}
+ <p class="note">Fill in the two yellow items before you paste: hackathon name and GitHub link. The text below is exactly what gets copied.</p><pre>${esc(about).replace(/\[([^\]]+)\]/g,'<span class="ph">[$1]</span>')}</pre>
+ <p><b>The strategy:</b></p><p>• <b>Hook (lines 1–2):</b> opens with your result, not your title, so people click “see more”.<br>• <b>Story:</b> says who you are and what you want, in plain words.<br>• <b>Proof:</b> three projects as short bullets with the tools named, because skimmers read bullets.<br>• <b>CTA:</b> one specific action (message me, see GitHub) instead of “let’s connect, build, and grow together”.</p>
+ <p><b>Keywords embedded:</b></p><div class="chips">${kw.map(k=>`<span>${k}</span>`).join('')}</div>
+ <p class="note">I added no metrics because you did not give any. If you know real numbers (detection accuracy, dataset size, team size, number of hackathon participants), add them to the Smart Intelligence Guard bullet. Numbers are the single biggest upgrade left.</p></div>
+ <h2>Experience: top entry (IBM)</h2><div class="card"><p><b>Title:</b> <span class="q">Artificial Intelligence Intern</span> → <b>AI Virtual Intern (IBM SkillsBuild / FSP)</b>. Being clear that it is a virtual program builds trust, and it protects you in interviews.</p>`;
+ bul.forEach((b,i)=>{h+=`<div class="ba"><div class="o"><b>Before ${i+1}:</b><br>${b[0]}</div><div class="n"><b>After ${i+1}:</b><br>${b[1]}</div></div><p class="note">Why: ${b[2]}</p>`});
+ h+=`<p class="note">Action verbs used: Completed, Worked through, Built, Earned. I removed the fifth-bullet pattern of “strengthened skills” because every intern claims it.</p></div>
+ <h2>Skills recommendations</h2><div class="card"><h3>Top 10 skills to add (priority order)</h3><div class="chips">${addS.map((s,i)=>`<span>${i+1}. ${s}</span>`).join('')}</div>
+ <h3 style="margin-top:14px">Remove or de-prioritize</h3><div class="chips x"><span>Generative AI for Web Developers (a course title, not a skill)</span><span>Prompt Engineering (keep it, but move it below core skills)</span></div>
+ <h3 style="margin-top:14px">Pin these 3 to the top</h3><div class="chips"><span>Python</span><span>Machine Learning</span><span>Computer Vision</span></div>
+ <p class="note">Why: these three match the roles you want and the project work you can prove. Add the rest so recruiter filters can find you.</p></div>`;
+ $('#rebuild').innerHTML=h}
+
+/* ---------- SCORECARD ---------- */
+function renderScore(){
+ const rows=[['Headline',5,8],['About (Hook)',3,8],['About (Full)',5,8],['Experience',3,7],['Skills / Keywords',4,8]];
+ let h=`<h2>Part 3: Before vs After</h2><div class="card">`;
+ rows.forEach(r=>{h+=`<p style="margin:0"><b>${r[0]}</b> Before: ${r[1]}/10 → After: ${r[2]}/10 <span style="color:var(--grn)">(+${r[2]-r[1]})</span></p>
+ <div class="bar"><i class="b-old" data-w="${r[1]*10}" style="width:0"></i></div><div class="bar" style="margin-top:-8px"><i class="b-new" data-w="${r[2]*10}" style="width:0"></i></div>`});
+ h+=`<div class="big"><div><span class="note">Before</span><b style="color:var(--red)">${BEFORE}</b>/100</div><div><span class="note">After</span><b style="color:var(--grn)">${AFTER}</b>/100 <small class="note">(+${AFTER-BEFORE})</small></div></div>
+ <p class="note">The “after” scores assume you fill in the yellow blanks truthfully (hackathon name, GitHub link, real IBM topics). Experience stays at 7 because a virtual internship has limits, and that is fine. Your projects are the real story.</p></div>`;
+ $('#score').innerHTML=h}
+
+/* ---------- PLAN ---------- */
+const checklist=['Replace headline with Option 1','Paste the new About section and fill in the hackathon name + GitHub link','Rewrite IBM entry bullets with real details','Retitle the role to “AI Virtual Intern”','Add the 10 recommended skills','Pin Python, Machine Learning, Computer Vision','Add Smart Intelligence Guard to Featured (GitHub link or demo)','Turn on “Open to work” for Software Engineer / AI-ML Intern roles','Add a professional profile photo and banner if missing','Check that your custom URL and certifications display correctly'];
+const post1=`I let AI roast my LinkedIn profile. It hurt. 😅
+
+Score: 42/100.
+
+My biggest mistakes:
+→ My headline said “Aspiring” and “Enthusiast”. Recruiters read that as “not yet.”
+→ My best project (a hackathon placing!) was buried in the middle of my About section.
+→ My internship bullets said what I learned, not what I did.
+
+So I rebuilt it:
+✅ A headline with the keywords recruiters actually search
+✅ An About section that opens with my computer vision project
+✅ Skills reordered: Python, Machine Learning, Computer Vision first
+
+I’m a B.Tech CS student looking for software and AI/ML internships.
+
+What’s one line on your profile you know is weak but haven’t fixed yet? Drop it below and I’ll give you honest feedback. 👇
+
+#LinkedIn #Internships #MachineLearning #ComputerVision`;
+const post2=`Hot take: “Aspiring” should be banned from student LinkedIn headlines.
+
+You’re not aspiring. If you’ve built something, you’re already doing the work.
+
+I used to write “Aspiring Software Engineer”. Then I looked at what I’d actually built: a real-time computer vision system that placed at a hackathon.
+
+What I learned from building it:
+1. [add: one real lesson from Smart Intelligence Guard, e.g. a bug, a data problem or a design choice]
+2. [add: a second real lesson]
+3. Describe what you built, not what you hope to become.
+
+If you’re a student with projects, put the project in your headline and drop the hedge word.
+
+Agree or disagree? What would you put in your headline instead?
+
+#SoftwareEngineering #StudentLife #Internships`;
+const conn=`Hi [Name], I’m a B.Tech CS student at ABES building computer vision projects (YOLO/OpenCV). I liked your work at [Company] and would love to connect and learn how you got into [role].`;
+function renderPlan(){
+ let saved={};try{saved=JSON.parse(localStorage.getItem('rc-ck')||'{}')}catch(_){}
+ const pc=t=>`<span class="cnt">${t.length} / 1300 characters</span>`;
+ let h=`<h2>Part 4: 7-Day Activation Plan</h2>
+ <div class="day"><h3>Day 1: Make all profile changes</h3><div class="card" id="cks">${checklist.map((c,i)=>`<label class="ck"><input type="checkbox" data-i="${i}" ${saved[i]?'checked':''}> <span>${c}</span></label>`).join('')}<p class="note" id="prog"></p></div></div>
+ <div class="day"><h3>Day 2: Publish Post #1 (“I rebuilt my LinkedIn”)</h3><div class="card">${cp(post1)}<pre>${esc(post1)}</pre>${pc(post1)}<p class="note">Why it works: a hook with a score, a short list of mistakes people recognize in themselves, and a question that invites comments. Replace “42/100” if you change the score.</p></div></div>
+ <div class="day"><h3>Day 3: Send 10 strategic connection requests</h3><div class="card"><p><b>Who to target (2 each):</b></p><p>1. Campus and early-career recruiters at companies hiring software or AI/ML interns<br>2. Software or ML engineers in roles you want, especially ABES alumni<br>3. Engineers working on computer vision or applied AI<br>4. Hackathon organizers, judges and participants from your region<br>5. IBM SkillsBuild / IBM early-careers people</p>
+ ${cp(conn)}<pre>${esc(conn).replace(/\[([^\]]+)\]/g,'<span class="ph">[$1]</span>')}</pre><span class="cnt">${conn.length} / 300 characters</span><p class="note">Personalize [Name], [Company], [role] each time. A specific reason to connect beats a generic note.</p></div></div>
+ <div class="day"><h3>Day 4: Comment on 5 posts in your target space</h3><div class="card"><p><b>Value Comment formula: Agree + Add Insight + Ask a Question.</b></p>
+ <table><tr><th>Step</th><th>Example</th></tr><tr><td>Agree</td><td>“This matches what I saw while building my first YOLO project.”</td></tr><tr><td>Add insight</td><td><span class="ph">[add a real, specific observation from your own project]</span></td></tr><tr><td>Ask</td><td>“How do you decide when a model is good enough to deploy?”</td></tr></table>
+ <p class="note">Aim for posts from engineers and recruiters, not just peers. Their audience is your audience. Avoid “Great post!” alone.</p></div></div>
+ <div class="day"><h3>Day 5: Publish Post #2 (hot take)</h3><div class="card">${cp(post2)}<pre>${esc(post2).replace(/\[([^\]]+)\]/g,'<span class="ph">[$1]</span>')}</pre>${pc(post2)}<p class="note">Fill in the two lessons with real ones from your own build. Honest and specific beats polished.</p></div></div>
+ <div class="day"><h3>Day 6: Engage and expand</h3><div class="card"><p>Reply to <b>every</b> comment on your posts within the first few hours. Ask a follow-up question where you can, because replies extend your post’s reach. Then send 5 more connection requests using the same template and the same target groups.</p></div></div>
+ <div class="day"><h3>Day 7: Review the numbers</h3><div class="card"><table><tr><th>Metric</th><th>What it means / what to adjust</th></tr>
+ <tr><td>Profile views</td><td>Rising means your posts and comments are working. Flat means comment more on bigger accounts’ posts.</td></tr>
+ <tr><td>Search appearances</td><td>Shows keyword reach. If low, repeat key skills in your headline and About.</td></tr>
+ <tr><td>Connection acceptance rate</td><td>As a rough guide, 30% or more is healthy for cold requests. Lower means your note or profile needs work. Make the note more specific.</td></tr>
+ <tr><td>Post impressions and comments</td><td>Few comments means the hook or the question was weak. Test a sharper opening line in your next post.</td></tr>
+ <tr><td>Recruiter messages</td><td>Even one is a win at this stage. If none, check “Open to work” settings and your Featured section.</td></tr></table></div></div>`;
+ $('#plan').innerHTML=h;
+ const upd=()=>{const n=document.querySelectorAll('#cks input:checked').length;$('#prog').textContent=`${n} of ${checklist.length} done`};upd();
+ $('#cks').addEventListener('change',e=>{const i=e.target.dataset.i;saved[i]=e.target.checked;try{localStorage.setItem('rc-ck',JSON.stringify(saved))}catch(_){}upd()})}
+
+/* ---------- SUMMARY ---------- */
+function renderCard(){
+ const t=`I let AI roast my LinkedIn profile today. Here’s what changed:
+
+Before: ${BEFORE}/100
+After: ${AFTER}/100
+
+Top 3 mistakes I was making:
+1. Hedge words (“Aspiring”, “Enthusiast”) in my headline
+2. My best project was buried instead of opening my About section
+3. My top skills didn’t match the jobs I want
+
+The #1 thing that made the biggest difference: opening with proof (my hackathon-placing project) instead of a title.`;
+ $('#card').innerHTML=`<h2>Part 5: What I Learned Today</h2><p class="sub">Screenshot this card or copy the text.</p><div class="share">
+ <p><b>I let AI roast my LinkedIn profile today. Here’s what changed:</b></p>
+ <p>Before: <b style="color:var(--red)">${BEFORE}/100</b><br>After: <b style="color:var(--grn)">${AFTER}/100</b></p>
+ <p><b>Top 3 mistakes I was making:</b></p><ol><li>Hedge words (“Aspiring”, “Enthusiast”) in my headline</li><li>My best project was buried instead of opening my About section</li><li>My top skills didn’t match the jobs I want</li></ol>
+ <p><b>The #1 thing that made the biggest difference:</b> opening with proof (my hackathon-placing project) instead of a title.</p></div>
+ <p style="text-align:center;margin-top:14px"><button class="copy" style="float:none" data-c="cardtxt">Copy as text</button></p>`;
+ copies.cardtxt=t}
+
+/* ---------- NAV ---------- */
+const tabs=[['roast','1 · Roast'],['rebuild','2 · Rebuild'],['score','3 · Scorecard'],['plan','4 · 7-Day Plan'],['card','5 · Summary']];
+$('#nav').innerHTML=tabs.map(t=>`<button role="tab" data-t="${t[0]}" aria-selected="false">${t[1]}</button>`).join('');
+function show(id){tabs.forEach(t=>{$('#'+t[0]).hidden=t[0]!==id});document.querySelectorAll('#nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===id));
+ requestAnimationFrame(()=>document.querySelectorAll('#'+id+' .bar i').forEach(i=>i.style.width=i.dataset.w+'%'));window.scrollTo(0,0)}
+$('#nav').addEventListener('click',e=>{const b=e.target.closest('button');if(b)show(b.dataset.t)});
+renderRoast();renderRebuild();renderScore();renderPlan();renderCard();show('roast');
+</script>
+</body>
+</html>
