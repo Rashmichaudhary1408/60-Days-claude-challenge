@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decision Report: Placement Prep Strategy</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg-main:#0f0f14;--bg-card:#1a1a24;--bg-card-alt:#1e1e2e;--text-primary:#f0f0f5;--text-secondary:#8888a0;--accent-green:#34d399;--accent-red:#f87171;--accent-blue:#60a5fa;--accent-gold:#fbbf24;--accent-purple:#a78bfa;--border-subtle:rgba(255,255,255,0.06)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg-main);color:var(--text-primary);font:15px/1.7 'Inter','Segoe UI',system-ui,sans-serif}
+header{padding:48px 20px 24px;text-align:center}
+header h1{font-size:28px;font-weight:800}
+header p{font-size:16px;color:var(--text-secondary);margin-top:6px}
+header small{font-size:12px;color:var(--text-secondary)}
+.line{height:2px;background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple),var(--accent-gold));margin-top:24px}
+main{max-width:720px;margin:0 auto;padding:32px 16px;display:flex;flex-direction:column;gap:28px}
+.card{background:var(--bg-card);border:1px solid var(--border-subtle);border-left:4px solid var(--c);border-radius:16px;padding:28px;box-shadow:0 4px 24px rgba(0,0,0,.3);transition:transform .2s}
+.card:hover{transform:translateY(-2px)}
+.card h2{font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--c);margin-bottom:16px}
+.lbl{font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;margin-top:12px}
+.sub{background:var(--bg-card-alt);border-radius:12px;padding:18px;margin-top:14px}
+.sub h3{font-size:16px;font-weight:700}
+.g{color:var(--accent-green)}.r{color:var(--accent-red)}.p{color:var(--accent-purple)}.b{color:var(--accent-blue)}
+ul{padding-left:18px}
+.dim{margin-top:14px}
+.dim .name{font-size:13px;font-weight:600;margin-bottom:4px}
+.row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.row .o{width:22px;font-size:12px;font-weight:700;color:var(--text-secondary)}
+.bar{flex:1;height:28px;background:rgba(255,255,255,.05);border-radius:8px;overflow:hidden}
+.fill{height:100%;border-radius:8px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font-weight:700;color:#fff;font-size:13px;width:0;animation:grow .8s ease-out forwards}
+@keyframes grow{from{width:0}to{width:var(--w)}}
+.A{background:linear-gradient(90deg,#60a5fa,#3b82f6)}.B{background:linear-gradient(90deg,#34d399,#10b981)}.C{background:linear-gradient(90deg,#a78bfa,#8b5cf6)}
+.tot{margin-top:18px;background:rgba(255,255,255,.04);border-radius:12px;padding:14px 16px}
+.tot div{display:flex;justify-content:space-between;font-size:18px;font-weight:700;padding:3px 0}
+.tot .win{color:var(--accent-gold)}
+.verdict{background:var(--bg-card-alt);padding:36px;box-shadow:0 0 20px rgba(251,191,36,.15)}
+.verdict .win{font-size:30px;font-weight:800;color:var(--accent-gold);line-height:1.25;margin-bottom:10px}
+.hard{font-style:italic;color:var(--text-secondary);margin-top:14px}
+.share{display:flex;flex-wrap:wrap;gap:14px}
+.mini{flex:1 1 190px;min-height:230px;background:var(--bg-card-alt);border-radius:12px;padding:16px;display:flex;flex-direction:column;font-size:13px;line-height:1.5}
+.mini h4{font-size:12px;color:var(--accent-gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.mini .wm{margin-top:auto;padding-top:10px;font-size:10px;color:var(--text-secondary)}
+footer{text-align:center;color:var(--text-secondary);font-size:12px;margin:40px 0 32px}
+@media(max-width:600px){body{font-size:14px}.card{padding:16px}.verdict{padding:20px}.verdict .win{font-size:26px}.card h2{font-size:18px}.share{flex-direction:column}}
+@media(prefers-reduced-motion:reduce){.fill{animation:none;width:var(--w)}.card{transition:none}}
+</style>
+</head>
+<body>
+<header>
+<h1>DECISION REPORT</h1>
+<p>How to prepare for a Google SWE placement in the next 6 months</p>
+<small id="d"></small>
+<div class="line"></div>
+</header>
+<main>
+
+<section class="card" style="--c:var(--accent-blue)">
+<h2>1. The Real Decision</h2>
+<p>You are choosing how to split six months between DSA and core CS, balanced prep with AI/ML projects and applications, or an AI/ML-first portfolio.</p>
+<p>The trade-off is depth in interview fundamentals against breadth in projects and applications.</p>
+<p>It hurts because Google is the target and a wrong bet feels like lost time you can't recover.</p>
+</section>
+
+<section class="card" style="--c:var(--accent-green)">
+<h2>2. The Case for Each Option</h2>
+<div class="sub"><h3 class="b">Option A: DSA + Core CS first</h3>
+<p class="lbl">Strongest case</p><p>Your goal is a Google SWE role, and DSA, problem-solving and CS fundamentals are exactly what you named as needing strength. Your gut already points here.</p>
+<p class="lbl">Hidden upside</p><p>Strong fundamentals make every later project and interview easier.</p>
+<p class="lbl">Biggest weakness</p><p class="r">A thin resume if projects stall completely.</p>
+<p class="lbl">Best if you value</p><p>Interview readiness over a flashy portfolio.</p></div>
+<div class="sub"><h3 class="g">Option B: Balanced prep + AI/ML projects + applications</h3>
+<p class="lbl">Strongest case</p><p>Covers skills, resume and real applications at once, so progress shows up on several fronts.</p>
+<p class="lbl">Hidden upside</p><p>Live applications give you real interview feedback early.</p>
+<p class="lbl">Biggest weakness</p><p class="r">Splitting time can leave DSA shallow, which is your stated worry.</p>
+<p class="lbl">Best if you value</p><p>Flexibility and keeping other offers open.</p></div>
+<div class="sub"><h3 class="p">Option C: AI/ML portfolio first</h3>
+<p class="lbl">Strongest case</p><p>Builds a distinctive resume in a field you are already interested in.</p>
+<p class="lbl">Hidden upside</p><p>Projects give you real stories for behavioral rounds.</p>
+<p class="lbl">Biggest weakness</p><p class="r">Does the least for the DSA and CS fundamentals your Google goal depends on.</p>
+<p class="lbl">Best if you value</p><p>Standing out over passing a standard screen.</p></div>
+</section>
+
+<section class="card" style="--c:var(--accent-purple)">
+<h2>3. Assumption Buster</h2>
+<p class="lbl">Assumptions you may be making</p>
+<ul>
+<li>That one strategy must be picked and held for six months. You said yourself you can adjust.</li>
+<li>That "is my level enough?" can be answered by feeling. You have no measured baseline yet.</li>
+<li>That Google is the only outcome worth planning around. You said other companies are an option.</li>
+</ul>
+<p class="lbl">Biases at play</p>
+<ul>
+<li><b class="p">Loss aversion:</b> the fear of wasting six months is weighing more than the gains of any plan.</li>
+<li><b class="p">Confirmation bias:</b> your gut already says DSA first, so you may only be looking for evidence that agrees.</li>
+</ul>
+<p class="lbl">What you are ignoring</p>
+<p class="r">You haven't measured where you stand today. Without a mock-interview baseline, every option is a guess.</p>
+</section>
+
+<section class="card" style="--c:var(--accent-blue)">
+<h2>4. Decision Matrix</h2>
+<p class="lbl" style="margin-top:0"><span class="b">A</span> DSA + Core CS &nbsp; <span class="g">B</span> Balanced &nbsp; <span class="p">C</span> AI/ML Portfolio</p>
+<div id="matrix"></div>
+<div class="tot" id="tot"></div>
+<p class="lbl">Scores reflect your stated goal, your gut lean, and your note that you can adjust and apply elsewhere.</p>
+</section>
+
+<section class="card" style="--c:var(--accent-red)">
+<h2>5. Premortem</h2>
+<div class="sub"><h3 class="b">Option A failed after 12 months</h3>
+<ul><li>You drilled problems without timed mocks, so interview pressure still felt new.</li><li>Projects and applications were dropped and the resume stayed thin.</li><li>You kept studying instead of testing readiness.</li></ul>
+<p class="lbl">Early warning sign</p><p>Mock scores flat after four weeks.</p>
+<p class="lbl">Prevention action</p><p>Book a timed mock every week and change topics based on the result.</p></div>
+<div class="sub"><h3 class="g">Option B failed after 12 months</h3>
+<ul><li>Time was split too thin and nothing reached interview depth.</li><li>Projects expanded and ate the DSA hours.</li><li>Applications were sent before you were ready.</li></ul>
+<p class="lbl">Early warning sign</p><p>DSA hours slip below plan two weeks in a row.</p>
+<p class="lbl">Prevention action</p><p>Fix a weekly time split, with DSA as the largest block and projects capped.</p></div>
+</section>
+
+<section class="card" style="--c:var(--accent-green)">
+<h2>6. 7-Day Test Plan</h2>
+<ul style="list-style:none;padding:0">
+<li><b class="g">Day 1-2:</b> List your weakest DSA and CS topics and find a mock-interview format to use.</li>
+<li><b class="g">Day 3-4:</b> Take one timed mock interview and record your score.</li>
+<li><b class="g">Day 5-6:</b> Talk to a senior or peer who prepared for a similar role about their time split.</li>
+<li><b class="g">Day 7:</b> Commit to A if the mock exposes DSA gaps. Choose B if the gaps are small.</li>
+</ul>
+</section>
+
+<section class="card verdict" style="--c:var(--accent-gold)">
+<h2>7. The Verdict</h2>
+<div class="win">Option A: DSA + Core CS first</div>
+<p>It matches your Google goal and your gut, and it directly attacks the fundamentals you named as the gap.</p>
+<p>Keep projects and applications as a capped side track, not an equal share.</p>
+<p class="lbl">What could flip it</p><p>A baseline mock showing your DSA is already solid would shift weight to Option B.</p>
+<p class="hard">Six months is enough only if you measure readiness with timed mocks, not with how many hours you studied.</p>
+</section>
+
+<section class="card" style="--c:var(--accent-gold)">
+<h2>8. Shareable Cards</h2>
+<div class="share">
+<div class="mini"><h4>Matrix Summary</h4><div id="m1"></div><div class="wm">Built with Claude AI</div></div>
+<div class="mini"><h4>Verdict</h4><p><b style="color:var(--accent-gold);font-size:16px">DSA + Core CS first</b></p><p style="margin-top:8px">Best fit for a Google SWE goal and the gap I named.</p><div class="wm">Built with Claude AI</div></div>
+<div class="mini"><h4>LinkedIn Post</h4><p><b>6 months. 1 goal: Google. 3 prep strategies.</b></p><p style="margin-top:8px">I stopped guessing and scored my options.<br>DSA and core CS won, with projects on the side.<br>Next: weekly timed mocks.</p><p style="margin-top:8px;color:var(--accent-blue)">What's your prep plan?</p><div class="wm">Built with Claude AI</div></div>
+</div>
+</section>
+</main>
+<footer>Built with Claude AI | ABTalks 60-Day Challenge</footer>
+<script>
+const dims=["Life/Career Upside","Financial Safety","Growth & Learning","Stress Level (10 = low)","Reversibility (10 = easy)","Long-term Alignment","Regret Risk (10 = low)"];
+const S={A:[8,7,7,6,8,9,7],B:[7,8,8,5,9,7,7],C:[5,5,8,5,6,4,4]};
+const N={A:"A: DSA + Core CS",B:"B: Balanced",C:"C: AI/ML Portfolio"};
+const T={};Object.keys(S).forEach(k=>T[k]=S[k].reduce((a,b)=>a+b,0));
+const best=Object.keys(T).sort((a,b)=>T[b]-T[a])[0];
+let h="",i=0;
+dims.forEach((d,x)=>{h+='<div class="dim"><div class="name">'+d+'</div>';
+Object.keys(S).forEach(k=>{h+='<div class="row"><span class="o">'+k+'</span><div class="bar"><div class="fill '+k+'" style="--w:'+S[k][x]*10+'%;animation-delay:'+(i++*0.1).toFixed(1)+'s">'+S[k][x]+'</div></div></div>'});h+='</div>'});
+document.getElementById("matrix").innerHTML=h;
+document.getElementById("tot").innerHTML=Object.keys(S).map(k=>'<div class="'+(k===best?'win':'')+'"><span>'+N[k]+(k===best?' ★':'')+'</span><span>'+T[k]+' / 70</span></div>').join("");
+document.getElementById("m1").innerHTML=Object.keys(S).map(k=>'<p'+(k===best?' style="color:var(--accent-gold);font-weight:700"':'')+'>'+N[k]+': '+T[k]+'/70</p>').join("");
+document.getElementById("d").textContent=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
+</script>
+</body>
+</html>
