@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Content Intelligence Studio</title>
+<style>
+:root{--bg:#faf6fb;--surf:rgba(255,255,255,.82);--surf2:#f3edf7;--ink:#1c1530;--mute:#6d6586;--line:#e4daee;--acc:#d6297f;--acc2:#f59e0b;--ok:#15935a;--bad:#d92d3a;--grad:linear-gradient(120deg,#e0348a,#8b3df0 60%,#5b5bf0);--glow:rgba(214,41,127,.22);--shadow:0 10px 40px -18px rgba(70,30,120,.35);--r:18px;--serif:"Iowan Old Style","Palatino Linotype",Georgia,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+:root[data-theme=dark]{--bg:#0d0a16;--surf:rgba(30,25,46,.72);--surf2:rgba(255,255,255,.055);--ink:#f1edfa;--mute:#a59dc0;--line:rgba(255,255,255,.1);--acc:#ff6bb0;--acc2:#ffc14d;--ok:#4ade80;--bad:#ff7b86;--glow:rgba(255,107,176,.25);--shadow:0 16px 50px -20px rgba(0,0,0,.8)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d0a16;--surf:rgba(30,25,46,.72);--surf2:rgba(255,255,255,.055);--ink:#f1edfa;--mute:#a59dc0;--line:rgba(255,255,255,.1);--acc:#ff6bb0;--acc2:#ffc14d;--ok:#4ade80;--bad:#ff7b86;--glow:rgba(255,107,176,.25);--shadow:0 16px 50px -20px rgba(0,0,0,.8)}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 var(--sans);min-height:100vh;position:relative}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(60% 50% at 8% -5%,rgba(224,52,138,.22),transparent 70%),radial-gradient(50% 45% at 100% 5%,rgba(91,91,240,.22),transparent 70%),radial-gradient(45% 40% at 70% 105%,rgba(255,177,66,.14),transparent 70%)}
+h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;letter-spacing:-.015em}
+button,select,textarea,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 28px;border-bottom:1px solid var(--line);background:var(--surf);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);position:sticky;top:0;z-index:5}
+.logo{display:flex;align-items:center;gap:11px;font-family:var(--serif);font-size:20px;font-weight:600}
+.logo i{width:30px;height:30px;border-radius:10px;background:var(--grad);display:block;box-shadow:0 6px 18px -4px var(--glow);position:relative}
+.logo i::after{content:"";position:absolute;inset:8px;border:2px solid #fff;border-radius:50%}
+.hbtns{display:flex;gap:8px;align-items:center}
+.hbtns details{background:transparent;border:1px solid var(--line);border-radius:12px;margin:0;position:relative}
+.hbtns details[open]>*:not(summary){position:absolute;right:0;top:calc(100% + 8px);width:290px;z-index:9}
+.hbtns details[open] label{background:var(--bg);margin:0;padding:10px 12px 0;border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0}
+.hbtns details[open] input{border-radius:0 0 12px 12px;background:var(--bg)}
+.btn{border:1px solid var(--line);background:var(--surf2);border-radius:12px;padding:9px 16px;cursor:pointer;transition:transform .18s,box-shadow .18s,background .18s}
+.btn:hover{transform:translateY(-2px)}
+.btn.pri{background:var(--grad);border:0;color:#fff;font-weight:600;padding:12px 18px;box-shadow:0 12px 26px -12px var(--glow),0 0 0 1px rgba(255,255,255,.12) inset}
+.btn.pri:hover{box-shadow:0 16px 34px -10px var(--glow)}
+.btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+main{display:grid;grid-template-columns:372px 1fr;gap:28px;padding:28px;max-width:1320px;margin:0 auto}
+@media(max-width:940px){main{grid-template-columns:1fr;padding:16px}}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.side{position:sticky;top:78px;align-self:start}
+@media(max-width:940px){.side{position:static}}
+.side h2{font-size:22px}
+.drop{border:1.5px dashed var(--line);border-radius:16px;min-height:190px;display:grid;place-items:center;text-align:center;padding:14px;cursor:pointer;color:var(--mute);margin-top:12px;background:var(--surf2);transition:border-color .2s,box-shadow .2s}
+.drop.over,.drop:hover{border-color:var(--acc);box-shadow:0 0 0 4px var(--glow)}
+.drop img{max-width:100%;max-height:300px;border-radius:12px;display:block;box-shadow:var(--shadow)}
+.up{width:46px;height:46px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;background:var(--grad);color:#fff;font-size:22px}
+label{display:block;font-size:13px;color:var(--mute);margin:12px 0 5px}
+select,textarea,input[type=password]{width:100%;background:var(--surf2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;transition:border-color .2s,box-shadow .2s}
+select:focus,textarea:focus,input:focus{outline:0;border-color:var(--acc);box-shadow:0 0 0 3px var(--glow)}
+select option{background:var(--bg);color:var(--ink)}
+textarea{resize:vertical;min-height:96px}
+.err{color:var(--bad);font-size:13px;min-height:18px;margin-top:8px}
+.stack{display:flex;flex-direction:column;gap:22px;min-width:0}
+.welcome{padding:44px 36px;background:var(--surf);position:relative;overflow:hidden}
+.welcome h1{font-size:clamp(30px,4.6vw,52px);line-height:1.08;max-width:15em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:6px}
+.welcome p{color:var(--mute);max-width:36em;font-size:17px;margin:14px 0 26px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.tile{border:1px solid var(--line);border-radius:16px;padding:16px;background:var(--surf2)}
+.tile b{display:block;font-family:var(--serif);font-size:17px;margin-bottom:4px}
+.tile span{color:var(--mute);font-size:14px}
+.pipe{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px}
+.rv{border:1px solid var(--line);border-radius:14px;padding:13px 14px;background:var(--surf2);display:flex;flex-direction:column;gap:6px;transition:border-color .3s,box-shadow .3s}
+.rv b{font-size:14px;line-height:1.35}.rv small{color:var(--mute)}
+.rv.running{border-color:var(--acc2);box-shadow:0 0 0 3px rgba(255,193,77,.15)}.rv.done{border-color:rgba(74,222,128,.45)}.rv.failed{border-color:var(--bad)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--mute);margin-right:8px}
+.running .dot{background:var(--acc2);animation:pulse 1s infinite}.done .dot{background:var(--ok)}.failed .dot{background:var(--bad)}
+@keyframes pulse{50%{opacity:.25;transform:scale(1.5)}}
+.log{max-height:150px;overflow:auto;font:12px/1.75 ui-monospace,Menlo,Consolas,monospace;color:var(--mute);margin-top:14px;background:var(--surf2);border-radius:12px;padding:10px 12px}
+.log .e{color:var(--bad)}.log .g{color:var(--ok)}
+.hero{display:grid;grid-template-columns:190px 1fr;gap:28px;align-items:center}
+@media(max-width:620px){.hero{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.ring{position:relative;width:180px;height:180px}.ring svg{transform:rotate(-90deg);width:180px;height:180px;filter:drop-shadow(0 0 14px var(--glow))}
+.ring span{position:absolute;inset:0;display:grid;place-items:center;font:600 54px var(--serif);letter-spacing:-.03em}
+.hero h2{font-size:26px;margin-bottom:6px}
+.chip{display:inline-block;border-radius:99px;padding:4px 14px;background:var(--surf2);border:1px solid var(--line);font-size:13px;margin:2px 4px 2px 0}
+.bars{display:flex;flex-direction:column;gap:16px;margin-top:10px}
+.bar{cursor:pointer;padding:6px 8px;margin:-6px -8px;border-radius:12px;transition:background .2s}.bar:hover{background:var(--surf2)}
+.bar .t{display:flex;justify-content:space-between;font-size:14px}
+.bar .tr{height:12px;border-radius:9px;background:var(--surf2);overflow:hidden;margin:6px 0 4px}
+.bar .fl{height:100%;border-radius:9px;width:0;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:20px;margin-top:8px}
+ul.l{margin:8px 0 0;padding-left:20px}ul.l li{margin:6px 0}
+.pro li::marker{color:var(--ok)}.con li::marker{color:var(--bad)}.opp li::marker{color:var(--acc2)}
+details{border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-top:10px;background:var(--surf2)}
+summary{cursor:pointer;font-weight:600}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}@media(max-width:700px){.ba{grid-template-columns:1fr}}
+.ba>div{border-radius:16px;padding:16px;border:1px solid var(--line);background:var(--surf2);white-space:pre-wrap}
+.ba .after{border:1.5px solid var(--acc);box-shadow:0 0 0 4px var(--glow)}
+.ck{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.ck input{accent-color:#e0348a;width:18px;height:18px;margin-top:3px}
+.prog{height:8px;border-radius:8px;background:var(--surf2);overflow:hidden;margin:8px 0 6px}.prog i{display:block;height:100%;background:var(--grad);width:0;transition:width .4s}
+.note{font-size:14px;color:var(--mute);border-left:3px solid var(--acc2);padding:4px 0 4px 12px;margin-top:14px}
+.hid{display:none!important}.sk{height:14px;border-radius:7px;background:linear-gradient(90deg,var(--surf2),var(--line),var(--surf2));background-size:200% 100%;animation:sh 1.3s infinite;margin:10px 0}
+@keyframes sh{to{background-position:-200% 0}}
+.fp{display:block;width:100%;text-align:left;margin-top:10px}
+.sec h2{font-size:23px;margin-bottom:10px}
+#dash>.card{animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo"><i></i>Content Intelligence Studio</div>
+ <div class="hbtns">
+  <details style="margin:0;padding:4px 10px"><summary style="font-weight:400">API key (optional)</summary>
+   <label for="key">Only needed outside Claude. Stays in this tab's memory.</label><input id="key" type="password" autocomplete="off" placeholder="sk-ant-..."></details>
+  <button class="btn" id="theme" aria-label="Toggle dark mode">Theme</button>
+ </div>
+</header>
+<main>
+ <aside class="side">
+  <div class="card">
+   <h2 style="font-size:20px">Your post</h2>
+   <div class="drop" id="drop" tabindex="0" role="button" aria-label="Upload an image"><div id="dropin"><div class="up">+</div>Drop an image here or click to browse<br><small>PNG, JPG or WebP</small></div></div>
+   <input type="file" id="file" accept="image/*" class="hid">
+   <label for="cap">Caption</label><textarea id="cap" placeholder="Paste the caption you plan to publish"></textarea>
+   <label for="notes">Anything else Claude should know (optional)</label><textarea id="notes" style="min-height:56px" placeholder="Audience, niche, past results..."></textarea>
+   <label for="plat">Platform</label><select id="plat"><option>Instagram feed post</option><option>Instagram Reel cover</option><option>Instagram carousel cover</option><option>Instagram Story</option></select>
+   <label for="goal">Goal</label><select id="goal"><option>Maximize reach and virality</option><option>Grow followers and engagement</option><option>Drive sales and conversions</option><option>Build brand authority</option></select>
+   <label for="tone">Review style</label><select id="tone"><option selected>Gentle - encouraging feedback</option><option>Balanced - honest and constructive</option><option>Strict - tough professional critique</option><option>Brutal - no-mercy teardown</option></select>
+   <button class="btn pri" id="go" style="width:100%;margin-top:14px">Analyze content</button>
+   <div class="err" id="err" role="alert"></div>
+  </div>
+ </aside>
+ <section class="stack">
+  <div class="card welcome" id="welcome">
+   <h1>Find out what will stop the scroll before you post.</h1>
+   <p>Upload your image and caption. A panel of AI specialists looks at the picture itself, reads your words, and tells you what to change.</p>
+   <div class="tiles">
+    <div class="tile"><b>Sees your image</b><span>Claude studies composition, contrast and legibility directly.</span></div>
+    <div class="tile"><b>Six AI reviewers</b><span>Visual, copy, reach and psychology experts, then two senior leads.</span></div>
+    <div class="tile"><b>Ready-to-paste fixes</b><span>A rewritten caption, new hooks, titles and a publishing checklist.</span></div>
+   </div>
+  </div>
+  <div class="card">
+   <h2 style="font-size:20px">Review pipeline</h2>
+   <small style="color:var(--mute)">Four specialist reviewers examine your post in parallel, then two senior leads combine their findings.</small>
+   <div class="pipe" id="pipe"></div>
+   <div class="log" id="log" aria-live="polite">Waiting for an upload.</div>
+  </div>
+  <div id="dash"></div>
+ </section>
+</main>
+<script>
+(function(){
+"use strict";
+var MODEL="claude-sonnet-4-6";
+var $=function(s){return document.querySelector(s)};
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+var S={img:null,rev:{},status:{},fa:null,fb:null,fas:"idle",fbs:"idle",checked:{},running:false};
+
+var TONES={
+ "Gentle":"Tone: warm, encouraging and supportive. Lead with what works, frame problems as opportunities, and be kind. Still be truthful and do not inflate scores beyond what the work deserves.",
+ "Balanced":"Tone: honest, constructive and even-handed. Praise what earns it and name problems plainly.",
+ "Strict":"Tone: demanding professional critique. Hold the work to the standard of top-performing creators and say clearly where it falls short.",
+ "Brutal":"Tone: blunt, no-mercy teardown. No cushioning. Stay specific and useful, never cruel for its own sake."};
+var FMT="\n\nOUTPUT FORMAT (plain text only, no JSON, no markdown tables). Use exactly these labels, each at the start of its own line followed by a colon, in this order:\n";
+var REVKEYS=["SCORE","VERDICT","REASONING","STRENGTHS","WEAKNESSES","MISSED","RECOMMENDATIONS"];
+var REVFMT=FMT+"SCORE: a single integer from 0 to 100\nVERDICT: one sentence\nREASONING: 3 to 4 sentences explaining how you reached the score\nSTRENGTHS: 3 bullets, each starting with '- '\nWEAKNESSES: 3 bullets, each starting with '- '\nMISSED: 2 or 3 bullets of missed opportunities, each starting with '- '\nRECOMMENDATIONS: 3 or 4 specific, platform-aware bullets, each starting with '- '\nKeep the whole answer under 450 words. Refer to specific things you can see or read in the submission.";
+var REVIEWERS=[
+ {id:"visual",name:"Visual Stopping-Power Analyst",cat:"Visual impact",sys:"You are a senior visual designer and Instagram creative director who has studied thousands of high-performing posts. You analyze the uploaded image directly. Assess: whether it stops a thumb mid-scroll in the first 300 milliseconds, focal point and composition, contrast and color, text legibility at phone-thumbnail size, faces and emotion, clutter, safe zones for the 4:5, 1:1 and 9:16 crops and for UI overlays, and brand consistency. Describe what you actually see before judging it."},
+ {id:"copy",name:"Caption and Hook Copywriter",cat:"Caption and hook",sys:"You are an elite social copywriter specializing in Instagram. You judge the caption the creator supplied together with the image. Assess: whether the first line works as a hook before the caption is truncated, clarity, voice, emotional pull, call to action, hashtag and keyword usage, length for the goal, and how well the words and the image reinforce each other rather than repeat each other."},
+ {id:"algo",name:"Reach and Algorithm Strategist",cat:"Reach potential",sys:"You are an Instagram growth strategist who understands how the platform ranks content: sends, saves, shares, watch and hold time, comments, profile visits, and discoverability through keywords and topics. Judge how likely this image plus caption is to earn those signals from non-followers, and how well the format suits the stated goal. Suggest format and distribution moves."},
+ {id:"psych",name:"Audience Psychology Reviewer",cat:"Audience appeal",sys:"You are a behavioral psychologist who studies attention and sharing. Assess curiosity gaps, emotional triggers, social currency (why would someone send this to a friend), identity signaling, trust and credibility cues, and accessibility (contrast, readability, alt text). Judge how a cold viewer scrolling past would react and why."}
+];
+var AKEYS=["OVERALL_SCORE","EXECUTIVE_SUMMARY","HEALTH_REPORT","TOP_IMPROVEMENTS","REACH_POTENTIAL","PREDICTION"];
+var BKEYS=["REWRITTEN_CAPTION","ALT_HOOKS","ALT_TITLES","VISUAL_FIXES","CHECKLIST","BEFORE_AFTER","FOLLOWUP_PROMPTS"];
+var LEAD={id:"lead",name:"Lead Strategist",sys:"You are the lead content strategist who reads four specialist reviews of one Instagram post and the post itself, then produces the final verdict. Reconcile disagreements between reviewers. The overall score must reflect your own holistic judgment of the work, informed by the specialist scores." + FMT+"OVERALL_SCORE: a single integer from 0 to 100\nEXECUTIVE_SUMMARY: 4 to 5 sentences\nHEALTH_REPORT: 4 bullets, each starting with '- ', each naming an area and its condition\nTOP_IMPROVEMENTS: the 4 highest-impact changes, ordered by impact, each starting with '- ' and stating the expected effect\nREACH_POTENTIAL: exactly one of Low, Moderate, High, Very High\nPREDICTION: 3 to 4 sentences estimating performance potential and what it depends on. This is an AI estimate, not a measurement; say so and give no fake precise numbers.\nKeep the whole answer under 500 words."};
+var CREATIVE={id:"creative",name:"Creative Director",sys:"You are an Instagram creative director. Using the post and the specialist reviews, produce improved creative material. Write copy that sounds like a real person, fits the goal, and keeps the creator's voice." + FMT+"REWRITTEN_CAPTION: the full improved caption, ready to paste, hook first (it may span several lines)\nALT_HOOKS: 5 alternative opening lines, each starting with '- '\nALT_TITLES: 4 alternative on-image headlines or carousel cover titles, each starting with '- '\nVISUAL_FIXES: 4 concrete edits to the image itself, each starting with '- '\nCHECKLIST: 8 pre-publish checks specific to this post, each starting with '- '\nBEFORE_AFTER: 3 or 4 sentences contrasting the original post with the improved version (image and caption)\nFOLLOWUP_PROMPTS: 4 prompts the creator could paste into Claude for deeper optimization, each starting with '- '\nKeep the whole answer under 600 words."};
+
+function parse(text,keys){
+ var re=new RegExp("^\\s*[#*\\s]*("+keys.join("|")+")[*\\s]*:[*\\s]*(.*)$");
+ var out={},cur=null;
+ String(text).split("\n").forEach(function(line){
+  var m=line.match(re);
+  if(m){cur=m[1];out[cur]=[];if(m[2].trim())out[cur].push(m[2].trim())}
+  else if(cur&&line.trim())out[cur].push(line.trim());
+ });return out;
+}
+function txt(p,k){return p&&p[k]?p[k].join("\n").replace(/\*\*/g,""):""}
+function items(p,k){return(p&&p[k]?p[k]:[]).map(function(s){return s.replace(/^(?:[-*\u2022]|\d+[.)])\s*/,"").replace(/\*\*/g,"").trim()}).filter(Boolean)}
+function num(s){var m=String(s).match(/\d+/);if(!m)return null;return Math.max(0,Math.min(100,parseInt(m[0],10)))}
+
+function log(msg,cls){var l=$("#log");if(l.dataset.init!=="1"){l.textContent="";l.dataset.init="1"}
+ var d=el("div",cls||"",new Date().toLocaleTimeString()+"  "+msg);l.appendChild(d);l.scrollTop=l.scrollHeight}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+
+async function callClaude(system,content,label){
+ var headers={"Content-Type":"application/json"};var k=$("#key").value.trim();
+ if(k){headers["x-api-key"]=k;headers["anthropic-version"]="2023-06-01";headers["anthropic-dangerous-direct-browser-access"]="true"}
+ var body=JSON.stringify({model:MODEL,max_tokens:1000,system:system,messages:[{role:"user",content:content}]});
+ var last=null;
+ for(var a=1;a<=3;a++){
+  try{
+   var res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:headers,body:body});
+   if(!res.ok){var e=new Error("HTTP "+res.status);e.status=res.status;throw e}
+   var data=await res.json();
+   var t=(data.content||[]).filter(function(b){return b.type==="text"}).map(function(b){return b.text}).join("\n");
+   if(!t.trim())throw new Error("Empty response");
+   return t;
+  }catch(err){
+   last=err;
+   if(!err.status&&!k){err=new Error("Browser blocked the request. Outside Claude, paste an API key in 'API key (optional)' at the top right, then try again.");err.noRetry=true;last=err;var kd=document.querySelector("header details");if(kd)kd.open=true}
+   var retry=!err.noRetry&&(!err.status||err.status===429||err.status>=500);
+   if(!retry||a===3)break;
+   log(label+": "+err.message+", retrying ("+a+"/2)","e");await sleep(1500*Math.pow(2,a-1));
+  }
+ }
+ throw last;
+}
+function sysFor(base){return base+"\n\n"+TONES[$("#tone").value.split(" ")[0]]}
+function ctx(){
+ var c="Content type: Thumbnail / image / design\nPlatform: "+$("#plat").value+"\nPrimary goal: "+$("#goal").value+"\nCaption supplied by the creator:\n"+($("#cap").value.trim()||"(none supplied)");
+ var n=$("#notes").value.trim();if(n)c+="\nCreator notes: "+n;return c;
+}
+function msg(extra){
+ return[{type:"image",source:{type:"base64",media_type:"image/jpeg",data:S.img.b64}},{type:"text",text:ctx()+(extra||"")}];
+}
+function digest(){
+ return"\n\nSPECIALIST REVIEWS:\n"+REVIEWERS.filter(function(r){return S.rev[r.id]}).map(function(r){return"--- "+r.name+" ---\n"+S.rev[r.id].raw}).join("\n\n");
+}
+
+async function runReviewer(r){
+ S.status[r.id]="running";render();log("Started: "+r.name);
+ try{
+  var t=await callClaude(sysFor(r.sys+REVFMT),msg(),r.name);
+  S.rev[r.id]={raw:t,p:parse(t,REVKEYS)};S.status[r.id]="done";log("Finished: "+r.name,"g");
+ }catch(e){S.status[r.id]="failed";log(r.name+" failed: "+e.message,"e")}
+ render();
+}
+async function runFinals(){
+ var ok=REVIEWERS.filter(function(r){return S.rev[r.id]});
+ if(ok.length<2){log("Not enough reviews to build the final report.","e");return}
+ S.fas=S.fbs="running";S.fa=S.fb=null;render();log("Lead Strategist and Creative Director started");
+ var a=callClaude(sysFor(LEAD.sys),msg(digest()),LEAD.name).then(function(t){S.fa={raw:t,p:parse(t,AKEYS)};S.fas="done";log("Finished: "+LEAD.name,"g")}).catch(function(e){S.fas="failed";log(LEAD.name+" failed: "+e.message,"e")});
+ var b=callClaude(sysFor(CREATIVE.sys),msg(digest()),CREATIVE.name).then(function(t){S.fb={raw:t,p:parse(t,BKEYS)};S.fbs="done";log("Finished: "+CREATIVE.name,"g")}).catch(function(e){S.fbs="failed";log(CREATIVE.name+" failed: "+e.message,"e")});
+ await Promise.all([a,b]);render();
+}
+async function analyze(){
+ var er=$("#err");er.textContent="";
+ if(!S.img){er.textContent="Upload an image first.";return}
+ if(S.running)return;S.running=true;$("#go").disabled=true;$("#go").textContent="Analyzing...";
+ S.rev={};S.status={};S.fa=S.fb=null;S.fas=S.fbs="idle";S.checked={};
+ REVIEWERS.forEach(function(r){S.status[r.id]="waiting"});
+ $("#log").textContent="";$("#log").dataset.init="1";log("Pipeline started with "+REVIEWERS.length+" reviewers");render();
+ await Promise.all(REVIEWERS.map(runReviewer));
+ await runFinals();
+ if(!REVIEWERS.some(function(r){return S.rev[r.id]}))$("#err").textContent="No reviews completed. Check the activity log; if you opened this file locally, add your API key at the top right.";
+ S.running=false;$("#go").disabled=false;$("#go").textContent="Analyze again";
+}
+async function retry(r){
+ if(S.running)return;S.running=true;await runReviewer(r);
+ if(REVIEWERS.every(function(x){return S.rev[x.id]}))await runFinals();
+ S.running=false;
+}
+
+/* ---------- rendering ---------- */
+function hue(s){return"hsl("+Math.round(s*1.15)+",70%,50%)"}
+function renderPipe(){
+ var p=$("#pipe");p.textContent="";
+ var all=REVIEWERS.map(function(r){return{id:r.id,name:r.name,st:S.status[r.id]||"waiting",r:r}});
+ all.push({id:"lead",name:LEAD.name,st:S.fas==="idle"?"waiting":S.fas});
+ all.push({id:"creative",name:CREATIVE.name,st:S.fbs==="idle"?"waiting":S.fbs});
+ all.forEach(function(x){
+  var c=el("div","rv "+x.st);var b=el("b");b.appendChild(el("span","dot"));b.appendChild(document.createTextNode(x.name));c.appendChild(b);
+  c.appendChild(el("small",null,{waiting:"Waiting",running:"Reviewing...",done:"Complete",failed:"Failed"}[x.st]));
+  if(x.st==="failed"&&x.r){var bt=el("button","btn","Retry");bt.onclick=function(){retry(x.r)};c.appendChild(bt)}
+  if(x.st==="failed"&&!x.r){var b2=el("button","btn","Retry final stage");b2.onclick=function(){if(!S.running){S.running=true;runFinals().then(function(){S.running=false})}};c.appendChild(b2)}
+  p.appendChild(c);
+ });
+}
+function listEl(arr,cls){var u=el("ul","l "+(cls||""));arr.forEach(function(i){u.appendChild(el("li",null,i))});return u}
+function sec(title){var s=el("div","card sec");s.appendChild(el("h2",null,title));return s}
+function skel(n){var d=el("div");for(var i=0;i<n;i++)d.appendChild(el("div","sk"));return d}
+function countUp(node,to){var st=performance.now();(function f(t){var k=Math.min(1,(t-st)/1000);node.textContent=Math.round(to*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(f)})(st)}
+
+function render(){
+ renderPipe();
+ var d=$("#dash");var doneRev=REVIEWERS.filter(function(r){return S.rev[r.id]});
+ $("#welcome").classList.toggle("hid",!!(S.img&&(doneRev.length||S.running)));
+ if(!S.img||(!doneRev.length&&!S.running)){d.textContent="";return}
+ var keepOpen={};d.querySelectorAll("details[data-k]").forEach(function(x){if(x.open)keepOpen[x.dataset.k]=1});
+ var prevScore=d.dataset.score;d.textContent="";
+
+ /* hero */
+ var h=el("div","card");var hero=el("div","hero");
+ var rw=el("div","ring");var NS="http://www.w3.org/2000/svg";
+ var svg=document.createElementNS(NS,"svg");svg.setAttribute("viewBox","0 0 160 160");
+ var c1=document.createElementNS(NS,"circle");var c2=document.createElementNS(NS,"circle");
+ [c1,c2].forEach(function(c){c.setAttribute("cx","80");c.setAttribute("cy","80");c.setAttribute("r","68");c.setAttribute("fill","none");c.setAttribute("stroke-width","11")});
+ c1.setAttribute("stroke","var(--surf2)");c2.setAttribute("stroke-linecap","round");c2.setAttribute("stroke-dasharray","427.3");c2.setAttribute("stroke-dashoffset","427.3");c2.style.transition="stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)";
+ svg.appendChild(c1);svg.appendChild(c2);rw.appendChild(svg);var sn=el("span","","...");rw.appendChild(sn);hero.appendChild(rw);
+ var ov=S.fa?num(txt(S.fa.p,"OVERALL_SCORE")):null;
+ if(ov!==null){c2.setAttribute("stroke",hue(ov));setTimeout(function(){c2.setAttribute("stroke-dashoffset",String(427.3*(1-ov/100)))},40);
+  if(prevScore!==String(ov)){countUp(sn,ov)}else sn.textContent=ov;d.dataset.score=String(ov)}
+ var right=el("div");right.appendChild(el("h2",null,"Overall content score"));
+ if(S.fa){
+  right.appendChild(el("p",null,txt(S.fa.p,"EXECUTIVE_SUMMARY")));
+  var rp=txt(S.fa.p,"REACH_POTENTIAL").replace(/[^A-Za-z ]/g,"").trim();
+  if(rp)right.appendChild(el("span","chip","Reach potential: "+rp));
+ }else if(S.fas==="failed"){right.appendChild(el("p",null,"The final summary could not be produced. Use Retry final stage above."))}
+ else right.appendChild(skel(3));
+ hero.appendChild(right);h.appendChild(hero);
+ var prev=el("div");prev.style.marginTop="16px";var im=el("img");im.src=S.img.url;im.alt="Uploaded content";im.style.cssText="max-height:220px;max-width:100%;border-radius:10px;border:1px solid var(--line)";prev.appendChild(im);h.appendChild(prev);
+ d.appendChild(h);
+
+ /* categories */
+ var cat=sec("Category breakdown");cat.style.marginTop="20px";
+ var bars=el("div","bars");
+ REVIEWERS.forEach(function(r){
+  var rv=S.rev[r.id];var sc=rv?num(txt(rv.p,"SCORE")):null;
+  var b=el("div","bar");var t=el("div","t");t.appendChild(el("span",null,r.cat));t.appendChild(el("b",null,sc===null?(S.status[r.id]==="failed"?"Failed":"..."):String(sc)));b.appendChild(t);
+  var tr=el("div","tr");var fl=el("div","fl");if(sc!==null){fl.style.background=hue(sc);setTimeout(function(){fl.style.width=sc+"%"},40)}tr.appendChild(fl);b.appendChild(tr);
+  if(rv)b.appendChild(el("small",null,txt(rv.p,"VERDICT")));
+  b.title="Open the "+r.name+" details below";
+  b.onclick=function(){var x=document.querySelector('details[data-k="'+r.id+'"]');if(x){x.open=true;x.scrollIntoView({behavior:"smooth",block:"center"})}};
+  bars.appendChild(b);
+ });cat.appendChild(bars);d.appendChild(cat);
+
+ /* reviewer details */
+ var det=sec("Reviewer findings");det.style.marginTop="20px";
+ if(!doneRev.length)det.appendChild(skel(4));
+ doneRev.forEach(function(r){
+  var p=S.rev[r.id].p;var dt=el("details");dt.dataset.k=r.id;if(keepOpen[r.id])dt.open=true;
+  dt.appendChild(el("summary",null,r.name+" ("+(num(txt(p,"SCORE"))===null?"n/a":num(txt(p,"SCORE")))+")"));
+  dt.appendChild(el("h3",null,"AI reasoning"));dt.firstChild.nextSibling.style.cssText="font-size:16px;margin-top:10px";
+  dt.appendChild(el("p",null,txt(p,"REASONING")));
+  var g=el("div","grid2");
+  [["Strengths","STRENGTHS","pro"],["Weaknesses","WEAKNESSES","con"],["Missed opportunities","MISSED","opp"],["Recommendations","RECOMMENDATIONS",""]].forEach(function(q){
+   var bx=el("div");bx.appendChild(el("b",null,q[0]));bx.appendChild(listEl(items(p,q[1]),q[2]));g.appendChild(bx)});
+  dt.appendChild(g);det.appendChild(dt);
+ });d.appendChild(det);
+
+ /* final stage A */
+ var A=sec("Content health and top improvements");A.style.marginTop="20px";
+ if(S.fa){
+  var g2=el("div","grid2");var b1=el("div");b1.appendChild(el("b",null,"Content health report"));b1.appendChild(listEl(items(S.fa.p,"HEALTH_REPORT")));
+  var b2=el("div");b2.appendChild(el("b",null,"Highest-impact improvements"));var ol=listEl(items(S.fa.p,"TOP_IMPROVEMENTS"));b2.appendChild(ol);g2.appendChild(b1);g2.appendChild(b2);A.appendChild(g2);
+  var pr=el("div","note");pr.appendChild(el("b",null,"Predicted performance potential (AI estimate, not a measurement). "));pr.appendChild(document.createTextNode(txt(S.fa.p,"PREDICTION")));A.appendChild(pr);
+ }else A.appendChild(S.fas==="failed"?el("p",null,"This section failed to generate."):skel(5));
+ d.appendChild(A);
+
+ /* final stage B */
+ var B=sec("Rewrites, hooks and before vs after");B.style.marginTop="20px";
+ if(S.fb){
+  var p=S.fb.p;var ba=el("div","ba");
+  var bf=el("div");bf.appendChild(el("b",null,"Before: your caption"));bf.appendChild(el("p",null,$("#cap").value.trim()||"(no caption supplied)"));
+  var af=el("div","after");af.appendChild(el("b",null,"After: Claude's rewrite"));af.appendChild(el("p",null,txt(p,"REWRITTEN_CAPTION")));
+  var cp=el("button","btn","Copy rewrite");cp.onclick=function(){copy(txt(p,"REWRITTEN_CAPTION"),cp)};af.appendChild(cp);
+  ba.appendChild(bf);ba.appendChild(af);B.appendChild(ba);
+  B.appendChild(el("p",null,txt(p,"BEFORE_AFTER")));
+  var g3=el("div","grid2");
+  [["Alternative hooks","ALT_HOOKS"],["Alternative on-image titles","ALT_TITLES"],["Visual fixes","VISUAL_FIXES"]].forEach(function(q){var bx=el("div");bx.appendChild(el("b",null,q[0]));bx.appendChild(listEl(items(p,q[1])));g3.appendChild(bx)});
+  B.appendChild(g3);d.appendChild(B);
+
+  var C=sec("Publishing checklist");C.style.marginTop="20px";var ck=items(p,"CHECKLIST");
+  var pg=el("div","prog");var pi=el("i");pg.appendChild(pi);var pc=el("small",null,"");C.appendChild(pc);C.appendChild(pg);
+  function upd(){var n=ck.filter(function(_,i){return S.checked[i]}).length;pi.style.width=(ck.length?100*n/ck.length:0)+"%";pc.textContent=n+" of "+ck.length+" ready"}
+  ck.forEach(function(t,i){var row=el("label","ck");row.style.margin="0";var cb=document.createElement("input");cb.type="checkbox";cb.checked=!!S.checked[i];cb.onchange=function(){S.checked[i]=cb.checked;upd()};row.appendChild(cb);row.appendChild(el("span",null,t));C.appendChild(row)});
+  upd();d.appendChild(C);
+
+  var F=sec("Go deeper");F.style.marginTop="20px";F.appendChild(el("small",null,"Click a prompt to copy it, then paste it into a Claude chat with your image."));
+  items(p,"FOLLOWUP_PROMPTS").forEach(function(t){var bt=el("button","btn fp",t);bt.onclick=function(){copy(t,bt)};F.appendChild(bt)});
+  d.appendChild(F);
+
+  var R=sec("Final report");R.style.marginTop="20px";
+  var rb=el("div");var dl=el("button","btn pri","Download report (.txt)");dl.onclick=function(){
+   var blob=new Blob([report()],{type:"text/plain"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="content-intelligence-report.txt";a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)};
+  var cr=el("button","btn","Copy report");cr.style.marginLeft="8px";cr.onclick=function(){copy(report(),cr)};rb.appendChild(dl);rb.appendChild(cr);R.appendChild(rb);d.appendChild(R);
+ }else{B.appendChild(S.fbs==="failed"?el("p",null,"This section failed to generate."):skel(6));d.appendChild(B)}
+}
+function report(){
+ var o=["CONTENT INTELLIGENCE STUDIO REPORT",ctx(),""];
+ REVIEWERS.forEach(function(r){if(S.rev[r.id])o.push("== "+r.name+" ==",S.rev[r.id].raw,"")});
+ if(S.fa)o.push("== Lead Strategist ==",S.fa.raw,"");
+ if(S.fb)o.push("== Creative Director ==",S.fb.raw,"");
+ o.push("Performance predictions are AI estimates, not measurements.");return o.join("\n");
+}
+function copy(t,btn){
+ var old=btn.textContent;
+ function ok(){btn.textContent="Copied";setTimeout(function(){btn.textContent=old},1200)}
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,fallback)}else fallback();
+ function fallback(){var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");ok()}catch(e){btn.textContent="Copy failed"}document.body.removeChild(ta)}
+}
+
+/* ---------- upload ---------- */
+function loadFile(f){
+ var er=$("#err");er.textContent="";
+ if(!f||f.indexOf&&false)return;
+ if(!/^image\//.test(f.type)){er.textContent="That file is not an image. Choose a PNG, JPG or WebP.";return}
+ var url=URL.createObjectURL(f);var im=new Image();
+ im.onload=function(){
+  var m=1568,sc=Math.min(1,m/Math.max(im.width,im.height));var cv=document.createElement("canvas");
+  cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);var cx=cv.getContext("2d");
+  cx.fillStyle="#fff";cx.fillRect(0,0,cv.width,cv.height);cx.drawImage(im,0,0,cv.width,cv.height);
+  var du=cv.toDataURL("image/jpeg",.88);S.img={url:du,b64:du.split(",")[1]};URL.revokeObjectURL(url);
+  var box=$("#dropin");box.textContent="";var p=el("img");p.src=du;p.alt="Preview of your upload";box.appendChild(p);
+  log("Image loaded ("+cv.width+" x "+cv.height+")");
+ };
+ im.onerror=function(){er.textContent="This image could not be read. Try another file.";URL.revokeObjectURL(url)};
+ im.src=url;
+}
+var drop=$("#drop"),fi=$("#file");
+drop.onclick=function(){fi.click()};
+drop.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();fi.click()}};
+fi.onchange=function(){if(fi.files[0])loadFile(fi.files[0])};
+["dragenter","dragover"].forEach(function(n){drop.addEventListener(n,function(e){e.preventDefault();drop.classList.add("over")})});
+["dragleave","drop"].forEach(function(n){drop.addEventListener(n,function(e){e.preventDefault();drop.classList.remove("over")})});
+drop.addEventListener("drop",function(e){if(e.dataTransfer.files[0])loadFile(e.dataTransfer.files[0])});
+$("#go").onclick=analyze;
+$("#theme").onclick=function(){var r=document.documentElement;var dark=r.dataset.theme?r.dataset.theme==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark"};
+renderPipe();
+})();
+</script>
+</body>
+</html>
