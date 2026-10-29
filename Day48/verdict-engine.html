@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Verdict Engine: best-value smartphone</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#14171c;--mute:#5b6472;--line:#e3e6eb;--acc:#3b5bdb;--ok:#177245;--okb:#e3f5ea;--warn:#8a5a00;--warnb:#fff1d6;--info:#1c5fa8;--infob:#e1eefc;--c1:#3b5bdb;--c2:#0f9d8a;--c3:#e08a00;--c4:#c2410c;--c5:#7c3aed;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1115;--card:#171a21;--ink:#eceff4;--mute:#9aa4b2;--line:#2a2f3a;--acc:#7b93ff;--ok:#6fdc9c;--okb:#12301f;--warn:#f5c36a;--warnb:#37290b;--info:#8cc2ff;--infob:#10283f;--c1:#7b93ff;--c2:#37c4af;--c3:#f0a73a;--c4:#ee7a4b;--c5:#a98bff}}
+:root[data-theme="dark"]{--bg:#0f1115;--card:#171a21;--ink:#eceff4;--mute:#9aa4b2;--line:#2a2f3a;--acc:#7b93ff;--ok:#6fdc9c;--okb:#12301f;--warn:#f5c36a;--warnb:#37290b;--info:#8cc2ff;--infob:#10283f;--c1:#7b93ff;--c2:#37c4af;--c3:#f0a73a;--c4:#ee7a4b;--c5:#a98bff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:clamp(1.5rem,4vw,2.1rem);margin:0 0 4px;letter-spacing:-.02em}
+h2{font-size:1.1rem;margin:0 0 12px}
+.sub{color:var(--mute);margin:0 0 20px;max-width:70ch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+.grid{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:880px){.grid{grid-template-columns:340px 1fr}}
+.sl{margin-bottom:14px}
+.sl label{display:flex;justify-content:space-between;font-weight:600;gap:8px}
+.sl small{display:block;color:var(--mute);font-weight:400}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+select,button{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer}
+button:hover,select:hover{border-color:var(--acc)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#list{display:flex;flex-direction:column;gap:10px}
+.ph{display:grid;grid-template-columns:42px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px}
+.ph.top{border-color:var(--acc);box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 25%,transparent)}
+.rk{width:36px;height:36px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-weight:700}
+.top .rk{background:var(--acc);color:#fff}
+.nm{font-weight:700}.mk{color:var(--mute);font-size:.85em;font-weight:400}
+.bar{display:flex;height:10px;border-radius:6px;background:var(--bg);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%}
+.sc{font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums}
+.verdict{background:var(--infob);color:var(--info);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-weight:600}
+.empty,.err{border:1px dashed var(--line);border-radius:12px;padding:28px;text-align:center;color:var(--mute)}
+.err{border-color:#c2410c;color:#c2410c}
+.sk{height:62px;border-radius:12px;margin-bottom:10px;background:linear-gradient(90deg,var(--line),var(--bg),var(--line));background-size:200% 100%;animation:sh 1.1s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:.8rem;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+td.best{background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.v{font-weight:700;font-variant-numeric:tabular-nums}
+.n{display:block;color:var(--mute);font-size:.8rem}
+.chip{display:inline-block;font-size:.7rem;font-weight:700;border-radius:20px;padding:1px 8px;margin-left:4px;vertical-align:1px}
+.ok{background:var(--okb);color:var(--ok)}.est{background:var(--warnb);color:var(--warn)}.xs{background:var(--infob);color:var(--info)}
+a{color:var(--acc)}sup a{text-decoration:none;font-size:.75rem}
+ol.src{padding-left:22px;margin:0}ol.src li{margin-bottom:8px;word-break:break-word}
+details summary{cursor:pointer;font-weight:700;font-size:1.05rem}
+details ul{padding-left:20px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--mute);margin-top:10px}
+footer{color:var(--mute);font-size:.8rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Verdict Engine: best-value smartphone</h1>
+<p class="sub">For everyday buyers choosing between the iPhone 16, Galaxy S25, Pixel 9 and OnePlus 13. Set how much each factor matters to you and the ranking updates live. Every number is cited below; anything uncertain is flagged.</p>
+<noscript><div class="err">This tool needs JavaScript to rank phones. The sourced data is still listed in the sources panel below.</div></noscript>
+
+<div class="grid">
+  <section class="card" aria-label="Priorities">
+    <h2>Your priorities</h2>
+    <div id="sliders"></div>
+    <div class="row">
+      <button id="eq" type="button">Equal weights</button>
+      <button id="zero" type="button">Clear all</button>
+    </div>
+    <div class="sl" style="margin-top:14px"><label for="mode">Scoring method</label>
+      <select id="mode"><option value="rel">Relative to best (default)</option><option value="spread">Spread: best = 100, worst = 0</option></select>
+      <small style="color:var(--mute)">“Relative” keeps small gaps small. “Spread” exaggerates them.</small></div>
+  </section>
+
+  <section class="card" aria-live="polite">
+    <h2>Ranked result</h2>
+    <div id="out"><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+    <div class="legend" id="legend"></div>
+  </section>
+</div>
+
+<section class="card">
+  <h2>The data behind the ranking</h2>
+  <div class="tw"><table id="tbl"></table></div>
+  <div class="legend"><span><span class="chip ok">Sourced</span> read from a named source</span><span><span class="chip xs">Cross-source</span> sources disagree; one value chosen</span><span><span class="chip est">Estimate</span> not officially published; inferred</span><span>Green cell = best in row. No synthetic placeholders were used.</span></div>
+</section>
+
+<section class="card" id="sources"><h2>Sources</h2><ol class="src" id="srclist"></ol></section>
+
+<section class="card">
+<details>
+<summary>How this was researched</summary>
+<ul>
+<li><b>Scope.</b> The four phones you chose, as the base model of each: iPhone 16 (128GB), Galaxy S25 (128GB), Pixel 9 (128GB), OnePlus 13 (256GB). Newer successors exist as of October 2026 (iPhone 17, Galaxy S26, Pixel 10, OnePlus 15) and are not included.</li>
+<li><b>Method.</b> Figures were read from the pages listed under Sources on 29 October 2026, as shown in search results for each page. Nothing was measured by me and no figure was invented. Where a value is missing for a phone, I did not substitute one.</li>
+<li><b>Price.</b> US launch MSRP for the base model. Live price widgets vary widely by seller and region (GSMArena showed the Galaxy S25 at $380.63 in one snapshot and $674.99 in another), so MSRP is the only consistent comparison. Check today’s street price before buying.</li>
+<li><b>Battery.</b> The endurance figure is the EU energy-label rating as listed on each GSMArena spec page, which is the only battery metric I found for all four phones. GSMArena’s own Active Use scores were found for only some phones, so I left them out.</li>
+<li><b>Charging.</b> Rated wired charging power in watts. Real charging time also depends on the charger and battery size. Where available, sourced context is in the data table notes.</li>
+<li><b>Performance.</b> Geekbench 6 multi-core. This is a synthetic benchmark and not a measure of everyday speed.</li>
+<li><b>Camera.</b> PhoneArena Camera Score, because it was the only test I found that covers all four phones on one scale. DXOMARK publishes a camera score for the iPhone 16 only among the four (I found none for the other three).</li>
+<li><b>Scoring.</b> Each criterion is scaled 0 to 100 across the four phones (price is inverted so cheaper scores higher). Your weights then average the five scores. Camera scores sit within about 3 points of each other, so camera rarely changes the ranking.</li>
+</ul>
+<p><b>Conflicts I had to resolve</b></p>
+<ul>
+<li><b>iPhone 16 charging:</b> GSMArena’s spec page lists 25W, while its review measured about 30W peak and Apple publishes no rating. I used 25W so it is on the same “listed rating” basis as the others, and flagged it as an estimate.</li>
+<li><b>OnePlus 13 charging:</b> GSMArena lists 100W (global model, 0 to 100% in 36 minutes). Front Desk Review states the US model is rated 80W. I used 100W and flagged it. At 80W it would still lead on charging.</li>
+<li><b>OnePlus 13 Geekbench:</b> NanoReview shows 8,999, Beebom 9,467 and another aggregator 9,278. I did not retrieve a GSMArena figure for this phone, so I used the lowest (8,999) and flagged it as cross-source.</li>
+<li><b>iPhone 16 camera:</b> PhoneArena gives 149 and DXOMARK gives 147. These are different scales, so I used PhoneArena for all four and mention DXOMARK only as corroboration.</li>
+<li><b>Pixel 9 price:</b> The $799 figure comes from an aggregator that cites GSMArena rather than from Google’s own page. I found no conflicting MSRP.</li>
+</ul>
+</details>
+</section>
+<footer>Data as researched on 29 October 2026. Rankings reflect the listed sources only and are not a purchase guarantee.</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+var SRC=[
+["GSMArena: Apple iPhone 16 specs","https://m.gsmarena.com/apple_iphone_16-13317.php","Geekbench 6 score, EU-label endurance, listed charging"],
+["GSMArena: Apple iPhone 16 review, battery and charging","https://www.gsmarena.com/apple_iphone_16-review-2749p3.php","Measured peak charging near 30W"],
+["GSMArena: Apple iPhone 16 review, verdict","https://m.gsmarena.com/apple_iphone_16-review-2749p6.php","US launch price $799"],
+["GSMArena: Samsung Galaxy S25","https://www.gsmarena.com/samsung_galaxy_s25-13610.php","Geekbench 6 score, EU-label endurance"],
+["GSMArena: Samsung Galaxy S25 spec comparison page","https://www.gsmarena.com/compare.php3?idPhone1=13610","25W wired charging, 50% in 30 min"],
+["NanoReview: Samsung Galaxy S25","https://nanoreview.net/en/phone/samsung-galaxy-s25","Launch price $799"],
+["GSMArena: Google Pixel 9","https://m.gsmarena.com/google_pixel_9-13219.php","Geekbench 6, EU-label endurance, 27W charging"],
+["GSMArena: Google Pixel 9 review, charging","https://m.gsmarena.com/google_pixel_9-review-2739p3.php","27W with Google’s 45W adapter"],
+["Front Desk Review: Google Pixel 9 (aggregator citing GSMArena)","https://frontdeskreview.com/product/smartphones/google-pixel-9/","$799 MSRP"],
+["GSMArena: OnePlus 13","https://m.gsmarena.com/oneplus_13-13477.php","EU-label endurance, 100W charging, 36 min to full"],
+["GSMArena: OnePlus 13 review, battery and charging","https://m.gsmarena.com/oneplus_13-review-2777p3.php","6,000 mAh battery, 100W rating"],
+["NanoReview: OnePlus 13","https://nanoreview.info/en/phone/oneplus-13","Geekbench 6 multi-core 8,999, launch price $899"],
+["Front Desk Review: OnePlus 13 (aggregator)","https://frontdeskreview.com/product/smartphones/oneplus-13/","$899 MSRP; notes US charging is 80W"],
+["Beebom: OnePlus 13 vs OnePlus 12","https://gadgets.beebom.com/compare/oneplus-13-vs-oneplus-12","Alternate Geekbench 6 multi-core 9,467"],
+["PhoneArena: Camera Score leaderboard","https://www.phonearena.com/phones/benchmarks/camera","iPhone 16 = 149, Galaxy S25 = 147"],
+["PhoneArena: Google Pixel 9","https://www.phonearena.com/phones/Google-Pixel-9_id12284","Camera Score 144"],
+["PhoneArena: OnePlus 13R camera score article (table includes OnePlus 13)","https://www.phonearena.com/news/OnePlus-13R-Camera-Score-revealed-Strong-still-photography-but-stumbles-in-video_id166910/","OnePlus 13 Camera Score 145"],
+["DXOMARK: Apple iPhone 16 camera test","https://www.dxomark.com/apple-iphone-16-camera-test/","Camera score 147 (corroboration only)"],
+["NanoReview: Apple iPhone 16","https://nanoreview.net/en/phone/apple-iphone-16","Full charge about 1:42 h (context)"],
+["GSMArena: Galaxy S25 vs Galaxy S24","https://www.gsmarena.com/samsung_galaxy_s25_vs_galaxy_s24_review_battery_camera_price_compared-news-66582.php","Full charge 77 min (context)"]
+];
+var P=[{id:"ip",n:"iPhone 16",m:"Apple"},{id:"s",n:"Galaxy S25",m:"Samsung"},{id:"px",n:"Pixel 9",m:"Google"},{id:"op",n:"OnePlus 13",m:"OnePlus"}];
+function hm(h){var t=Math.round(h*60);return Math.floor(t/60)+":"+String(t%60).padStart(2,"0")+" h"}
+var M=[
+{k:"price",l:"Price",h:"US launch MSRP, base model (lower is better)",dir:-1,f:function(v){return "$"+v},d:{
+ ip:{v:799,t:"ok",s:[3],n:"128GB"},s:{v:799,t:"ok",s:[6],n:"128GB"},px:{v:799,t:"ok",s:[9],n:"128GB; via aggregator"},op:{v:899,t:"ok",s:[12,13],n:"256GB / 12GB RAM"}}},
+{k:"bat",l:"Battery life",h:"EU-label endurance rating (higher is better)",dir:1,f:hm,d:{
+ ip:{v:37,t:"ok",s:[1],n:"3,561 mAh"},s:{v:37+16/60,t:"ok",s:[4,5],n:"4,000 mAh"},px:{v:49+12/60,t:"ok",s:[7],n:"4,700 mAh"},op:{v:61.6,t:"ok",s:[10,11],n:"6,000 mAh"}}},
+{k:"chg",l:"Charging speed",h:"Rated wired charging, watts (higher is better)",dir:1,f:function(v){return v+" W"},d:{
+ ip:{v:25,t:"est",s:[1,2,19],n:"Apple publishes no rating; listed 25W, measured about 30W peak; about 1:42 h to full"},s:{v:25,t:"ok",s:[5,20],n:"50% in 30 min; about 77 min to full"},px:{v:27,t:"ok",s:[7,8],n:"55% in 30 min with Google 45W adapter"},op:{v:100,t:"xs",s:[10,11,13],n:"Global rating; 36 min to full. US model reported at 80W"}}},
+{k:"perf",l:"Performance",h:"Geekbench 6 multi-core (higher is better)",dir:1,f:function(v){return v.toLocaleString("en-US")},d:{
+ ip:{v:7929,t:"ok",s:[1],n:"Apple A18"},s:{v:10050,t:"ok",s:[4],n:"Snapdragon 8 Elite"},px:{v:4489,t:"ok",s:[7],n:"Tensor G4"},op:{v:8999,t:"xs",s:[12,14],n:"Snapdragon 8 Elite; other sources report up to 9,467"}}},
+{k:"cam",l:"Camera quality",h:"PhoneArena Camera Score (higher is better)",dir:1,f:function(v){return String(v)},d:{
+ ip:{v:149,t:"ok",s:[15,18],n:"DXOMARK gives 147 (different scale)"},s:{v:147,t:"ok",s:[15],n:""},px:{v:144,t:"ok",s:[16],n:""},op:{v:145,t:"ok",s:[17],n:""}}}
+];
+var CL=["--c1","--c2","--c3","--c4","--c5"];
+var W={};M.forEach(function(m){W[m.k]=5});
+var mode="rel";
+var $=function(i){return document.getElementById(i)};
+var TL={ok:["Sourced","ok"],est:["Estimate","est"],xs:["Cross-source","xs"]};
+
+function refs(a){return "<sup>"+a.map(function(i){return '<a href="#src'+i+'">['+i+']</a>'}).join("")+"</sup>"}
+
+function buildStatic(){
+  $("sliders").innerHTML=M.map(function(m,i){return '<div class="sl"><label for="w_'+m.k+'"><span><span class="dot" style="background:var('+CL[i]+')"></span>'+m.l+'<small>'+m.h+'</small></span><output id="o_'+m.k+'">'+W[m.k]+'</output></label><input type="range" id="w_'+m.k+'" min="0" max="10" step="1" value="'+W[m.k]+'"></div>'}).join("");
+  M.forEach(function(m){$("w_"+m.k).addEventListener("input",function(e){W[m.k]=+e.target.value;$("o_"+m.k).textContent=W[m.k];render()})});
+  $("legend").innerHTML=M.map(function(m,i){return '<span><span class="dot" style="background:var('+CL[i]+')"></span>'+m.l+'</span>'}).join("")+"<span>Bar segments show each criterion’s share of the score.</span>";
+  var h="<thead><tr><th>Criterion</th>"+P.map(function(p){return "<th>"+p.n+"</th>"}).join("")+"</tr></thead><tbody>";
+  M.forEach(function(m){
+    var vals=P.map(function(p){return m.d[p.id].v});
+    var best=m.dir>0?Math.max.apply(null,vals):Math.min.apply(null,vals);
+    h+="<tr><td><b>"+m.l+"</b><span class='n'>"+m.h+"</span></td>"+P.map(function(p){
+      var c=m.d[p.id],t=TL[c.t];
+      return "<td class='"+(c.v===best?"best":"")+"'><span class='v'>"+m.f(c.v)+"</span>"+refs(c.s)+"<span class='chip "+t[1]+"'>"+t[0]+"</span>"+(c.n?"<span class='n'>"+c.n+"</span>":"")+"</td>"}).join("")+"</tr>";
+  });
+  $("tbl").innerHTML=h+"</tbody>";
+  $("srclist").innerHTML=SRC.map(function(s,i){return '<li id="src'+(i+1)+'"><b>['+(i+1)+']</b> '+s[0]+'<br><a href="'+s[1]+'" target="_blank" rel="noopener noreferrer">'+s[1]+'</a><br><span class="n">Used for: '+s[2]+'</span></li>'}).join("");
+  $("eq").onclick=function(){setAll(5)};
+  $("zero").onclick=function(){setAll(0)};
+  $("mode").onchange=function(e){mode=e.target.value;render()};
+}
+function setAll(v){M.forEach(function(m){W[m.k]=v;$("w_"+m.k).value=v;$("o_"+m.k).textContent=v});render()}
+
+function sc(m,p){
+  var vals=P.map(function(x){return m.d[x.id].v}),mx=Math.max.apply(null,vals),mn=Math.min.apply(null,vals),v=m.d[p.id].v;
+  if(mode==="rel")return m.dir>0?v/mx*100:mn/v*100;
+  if(mx===mn)return 100;
+  return m.dir>0?(v-mn)/(mx-mn)*100:(mx-v)/(mx-mn)*100;
+}
+
+function render(){
+  var out=$("out");
+  try{
+    var tot=M.reduce(function(a,m){return a+W[m.k]},0);
+    if(tot===0){out.innerHTML='<div class="empty"><b>No priorities set</b><br>Move at least one slider above zero, or press “Equal weights”.</div>';return}
+    var R=P.map(function(p){
+      var parts=M.map(function(m){return W[m.k]*sc(m,p)/tot});
+      return {p:p,parts:parts,s:parts.reduce(function(a,b){return a+b},0)};
+    }).sort(function(a,b){return b.s-a.s});
+    var gap=R[0].s-R[1].s;
+    var msg=gap<1?"Effectively a tie between "+R[0].p.n+" and "+R[1].p.n+" on your priorities.":R[0].p.n+" is the best match for your priorities, "+gap.toFixed(1)+" points ahead of "+R[1].p.n+".";
+    var cautions=[];
+    M.forEach(function(m){if(W[m.k]>0&&m.d[R[0].p.id].t!=="ok")cautions.push(m.l.toLowerCase())});
+    if(cautions.length)msg+=" Note: its "+cautions.join(" and ")+" figure is flagged as an estimate or cross-source value.";
+    out.innerHTML='<div class="verdict">'+msg+'</div><div id="list">'+R.map(function(r,i){
+      return '<div class="ph'+(i===0?" top":"")+'"><div class="rk">'+(i+1)+'</div><div><div class="nm">'+r.p.n+' <span class="mk">'+r.p.m+'</span></div><div class="bar" role="img" aria-label="Score breakdown">'+r.parts.map(function(v,j){return '<i style="width:'+v+'%;background:var('+CL[j]+')"></i>'}).join("")+'</div></div><div class="sc">'+r.s.toFixed(1)+'</div></div>'}).join("")+"</div>";
+  }catch(e){
+    out.innerHTML='<div class="err"><b>Something went wrong while ranking.</b><br>'+String(e.message)+'<br><br><button type="button" id="retry">Try again</button></div>';
+    var b=$("retry");if(b)b.onclick=render;
+  }
+}
+try{buildStatic()}catch(e){$("out").innerHTML='<div class="err">Could not build the page: '+e.message+'</div>';return}
+setTimeout(render,500);
+})();
+</script>
+</body>
+</html>
