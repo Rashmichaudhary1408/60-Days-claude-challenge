@@ -17,16 +17,3 @@
 
 - screenshots/01-upload.png
 - screenshots/02-skills.png
-- screenshots/03-rules.png
-- screenshots/04-live-results.png
-- screenshots/05-live-health.png
-- screenshots/06-detail-panel.png
-- screenshots/07-home-with-drive.png
-- screenshots/08-excel.png
-
-## Key learnings
-
-- [Write one thing you learned about rules versus AI, for example why the score is computed in code and not by the AI]
-- [Write one thing you learned about debugging, for example how a small file-name typo broke the build]
-- Free API tiers have rate limits, so a fallback path keeps the app working when the AI is busy.
-- Secrets like API keys belong in environment variables, never in the code or GitHub.
